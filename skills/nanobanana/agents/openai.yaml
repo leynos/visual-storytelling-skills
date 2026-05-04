@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nano Banana"
+  short_description: "Prompt Nano Banana image workflows"
+  default_prompt: "Use $nanobanana to craft or refine a Nano Banana image generation or edit prompt."

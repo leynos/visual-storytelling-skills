@@ -38,16 +38,16 @@ during generation phases. Halt only on consistency failures that require human j
 | Phase | Name | Output |
 |-------|------|--------|
 | 1 | Source Analysis | Annotated reading notes |
-| 2 | Creative Pillars | Visual aesthetic + storytelling style + **cinematography specification** |
+| 2 | Creative Pillars | Visual aesthetic + storytelling style + **cinematography specification** + **prompt keyword library** |
 | 3 | Narrative Spine | Structure, themes, turnpoints |
 | 4 | Character Bible | Character entries with **reference-image specifications** |
 | 5 | Locations Bible | Location entries with **multi-angle, multi-condition scouting specs** |
 | 6 | Props Bible | Props with physical descriptions and ref-image specs |
 | 7 | Scene Inventory | Per-scene breakdowns |
 | 8 | Continuity Inventory | Character/location/prop state tracking across scenes |
-| 9 | Shot Lists | Shot tables with full cinematography fields |
+| 9 | Shot Lists | Shot tables with full cinematography fields and duration budgets |
 | 10 | Thematic Image Plan | Key narrative-beat images |
-| 11 | Reference Image Generation | All character, location, and prop reference images |
+| 11 | Reference Image Generation | All character, location, and prop reference images with **video role manifest** |
 | 12 | Shot-Frame Generation | Start frame, end frame, and key frames per shot |
 | 13 | Consistency Verification | Vision-based QA pass; flag failures |
 | 14 | Video Prompt Assembly | Complete prompt per shot, ready for generation |
@@ -58,7 +58,13 @@ during generation phases. Halt only on consistency failures that require human j
 > `references/continuity-inventory.md`. Before Phase 11, read
 > `references/reference-image-guide.md`. Before Phase 14, read
 > `references/video-prompt-guide.md`. The consistency verification procedure in Phase 13
-> is defined in `references/consistency-verification.md`.
+> is defined in `references/consistency-verification.md`. The prompt keyword library
+> format is defined in `references/prompt-keyword-library.md`.
+
+> **Downstream skill:** When full per-shot storyboarding, detailed actor/camera/lighting
+> direction, model routing, and asset-pipeline management are required, hand off to the
+> `shot-specifier` skill. That skill takes the scene inventory and reference images
+> produced here as its input.
 
 ---
 
@@ -121,6 +127,55 @@ post-production characteristics of the image pipeline:
 | **Shutter behaviour** | Shutter angle/speed rules (180° default, or intentional motion blur/strobing) |
 
 Full specification format and examples are in `references/cinematography-specification.md`.
+
+### 2.4 Prompt Keyword Library
+
+> **Prerequisite:** Read `references/prompt-keyword-library.md` before this sub-phase.
+
+Immediately after completing the cinematography specification, derive a **project-level
+prompt keyword library**: a canonical vocabulary of adjective phrases and art-direction
+terms that reliably translate each style parameter into language video and image
+generation models respond to consistently.
+
+This library is **infrastructure**, not decoration. Every video prompt written in Phase 14
+must draw from it rather than re-inventing style language shot by shot. Inconsistent
+style vocabulary across shots produces visible tonal drift even when the underlying spec
+is correct.
+
+Write the library as a section in the scene inventory document and also as a standalone
+file at `{project_name}_prompt_keywords.md`.
+
+```
+### Prompt Keyword Library
+
+* **Global style phrase:** {1–2 sentences encoding filmstock, grain, colour process}
+  * Example: "35 mm print, Kodak Vision3 250D characteristics, organic fine-to-medium grain,
+    accurate daylight balance, slightly desaturated shadows, gentle highlight rolloff"
+
+* **Per-location-type vocabulary:**
+  * {Location type}: {canonical phrase set for colour, light, texture, atmosphere}
+    * Example exterior: "flat pewter Atlantic overcast, wet peat surfaces, no hard shadows,
+      lifted blacks, fence posts leaning in wind"
+    * Example interior warm: "warm amber grow-light, artificial June, high humidity haze,
+      strawberry scarlet at full vibrancy"
+
+* **Per-lighting-condition vocabulary:**
+  * {Condition name}: {phrase set}
+    * Example pre-dawn: "sodium-orange practicals, deep grey-blue surround, rain halos
+      around light sources, near-dark ground plane"
+
+* **Global negative constraints:** {what must never appear in prompts}
+  * Example: "no trees, no dual carriageways, no US road markings, no hard shadows,
+    no blue sky, no bright saturated colours except strawberry scarlet"
+
+* **Selective saturation rules:** {objects exempt from global desaturation}
+  * Example: "strawberry scarlet is exempt from the global 15–20% desaturation pass;
+    push selectively against every other desaturated element"
+
+* **POV-specific overrides:** {e.g. machine-vision shots that require no grain}
+  * Example drone POV: "digital-flat, no grain, deep focus throughout, gimbal-stabilised,
+    machine vision — no organic camera movement"
+```
 
 ---
 
@@ -255,6 +310,25 @@ re-reading the source material.
 Create shot tables for each sequence. Use the expanded format from
 `templates/shot-list-template.md`, which now includes cinematography columns.
 
+### Duration Budget (do this first)
+
+Before decomposing each scene into individual shots, establish a **duration budget**:
+
+1. Estimate the total desired screen time for the scene in seconds.
+2. Divide into clips: clips must be 4, 6, or 8 seconds each.
+3. Record the budget before writing individual shot rows — it prevents collapsing
+   multi-beat scenes into a single over-stuffed clip.
+
+```
+* **Scene duration budget:** {total seconds}
+* **Clip count:** {N clips}
+* **Per-clip targets:** {e.g. SH001: 8s, SH002: 6s, SH003: 4s}
+```
+
+> **Common error:** SC-11-style launch sequences feel like one shot but contain at least
+> three distinct clips (pre-launch static, rotor spin-up and lift, forward flight
+> receding). Budget before you decompose, not after.
+
 ### Expanded Shot Table Columns
 
 | Column | Content |
@@ -305,25 +379,25 @@ capability gap before committing to full shot generation).
 
 Generate all reference images silently. Order matters:
 
-### 10.1 Style Anchor
+### 11.1 Style Anchor
 
 Generate 1–2 style-anchor images that establish the global look (filmstock, grain,
 palette, lighting). These become the visual-style reference for everything that follows.
 
-### 10.2 Character References
+### 11.2 Character References
 
 For each character, generate in order:
 1. **Primary reference** (no prior refs; full visual-style spec in prompt + white bg)
 2. **Additional angles/expressions/wardrobe** (primary ref as input reference)
 
-### 10.3 Location Scouting References
+### 11.3 Location Scouting References
 
 For each location, generate across the scouting matrix:
 1. **Primary establishing shot** (no prior refs; full style spec in prompt)
 2. **Additional angles** (primary ref as input)
 3. **Lighting/weather/condition variants** (primary ref as input; describe the changed conditions)
 
-### 10.4 Prop References
+### 11.4 Prop References
 
 For each prop requiring references:
 1. **Primary reference** (white background, ¾ angle, style spec in prompt)
@@ -337,6 +411,32 @@ For each prop requiring references:
 - All images use the aspect ratio defined in the cinematography specification
 - File naming: `ref_{category}_{name}_{variant}.png`
   - e.g. `ref_char_miette_primary.png`, `ref_loc_control-room_dusk-rain.png`
+
+### 11.5 Video Role Manifest
+
+After generating all reference images, produce a **video role manifest** that declares
+the intended role of each image when used as a video generation input. This is distinct
+from the reference image manifest (which tracks what exists); the video role manifest
+tells downstream tools and the shot-specifier skill how to use each image.
+
+```markdown
+## Video Role Manifest
+
+| Ref ID | File | Video Role | Used In Shots | Notes |
+|--------|------|------------|---------------|-------|
+| LOC-launch-01 | refs/locations/launch-strip/low-pre-dawn-rain.png | start_image | S11_SH001 | Pre-launch static |
+| LOC-launch-03 | refs/locations/launch-strip/gannet-vertical-lift.png | end_image | S11_SH002 | Mid-lift anchor |
+| PROP-gannet-01 | refs/props/gannet-uav/primary.png | image | S11_SH001, S11_SH002 | Subject consistency ref |
+| CHAR-switch-01 | refs/characters/switch/primary.png | image | S08_SH001 | Identity anchor |
+| style/style_anchor_01.png | refs/style/style_anchor_01.png | image | all | Global style ref |
+```
+
+Video role values:
+- `start_image` — anchors the first frame of the clip
+- `end_image` — anchors the last frame of the clip
+- `image` — subject/style consistency reference (visible in clip but not a frame anchor)
+- `video` — reference video for motion style
+- `audio` — reference audio track
 
 ---
 
@@ -355,6 +455,7 @@ For every shot in every sequence, generate:
 - Tool: `generate_image`
 - References: relevant character ref(s) + location ref (matching lighting/weather) + prop ref(s)
 - Prompt includes: visual style (brief), scene environment, framing, visible content, subject appearance + outfit
+- Draw style vocabulary from the **prompt keyword library** produced in Phase 2.4
 - Aspect ratio: from cinematography specification
 - Prompt ends with: `"no text, no watermarks, no logos, no annotations"`
 
@@ -426,6 +527,24 @@ the video generation model alongside the keyframe images; it must be self-contai
 [DURATION] {4 / 6 / 8 seconds}
 ```
 
+### Style Language Rule
+
+Every `[STYLE]` and `[FILMSTOCK]` field **must draw from the prompt keyword library**
+(Phase 2.4). Do not invent new style vocabulary at this phase. Consistency across shots
+depends on using the same canonical phrases.
+
+### Continuity Constraint Injection
+
+Before finalising each prompt, check the location bible's continuity constraints for
+that location and inject any that are relevant. Common constraints to inject:
+- Negative space rules ("no trees", "left-hand traffic")
+- Colour exclusions ("no blue sky", "no hard shadows outside")
+- Signature prop requirements ("rubber duck on console throughout")
+
+These constraints are in the location bible but are easy to omit when writing prompts
+shot by shot. The video role manifest ensures reference images carry visual consistency;
+the injected text constraints carry the rules that images cannot enforce.
+
 ### transition_description Requirements
 
 This field directly drives the video model. Must include:
@@ -456,7 +575,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 ### Document Structure
 
 1. Header (title, version, date, logline, scope)
-2. Creative Pillars (including Cinematography Specification)
+2. Creative Pillars (including Cinematography Specification and Prompt Keyword Library)
 3. Narrative Spine
 4. Character Bible (with reference image manifest)
 5. Locations Bible (with scouting matrix and reference image manifest)
@@ -464,7 +583,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 7. Scene Inventory
 8. Continuity Inventory
 9. Style Frames Audit
-10. Storyboard Specification (sequence map + shot lists with frame specs)
+10. Storyboard Specification (sequence map + shot lists with frame specs and duration budgets)
 11. Thematic Image Plan
 12. Consistency Report
 13. Video Prompt Manifest
@@ -477,6 +596,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 {project_name}/
 ├── {project_name}_scene_inventory.md
 ├── {project_name}_continuity_inventory.md
+├── {project_name}_prompt_keywords.md
 ├── refs/
 │   ├── style/
 │   ├── characters/
@@ -500,6 +620,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 | File | Read Before | Contents |
 |------|-------------|----------|
 | `references/cinematography-specification.md` | Phase 2 | Filmstock, grain, grading, colour timing, lenswork specification format and examples |
+| `references/prompt-keyword-library.md` | Phase 2.4 | How to construct and use a project-level prompt vocabulary library |
 | `references/continuity-inventory.md` | Phase 8 | Continuity extraction rules, separate deliverable structure, checklist, reset-focused logging guidance |
 | `references/reference-image-guide.md` | Phase 11 | Generation order, prompting rules, scouting matrix execution, edit-vs-generate decision table |
 | `references/video-prompt-guide.md` | Phase 14 | Prompt structure, transition_description examples, physical consistency constraints, audio handling |
@@ -533,6 +654,21 @@ source.
 **Mundane Objects Count.** Track all handled objects, not just hero props. If a mug, pen,
 phone, keyring, utensil, paper stack, cigarette, badge, bag, or desk object can move or
 change state, it belongs in continuity tracking.
+
+**Budget Before You Decompose.** Establish a clip-duration budget for each scene before
+writing individual shot rows. Multi-beat scenes collapsed into a single oversized clip
+produce rushed, incoherent video. Three clips of 6s each is almost always better than
+one clip of 18s.
+
+**Prompt Vocabulary is Production Infrastructure.** The prompt keyword library is not
+optional polish — it is the mechanism that keeps visual style consistent across dozens of
+independently generated clips. Style vocabulary invented ad hoc per shot produces tonal
+drift. Build the library once in Phase 2.4 and use it for every prompt in Phase 14.
+
+**Inject Continuity Constraints into Prompts.** Location bibles contain negative space
+rules, colour exclusions, and signature prop requirements. These must be explicitly
+carried into each video prompt; reference images enforce visual consistency but cannot
+enforce textual rules ("no trees", "left-hand traffic", "no blue sky outside").
 
 **Evocative Naming.** "Bruise Blue" not "#2B4F6E". "Kodachrome Sunday" not "warm LUT."
 
