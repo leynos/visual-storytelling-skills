@@ -255,6 +255,12 @@ scene exit status.
 
 ```
 * **Reference image requirements:**
+  * Reference priority: required-before-Phase-12 / incidental
+    (required-before-Phase-12: prop appears prominently on screen across multiple shots
+     and its visual identity is story-critical — a named vehicle, weapon, device, or
+     object whose appearance the audience will track. Generate before any location or
+     scene image that includes it. incidental: prop appears briefly or in background;
+     standard Phase 11 timing applies.)
   * Primary: {Object on white background, ¾ angle}
   * Detail: {Any specific detail the camera will see in ECU/INS}
   * In-context: {Object in its typical environment, if context matters}
@@ -390,18 +396,26 @@ For each character, generate in order:
 1. **Primary reference** (no prior refs; full visual-style spec in prompt + white bg)
 2. **Additional angles/expressions/wardrobe** (primary ref as input reference)
 
-### 11.3 Location Scouting References
+### 11.3 Prop References
+
+> **Order rationale:** Props are generated before locations because location shots often
+> contain key props in frame. Without a locked prop reference, each location image will
+> independently invent the prop's appearance — producing the failure mode where the same
+> aircraft looks like three different vehicles across a sequence.
+
+For each prop with `reference priority: required-before-Phase-12`:
+1. **Primary reference** (white background, ¾ angle, style spec in prompt)
+2. **Detail / state variants** (primary ref as input)
+
+Then, after locations are complete (11.4), generate refs for `incidental` props in the
+same pattern.
+
+### 11.4 Location Scouting References
 
 For each location, generate across the scouting matrix:
 1. **Primary establishing shot** (no prior refs; full style spec in prompt)
 2. **Additional angles** (primary ref as input)
 3. **Lighting/weather/condition variants** (primary ref as input; describe the changed conditions)
-
-### 11.4 Prop References
-
-For each prop requiring references:
-1. **Primary reference** (white background, ¾ angle, style spec in prompt)
-2. **Detail / state variants** (primary ref as input)
 
 ### Generation Rules
 
@@ -443,6 +457,19 @@ Video role values:
 ## Phase 12: Shot-Frame Generation
 
 > **Prerequisite:** Phase 11 complete. All reference images available.
+
+### Pre-Generation Reference Check (per shot)
+
+Before generating any frame for a shot, answer these three questions explicitly:
+
+1. Does a canonical reference image exist for **every named character** present in this shot?
+2. Does a canonical reference image exist for **every reference-required prop** visible in this shot?
+3. Does a canonical reference image exist for **the specific location variant** (angle × lighting condition) this shot requires?
+
+If any answer is no, generate that reference now using the Phase 11 procedure before
+proceeding. Do not skip this check. The failure mode it prevents: a scene frame generated
+before the prop's primary reference exists, where the model independently invents the
+prop's appearance — producing a visually different object from all other shots.
 
 For every shot in every sequence, generate:
 
@@ -495,6 +522,7 @@ After generating all shot frames, run a vision-based consistency pass. For each 
 | **Character consistency** | Compare against character primary ref | Face, outfit, proportions diverge |
 | **Location consistency** | Compare against location ref (same condition) | Architecture, materials, layout diverge |
 | **Prop consistency** | Compare against prop primary ref | Object shape, colour, detail diverge |
+| **Cross-shot prop identity** | For each named prop: gather all frames containing it and view them together | The prop looks like a different physical object across shots — different construction, silhouette, or type entirely |
 | **Intra-shot lighting** | Compare start, key, end frames | Lighting direction or colour-temp contradicts |
 | **Cross-shot continuity** | Compare end frame of shot N with start frame of shot N+1 (if continuous) | Discontinuity in subject position, wardrobe, environment |
 
@@ -678,6 +706,14 @@ enforce textual rules ("no trees", "left-hand traffic", "no blue sky outside").
 
 **Reference Images are Non-Negotiable.** Never generate shot frames without reference
 images. Never generate additional refs without using the primary as a reference input.
+
+**References First, Always.** Lock canonical reference images for every named character,
+every reference-required prop, and every key location before generating any composite
+scene or storyboard frame. The generation order is: style anchor → characters →
+reference-required props → locations → incidental props. Never generate a location image
+that contains a named prop until that prop's primary reference is locked. Skipping this
+produces the category error where the same object — a vehicle, a device, a named weapon —
+looks like a completely different thing in every shot it appears.
 
 **Start and End Frames for Every Shot.** No exceptions. The video model needs both
 anchors to interpolate convincingly.

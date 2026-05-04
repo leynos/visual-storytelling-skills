@@ -33,6 +33,23 @@ prefer `gemini-3-pro-image-preview` for all character and complex location frame
 
 ---
 
+## Reference Completeness Check
+
+Before generating any frame — start, end, or key — answer these three questions for the
+specific shot:
+
+1. Does a canonical reference image exist for **every named character** in this shot?
+2. Does a canonical reference image exist for **every named prop** visible in this shot?
+3. Does a canonical reference image exist for **the specific location variant** (angle ×
+   lighting condition) this shot requires?
+
+If any answer is no, generate the missing reference first using the scene inventory's
+Phase 11 procedure. Do not proceed with storyboard generation until all three answers
+are yes. A missing prop reference is the most common root cause of cross-shot visual
+inconsistency: the model invents a different object each time.
+
+---
+
 ## Start Frame Prompt Construction
 
 Build the prompt using this order (from nanobanana skill §3):
@@ -60,8 +77,16 @@ Pass reference images with explicit roles. Assign each a job:
 - **Prop:** prop primary ref — ensures prop appearance consistency
 
 Do not pass more references than necessary. Too many references can produce averaging
-artefacts. For most storyboard frames: 1 style ref + 1 location ref + 1 character ref
-(if human subject present) is the right quantity.
+artefacts. The standard set per frame is:
+
+- 1 style ref (always)
+- 1 location ref matching the shot's lighting condition (always)
+- 1 character ref per named character in frame
+- 1 prop ref per named, story-critical prop in frame
+
+The prop ref is mandatory whenever a named prop appears in frame — omitting it gives the
+model licence to invent the prop's appearance independently per shot, producing a
+different-looking object every time it appears on screen.
 
 ---
 
@@ -136,3 +161,4 @@ After generating each storyboard frame, verify before moving on:
 | Unwanted elements in frame | Negative constraints not in prompt | Add explicit negative constraints; repeat the key ones twice |
 | Start and end frames look identical | Change too subtle for model | Increase magnitude of described change; or explicitly state the delta in the edit prompt |
 | Style drifts across shots | Style vocabulary invented per-shot | Use keyword library phrases verbatim; pass style anchor ref on all shots |
+| Named prop looks like a different object across shots | Prop ref not passed, or prop ref did not exist at generation time | Pass prop primary ref on every frame containing the prop; if prop ref was missing, regenerate those frames with the locked ref |

@@ -228,6 +228,19 @@ actor direction as N/A.
 
 Generate storyboard keyframe images for every shot. Use the nanobanana MCP tools.
 
+### Pre-Generation Reference Check (per shot)
+
+Before generating any frame for a shot, verify:
+
+1. A canonical reference image exists for every **named character** present in the shot.
+2. A canonical reference image exists for every **named prop** visible in the shot.
+3. A canonical reference image exists for the **specific location variant** (angle ×
+   lighting condition) the shot requires.
+
+If any is missing, generate it now before proceeding. This check is mandatory — a frame
+generated without a prop reference will invent the prop's appearance independently,
+producing a different-looking object from every other shot in the sequence.
+
 ### Generation Order
 
 1. **Start frames** for all shots in the sequence.
@@ -286,6 +299,7 @@ After generating all storyboard frames, run a vision-based consistency pass.
 | **Character consistency** | Compare against character primary ref | Face, outfit, proportions diverge from reference |
 | **Location consistency** | Compare against location ref | Architecture, layout, materials diverge |
 | **Prop consistency** | Compare against prop ref | Shape, colour, detail diverge |
+| **Cross-shot prop identity** | For each named prop: gather all frames in the sequence that contain it; view them together | The prop looks like a different physical object across shots — different construction, silhouette, or type |
 | **Lighting continuity** | Compare start and end frames | Light direction or colour-temp contradicts direction spec |
 | **Cross-shot continuity** | Compare end of SH{N} with start of SH{N+1} (if continuous) | Subject position, outfit, or environment jumps |
 | **Style consistency** | Compare against style anchor | Grain character, palette, or colour-temp departs from global spec |
