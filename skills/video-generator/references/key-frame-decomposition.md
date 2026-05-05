@@ -22,23 +22,33 @@ For a shot with start, key frames, and end:
 3. Each sub-clip receives one `start_image` and one `end_image`.
 4. Validate each sub-clip duration against the selected model.
 5. If a sub-clip is below the model minimum, choose one:
-   - Extend the sub-clip to the model minimum and reduce the neighbour if still valid.
+   - Extend the sub-clip to the model minimum and reduce the neighbour only if every
+     resulting sub-clip remains valid and the total still equals the planned shot
+     duration.
    - Merge the key-frame motion into the nearest valid sub-clip and mark
      `generation_strategy: merge_keyframe_motion`.
    - Change model only if the new model is already approved by routing guidance.
+   - Re-budget the parent shot duration upstream in `shot-specifier`.
+
+Never create a split plan whose sub-clip durations add up to more than the original shot
+budget. Overrunning the shot duration misaligns `generated/assembly_order.md` and
+downstream editing.
 
 ## Example
 
 `S04_SH004`, 6 s, key at 2 s:
 
-| Sub-clip | Anchors | Natural duration | Seedance-valid duration |
-|----------|---------|------------------|-------------------------|
-| A | start -> key01 | 2 s | 4 s or merge |
+| Sub-clip | Anchors | Natural duration | Seedance minimum |
+|----------|---------|------------------|------------------|
+| A | start -> key01 | 2 s | 4 s |
 | B | key01 -> end | 4 s | 4 s |
 
-Because `seedance_2_0` has a 4 s minimum in this workflow, either extend A to 4 s and
-adjust B if the action still works, or mark the shot `merge_keyframe_motion` and encode
-the key-frame state in the generation prompt.
+Because `seedance_2_0` has a 4 s minimum in this workflow, a true split would require
+at least 8 s total. That exceeds the 6 s parent shot budget, so `split_at_keyframe` is
+invalid unless `shot-specifier` re-budgets the shot to 8 s or longer. For the original
+6 s shot, mark the shot `merge_keyframe_motion` and encode the key-frame state in the
+generation prompt, or reroute only if an approved model can honour both sub-clips within
+the 6 s budget.
 
 ## Worked Merge Example
 
@@ -79,12 +89,16 @@ the manifest and notes as the advisory state that has been merged into the promp
 
 ## Manifest Requirement
 
-The manifest must record sub-clips:
+The manifest must record sub-clips when the split is valid within the parent shot
+budget:
 
 | Shot ID | Sub-clip | Start | End | Duration | Strategy |
 |---------|----------|-------|-----|----------|----------|
 | S04_SH004 | A | start.png | key01.png | 4s | split_at_keyframe |
 | S04_SH004 | B | key01.png | end.png | 4s | split_at_keyframe |
+
+This example is valid only if `S04_SH004` has been re-budgeted to at least 8 s. It is
+invalid for the original 6 s shot.
 
 For `merge_keyframe_motion`, record the key frame without using it as an upload anchor:
 
