@@ -82,6 +82,47 @@ invoke it directly for standalone image work:
 /nanobanana
 ```
 
+### Overall flow
+
+```mermaid
+flowchart TD
+    prose["Script or prose fragment"]
+    extractor["scene-inventory-extractor-v2"]
+    inventory["Continuity inventory\nCharacters, locations, props, recurring visual elements"]
+    refs["Reference image library\nCharacters, locations, props, visual elements"]
+    shotSpec["shot-specifier"]
+    shotPack["Shot specs\nCamera, blocking, lighting, timing"]
+    frames["Storyboard frames\nStart, end, and key frames"]
+    prompts["Prompt manifest\nGeneration prompts, model routing, media roles"]
+    videoGen["video-generator"]
+    higgsfield["Higgsfield MCP\nSeedance 2.0, Kling 3.0, DoP/Cinema, Veo when approved"]
+    clips["Generated takes\nDownloaded clips and job log"]
+    assembly["Assembly order\nSelected takes and sub-clips"]
+    nano["nanobanana\nGemini 3 Pro Image Preview"]
+
+    prose --> extractor
+    extractor --> inventory
+    extractor --> refs
+    extractor -. "image prompts and consistency refs" .-> nano
+    nano -. "locked reference assets" .-> refs
+
+    inventory --> shotSpec
+    refs --> shotSpec
+    shotSpec --> shotPack
+    shotSpec --> frames
+    shotSpec --> prompts
+    shotSpec -. "storyboard frame generation and edits" .-> nano
+    nano -. "start, end, and key frames" .-> frames
+
+    shotPack --> videoGen
+    frames --> videoGen
+    prompts --> videoGen
+    refs --> videoGen
+    videoGen --> higgsfield
+    higgsfield --> clips
+    clips --> assembly
+```
+
 ______________________________________________________________________
 
 ## Skills
