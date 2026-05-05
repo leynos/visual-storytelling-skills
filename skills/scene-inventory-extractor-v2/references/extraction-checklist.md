@@ -250,29 +250,29 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 
 ---
 
-## Video Prompt Assembly (Phase 14)
+## Handoff Package (Phase 13)
 
 | Check | Status |
 |-------|--------|
-| `references/video-prompt-guide.md` read | ☐ |
-| No unresolved BLOCK issues from Phase 13 | ☐ |
-| Every shot has a video prompt file | ☐ |
-| All transition descriptions ≥ 2 sentences | ☐ |
-| All transition descriptions include: subject appearance, movement trajectory, state changes, existence statements | ☐ |
-| Physical consistency verified for all prompts | ☐ |
-| Audio handling correct for all prompts | ☐ |
-| Prompt manifest generated | ☐ |
+| No unresolved BLOCK issues from consistency verification | ☐ |
+| Fixable WARN issues resolved | ☐ |
+| Remaining WARN issues converted into explicit `shot-specifier` constraints | ☐ |
+| Final scene inventory compiled from `templates/scene-inventory-template.md` | ☐ |
+| Shot-frame asset manifest included | ☐ |
+| Handoff notes for `shot-specifier` included | ☐ |
+| No video prompts assembled by extractor | ☐ |
+| No final video model routing performed by extractor | ☐ |
 
 ---
 
-## Output Assembly (Phase 15)
+## Output Assembly (Phase 13 Handoff)
 
 | Step | Status |
 |------|--------|
-| All 15 sections compiled into inventory document | ☐ |
+| All required sections compiled into inventory document | ☐ |
 | Header information complete (title, version, date, logline, scope) | ☐ |
 | Consistency report included | ☐ |
-| Video prompt manifest included | ☐ |
+| Handoff notes included | ☐ |
 | Asset manifest included (all generated images) | ☐ |
 | File structure follows template | ☐ |
 
@@ -303,7 +303,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | All narrative beats have shots | ☐ |
 | All shots have reference images | ☐ |
 | All shots have start + end frames | ☐ |
-| All shots have video prompts | ☐ |
+| All shots have start and end frame assets | ☐ |
 
 ### Consistency
 
@@ -316,7 +316,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | Scene IDs sequential | ☐ |
 | Scouting matrix keys match scene inventory keys | ☐ |
 | Continuity inventory aligns with scene inventory and shot lists | ☐ |
-| Consistency report cross-referenced with prompts | ☐ |
+| Consistency report cross-referenced with handoff notes | ☐ |
 
 ### Continuity
 
@@ -348,7 +348,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | Shots without reference images | Never generate frames without refs |
 | Generating location images before prop references are locked | Classify required-before-Phase-12 props in Phase 6; generate all their refs before any location refs in Phase 11 |
 | Named prop looks like a different object across shots | Run cross-shot prop identity check in Phase 13; if failed, regenerate offending frames using the locked prop primary ref |
-| Skipping consistency verification | Always run Phase 13 before Phase 14 |
+| Skipping consistency verification | Always run and action Phase 13 before handoff |
 | Treating continuity as downstream QA | Extract the continuity inventory before shot lists and prompts |
 | Missing mundane handled objects | Log every touched, carried, consumed, opened, closed, or moved item |
 | Weak reset notes | Ask whether another crew could restore the scene days later from this file alone |

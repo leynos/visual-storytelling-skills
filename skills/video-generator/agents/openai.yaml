@@ -1,4 +1,4 @@
 name: video-generator
 display_name: "Video Generator"
-short_description: "Run scene-pack video generation jobs"
-default_prompt: "Use $video-generator to validate prompts, upload media, generate clips, track jobs, and produce assembly order."
+short_description: "Run shot-specifier video generation jobs"
+default_prompt: "Use $video-generator to validate prompts, honour audio preferences, upload media, generate clips, track jobs, download takes, and produce assembly order."

@@ -4,14 +4,14 @@ description: >
   End-to-end production-prep workflow: extracts comprehensive scene inventories from
   narrative writing, extracts continuity inventory and reset-critical state before prompt
   writing, generates all reference images (characters, locations under multiple
-  angles/conditions, props), produces start/end/keyframe shot references with consistency
-  verification, and assembles complete video prompts for every shot. Use when analysing
-  stories, scripts, or prose to create production-ready scene breakdowns with full visual
-  asset pipelines. Also trigger when the user mentions "scene breakdown", "shot list",
-  "character bible", "location bible", "continuity inventory", "reference images",
-  "video prompts", "storyboarding", or any request to prepare narrative material for AI
-  video generation. This skill expects access to an image-generation MCP and vision
-  capabilities.
+  angles/conditions, props), produces start/end/keyframe shot references with
+  consistency verification, and then hands off to shot-specifier for model-routed video
+  prompt assembly. Use when analysing stories, scripts, or prose to create
+  production-ready scene breakdowns with full visual asset pipelines. Also trigger when
+  the user mentions "scene breakdown", "shot list", "character bible", "location bible",
+  "continuity inventory", "reference images", "storyboarding", or any request to
+  prepare narrative material for AI video generation. This skill expects access to an
+  image-generation MCP and vision capabilities.
 ---
 
 # Scene Inventory Extractor
@@ -54,9 +54,7 @@ current phase, **STOP** and report the blocker. Do not switch to another image m
 | 10 | Thematic Image Plan | Key narrative-beat images |
 | 11 | Reference Image Generation | All character, location, and prop reference images with **video role manifest** |
 | 12 | Shot-Frame Generation | Start frame, end frame, and key frames per shot |
-| 13 | Consistency Verification | Vision-based QA pass; flag failures |
-| 14 | Video Prompt Assembly | Complete prompt per shot, ready for generation |
-| 15 | Output Assembly | Final compiled document + asset manifest |
+| 13 | Consistency Verification + Handoff | Vision-based QA pass; final scene pack, frame assets, role manifest, and handoff notes for `shot-specifier` |
 
 > **Skill chain:** `scene-inventory-extractor-v2` prepares the scene pack and image
 > assets. Hand off to `shot-specifier` when per-shot direction, storyboard generation,
@@ -67,12 +65,12 @@ current phase, **STOP** and report the blocker. Do not switch to another image m
 > **Read order for reference files:** Before starting Phase 2, read
 > `references/cinematography-specification.md`. Before Phase 8, read
 > `references/continuity-inventory.md`. Before Phase 11, read
-> `references/reference-image-guide.md`. Before Phase 14, read
-> `references/video-prompt-guide.md`. The consistency verification procedure in Phase 13
-> is defined in `references/consistency-verification.md`. The prompt keyword library
-> format is defined in `references/prompt-keyword-library.md`.
-> **Downstream skill:** When full per-shot storyboarding, detailed actor/camera/lighting
-> direction, model routing, and asset-pipeline management are required, hand off to the
+> `references/reference-image-guide.md`. The consistency verification procedure in
+> Phase 13 is defined in `references/consistency-verification.md`. The prompt keyword
+> library format is defined in `references/prompt-keyword-library.md`.
+> **Downstream skill:** This skill stops at Phase 13. When full per-shot storyboarding,
+> detailed actor/camera/lighting direction, model routing, prompt flattening, audio
+> generation preferences, and asset-pipeline management are required, hand off to the
 > `shot-specifier` skill. That skill takes the scene inventory and reference images
 > produced here as its input. When video generation itself is required, use
 > `video-generator`; this skill does not call Higgsfield directly.
@@ -148,10 +146,10 @@ prompt keyword library**: a canonical vocabulary of adjective phrases and art-di
 terms that reliably translate each style parameter into language video and image
 generation models respond to consistently.
 
-This library is **infrastructure**, not decoration. Every video prompt written in Phase 14
-must draw from it rather than re-inventing style language shot by shot. Inconsistent
-style vocabulary across shots produces visible tonal drift even when the underlying spec
-is correct.
+This library is **infrastructure**, not decoration. Every model-routed video prompt later
+written by `shot-specifier` must draw from it rather than re-inventing style language
+shot by shot. Inconsistent style vocabulary across shots produces visible tonal drift
+even when the underlying spec is correct.
 
 Write the library as a section in the scene inventory document and also as a standalone
 file at `{project_name}_prompt_keywords.md`.
@@ -605,7 +603,12 @@ anchoring is the operation's primary constraint.
 
 > **Prerequisite:** Read `references/consistency-verification.md`.
 
-After generating all shot frames, run a vision-based consistency pass. For each shot:
+After generating all shot frames, run a vision-based consistency pass. This pass is not
+informational. Its findings are work items for the agent: resolve BLOCK issues by
+regenerating or correcting the offending frame before handoff, and either resolve WARN
+issues or carry them forward with explicit shot-specifier instructions.
+
+For each shot:
 
 | Check | Method | Flag if |
 |-------|--------|---------|
@@ -620,76 +623,15 @@ After generating all shot frames, run a vision-based consistency pass. For each 
 
 Output a **Consistency Report** listing every flagged issue with severity (BLOCK /
 WARN), the shot ID, the check that failed, and a description. BLOCK-level issues must
-be resolved (regenerate the offending frame) before proceeding to Phase 14. WARN-level
-issues are logged for human review.
+be resolved by regenerating the offending frame before handoff. WARN-level issues are
+not passive notes: resolve them when the fix is clear; otherwise write the concrete
+constraint `shot-specifier` must inject into the affected shot.
 
----
+### Handoff Package
 
-## Phase 14: Video Prompt Assembly
-
-> **Prerequisite:** Read `references/video-prompt-guide.md`. Phase 13 complete with no
-> unresolved BLOCK issues.
-
-For every shot, assemble a complete video prompt. The prompt is the **sole input** to
-the video generation model alongside the keyframe images; it must be self-contained.
-
-### Video Prompt Structure
-
-```text
-[STYLE] {Visual style — brief}
-[FILMSTOCK] {Format, grain, colour process — brief}
-[SCENE] {Environment description}
-[FRAMING] {Shot size + angle + lens + camera motion}
-[PACING] {slow / moderate / fast}
-[ACTION] {transition_description — 2–4 sentences minimum, see requirements below}
-[SUBJECT] {Subject appearance — key features for consistency}
-[AUDIO] {On-screen dialogue / sound effects / embedded BGM or "No background music."}
-[DURATION] {4 / 6 / 8 seconds}
-```
-
-### Style Language Rule
-
-Every `[STYLE]` and `[FILMSTOCK]` field **must draw from the prompt keyword library**
-(Phase 2.4). Do not invent new style vocabulary at this phase. Consistency across shots
-depends on using the same canonical phrases.
-
-### Continuity Constraint Injection
-
-Before finalising each prompt, check the location bible's continuity constraints for
-that location and inject any that are relevant. Common constraints to inject:
-
-- Negative space rules ("no trees", "left-hand traffic")
-- Colour exclusions ("no blue sky", "no hard shadows outside")
-- Signature prop requirements ("rubber duck on console throughout")
-
-These constraints are in the location bible but are easy to omit when writing prompts
-shot by shot. The video role manifest ensures reference images carry visual consistency;
-the injected text constraints carry the rules that images cannot enforce.
-
-### transition_description Requirements
-
-This field directly drives the video model. Must include:
-
-1. **Subject appearance** — key visual features that must remain consistent
-2. **Movement trajectory** — how subject/camera moves through space and time
-3. **State changes** — how objects/environment change over the duration
-4. **Existence statements** — what is present throughout (prevents pop-in/pop-out)
-
-Minimum 2–4 sentences. One-line descriptions are **insufficient**.
-
-### Physical Consistency Check
-
-Verify that the described motion is physically achievable within the shot duration.
-See `references/video-prompt-guide.md` for the constraint table.
-
-### Output
-
-Write all video prompts to `prompts/shot_{shot_id}_prompt.md`. Include the file paths
-to the associated start frame, end frame, and any key frames.
-
----
-
-## Phase 15: Output Assembly
+After Phase 13 passes with no unresolved BLOCK issues, compile the final scene pack and
+handoff notes for `shot-specifier`. Do not assemble video prompts in this skill. Do not
+choose final video models. Do not flatten prompts. Do not call Higgsfield.
 
 Compile the final scene inventory document using `templates/scene-inventory-template.md`.
 
@@ -707,9 +649,10 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 10. Storyboard Specification (sequence map + shot lists with frame specs and duration budgets)
 11. Thematic Image Plan
 12. Consistency Report
-13. Video Prompt Manifest
-14. Continuity & Anachronism Log
-15. Asset Manifest (all generated images, organized by category)
+13. Shot-frame asset manifest
+14. Handoff notes for `shot-specifier`
+15. Continuity & Anachronism Log
+16. Asset Manifest (all generated images, organized by category)
 
 ### Output Files
 
@@ -728,8 +671,6 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 │       ├── start.png
 │       ├── end.png
 │       └── key{NN}.png (if any)
-├── prompts/
-│   └── shot_{shot_id}_prompt.md
 └── reports/
     └── consistency_report.md
 ```
@@ -744,7 +685,6 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 | `references/prompt-keyword-library.md` | Phase 2.4 | How to construct and use a project-level prompt vocabulary library |
 | `references/continuity-inventory.md` | Phase 8 | Continuity extraction rules, separate deliverable structure, checklist, reset-focused logging guidance |
 | `references/reference-image-guide.md` | Phase 11 | Generation order, prompting rules, scouting matrix execution, edit-vs-generate decision table |
-| `references/video-prompt-guide.md` | Phase 14 | Prompt structure, transition_description examples, physical consistency constraints, audio handling |
 | `references/consistency-verification.md` | Phase 13 | Vision-based QA procedures, severity classification, regeneration protocol |
 | `references/extraction-checklist.md` | Any time | Full extraction checklist for QA |
 
@@ -752,7 +692,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 
 | File | Used In |
 |------|---------|
-| `templates/scene-inventory-template.md` | Phase 15 |
+| `templates/scene-inventory-template.md` | Phase 13 handoff |
 | `templates/character-template.md` | Phase 4 |
 | `templates/location-template.md` | Phase 5 |
 | `templates/shot-list-template.md` | Phase 9 |
@@ -784,12 +724,13 @@ one clip of 18s.
 **Prompt Vocabulary is Production Infrastructure.** The prompt keyword library is not
 optional polish — it is the mechanism that keeps visual style consistent across dozens of
 independently generated clips. Style vocabulary invented ad hoc per shot produces tonal
-drift. Build the library once in Phase 2.4 and use it for every prompt in Phase 14.
+drift. Build the library once in Phase 2.4 and pass it to `shot-specifier`.
 
-**Inject Continuity Constraints into Prompts.** Location bibles contain negative space
-rules, colour exclusions, and signature prop requirements. These must be explicitly
-carried into each video prompt; reference images enforce visual consistency but cannot
-enforce textual rules ("no trees", "left-hand traffic", "no blue sky outside").
+**Pass Continuity Constraints Downstream.** Location bibles contain negative space
+rules, colour exclusions, and signature prop requirements. These must be included in
+the handoff notes so `shot-specifier` can carry them into each video prompt; reference
+images enforce visual consistency but cannot enforce textual rules ("no trees",
+"left-hand traffic", "no blue sky outside").
 
 **Evocative Naming.** "Bruise Blue" not "#2B4F6E". "Kodachrome Sunday" not "warm LUT."
 
@@ -811,6 +752,8 @@ looks like a completely different thing in every shot it appears.
 **Start and End Frames for Every Shot.** No exceptions. The video model needs both
 anchors to interpolate convincingly.
 
-**Verify Before Prompting.** Run the consistency pass (Phase 13) before assembling
-video prompts (Phase 14). Catching a face swap now costs one regeneration; catching it
-after video generation costs the entire shot.
+**Verify Before Handoff.** Run the consistency pass (Phase 13) before handing off to
+`shot-specifier`. The agent must action the consistency report before handoff: fix
+BLOCK findings, resolve fixable WARN findings, and turn any remaining WARN findings into
+explicit downstream constraints. Catching a face swap now costs one regeneration;
+catching it after video generation costs the entire shot.

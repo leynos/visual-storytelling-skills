@@ -15,19 +15,22 @@ skill. The skill loads all prerequisite assets from the file system,
 works through shot decomposition, frame-role assignment, and directorial
 direction, then enters a per-shot loop. Inside the loop it checks for
 missing references (generating and cataloguing any that are absent),
-generates storyboard frames via `nanobanana`, runs consistency checks,
-assembles the video prompt, and submits the generation job to the chosen
-video model. The generation log is updated after every clip.
+generates storyboard frames via `nanobanana`, runs and actions
+consistency checks, and assembles model-routed video prompts. The
+`video-generator` skill then submits jobs through the Higgsfield MCP,
+polls them, downloads clips, and updates the generation log.
 
 The purple band covers the three preparatory phases; the blue band
-covers storyboard generation; the green band covers model routing,
-prompt assembly, and video submission.
+covers storyboard generation and actionable consistency remediation; the
+green band covers model routing and prompt assembly before handoff to
+`video-generator`.
 
 ```mermaid
 sequenceDiagram
   actor User
   participant Shot_specifier as shot_specifier
   participant Nanobanana as nanobanana_skill
+  participant Video_generator as video_generator
   participant Video_models as video_models_seedance_kling
   participant FS as file_system_assets
 
@@ -52,14 +55,15 @@ sequenceDiagram
       Nanobanana-->>FS: Write_start_end_key_frames
     end
 
-    Shot_specifier->>FS: Run_storyboard_consistency_checks (character, location, prop, cross_shot_prop_identity)
+    Shot_specifier->>FS: Run_and_action_storyboard_consistency_checks (character, location, prop, cross_shot_prop_identity)
 
     rect rgb(240,255,220)
       Shot_specifier->>Shot_specifier: Consult_model_routing_guidance
-      Shot_specifier->>FS: Assemble_video_prompt_for_shot using prompt_keyword_library
-      Shot_specifier->>Video_models: Submit_generation_job with start_image, end_image, refs, prompt, model_choice
+      Shot_specifier->>FS: Assemble_model_native_prompt_and_audio_preferences
+      Shot_specifier->>Video_generator: Hand_off_prompt_manifest_and_frames
+      Video_generator->>Video_models: Submit_generation_job
       Video_models-->>FS: Write_generated_clip
-      Video_models-->>FS: Append_generation_log_entry
+      Video_generator-->>FS: Append_generation_log_entry
     end
   end
 ```
@@ -67,7 +71,9 @@ sequenceDiagram
 *Figure 1 — Shot-specifier execution sequence. The skill processes one
 shot at a time. Missing references are resolved before storyboard frames
 are generated. Video generation does not begin until consistency checks
-pass.*
+have been actioned: BLOCK findings are fixed, fixable WARN findings are
+resolved, and remaining WARN findings are converted into explicit prompt
+constraints.*
 
 ______________________________________________________________________
 
@@ -219,7 +225,8 @@ Phase 12 performs a per-shot reference check; if anything is missing,
 control returns to Phase 11. Phase 13 checks both individual prop
 consistency against the primary reference and cross-shot prop identity
 across all frames, plus recurring visual element consistency across
-every shot where each element is visible.
+every shot where each element is visible. Phase 13 findings are action
+items for the agent, not informational notes.
 
 ```mermaid
 flowchart TD
@@ -298,4 +305,5 @@ Required-before-Phase-12 props and recurring visual elements must be
 fully locked before location reference generation begins when they are
 visible in those locations. Phase 12 loops back to Phase 11 if any
 reference is missing. Phase 13 enforces per-shot prop consistency,
-cross-shot prop identity, and recurring visual element stability.*
+cross-shot prop identity, and recurring visual element stability; the
+agent must fix or explicitly route every finding before handoff.*

@@ -45,7 +45,10 @@ git clone https://github.com/df12-productions/visual-storytelling-skills
 
 Start with a script or prose fragment. The scene-inventory-extractor
 parses it, extracts characters, locations, and props, and generates your
-full reference-image library:
+full reference-image library. Its final consistency pass must be acted on
+before handoff: fix BLOCK findings, resolve fixable WARN findings, and
+turn any remaining WARN findings into explicit shot-specifier
+constraints.
 
 ```text
 /scene-inventory-extractor-v2

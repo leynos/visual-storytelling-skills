@@ -112,6 +112,69 @@ Assume **camera language and action structure matter more than decorative cine-j
   reliably suppress cinematic bias by themselves; that is an inference from what
   successful public prompts actually contain, not a confirmed rule.
 
+### Model-Native Prompt Flattening
+
+Phase 7 prompt files keep structured `[TAG]` blocks for review, but each file must also
+include a plain `## Generation Prompt` for `video-generator`. Build that plain prompt
+with the model-specific order below. Do not use one generic ordering across models.
+
+**Common inputs:** `[STYLE]`, `[FILMSTOCK]`, `[SCENE]`, `[FRAMING]`, `[PACING]`,
+`[ACTION]`, `[SUBJECT]`, `[AUDIO]`, `[DURATION]`, reference roles, duration, aspect
+ratio, resolution, and audio-generation preferences.
+
+#### Seedance 2.0 Flattening
+
+Use when `Recommended model` is `seedance_2_0`.
+
+1. Start with `[ACTION]`: the physical transition, movement trajectory, state changes,
+   and what persists from start to end.
+2. Add `[SUBJECT]` only for identity-critical traits not fully carried by references.
+3. Add reference-purpose sentences: which uploaded image/audio/video is responsible for
+   subject identity, location, style, motion, or rhythm.
+4. Add `[SCENE]` constraints, keeping location negatives and continuity rules concrete.
+5. Add `[FRAMING]`, `[PACING]`, and `[DURATION]`.
+6. Add `[AUDIO]` as generation preferences, always including `No narration.`
+7. Add `[STYLE]` and `[FILMSTOCK]` last and keep them concise; references should carry
+   most style weight.
+8. Append anchor statements: `The start image is the first frame. The end image is the
+   final frame. Preserve all supplied reference-image identities and layouts throughout.`
+
+If the prompt must be shortened, trim `[FILMSTOCK]`, then decorative `[STYLE]`, then
+non-critical `[PACING]`. Never trim `[ACTION]`, `[SUBJECT]`, reference-purpose
+sentences, frame anchors, or audio prohibitions.
+
+#### Kling 3.0 Flattening
+
+Use when `Recommended model` is `kling3_0`.
+
+1. Start with scene context and shot structure. For multi-shot work, use labelled blocks:
+   `Shot 1 (0-5s): ...`, `Shot 2 (5-10s): ...`.
+2. Put `[FRAMING]` and camera behaviour early, including camera endpoint or where the
+   camera settles.
+3. Add `[ACTION]` with physically plausible motion, timing markers, and subject-camera
+   relationship.
+4. Add `[SUBJECT]` and any Elements or Motion Control reference plan.
+5. Add `[SCENE]` constraints and baked-frame/text/UI notes.
+6. Add `[AUDIO]` with speaker labels only when on-screen lip-sync is required; otherwise
+   state ambient/sfx preferences and `No narration.`
+7. Add one compact `[STYLE]` / `[FILMSTOCK]` line last.
+8. Append anchor statements for start/end frames and reference preservation.
+
+If the prompt must be shortened, trim decorative style first, then extra texture, then
+non-critical atmosphere. Never trim shot labels, camera movement, action physics, frame
+anchors, speaker attribution, or audio prohibitions.
+
+#### DoP / Cinema Route Flattening
+
+Use only when the manifest explicitly approves a Higgsfield DoP/Cinema route and the live
+MCP schema exposes it. Start with how the image evolves from the start frame, then camera
+treatment, endpoint, environment motion, and style. Keep action simple and do not add
+new identity details unsupported by references.
+
+#### Unapproved / Unknown Routes
+
+Stop. Do not invent a generic flattened prompt for an unrouted model.
+
 ### References
 
 Assume **Seedance 2.0 weights references heavily** and **Kling 3.0 wants fewer, cleaner

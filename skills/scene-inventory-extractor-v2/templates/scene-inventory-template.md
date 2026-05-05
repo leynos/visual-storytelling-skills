@@ -349,13 +349,14 @@ grain/grade overrides.
 
 ---
 
-## 12. Video Prompt Manifest
+## 12. Shot-Specifier Handoff
 
-*Generated in Phase 14. See `prompts/manifest.md` for full details.*
+*Generated in Phase 13. `shot-specifier` owns video prompt assembly, model routing, prompt
+flattening, audio-generation preferences, and the downstream prompt manifest.*
 
-| Shot ID | Duration | Frames | Prompt File | Notes |
-|---------|----------|--------|-------------|-------|
-| {ID} | {Ns} | {start, end, key...} | prompts/shot_{id}_prompt.md | {Notes} |
+| Shot ID | Duration | Frames | Handoff Notes |
+|---------|----------|--------|---------------|
+| {ID} | {Ns} | {start, end, key...} | {Continuity constraints, remaining WARN items, required reference roles} |
 
 ---
 
@@ -379,7 +380,6 @@ grain/grade overrides.
 | Shot frames (start) | {N} | shots/ |
 | Shot frames (end) | {N} | shots/ |
 | Shot frames (key) | {N} | shots/ |
-| Video prompts | {N} | prompts/ |
 
 **Total generated images:** {N}
 

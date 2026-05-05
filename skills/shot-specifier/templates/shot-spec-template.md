@@ -104,6 +104,8 @@ Complete once per scene before writing individual shot specs.
 **Punctuations:** {Specific sounds at specific moments; format: "[Ns] {sound}"}
 **Dialogue:** {Exact words if on-screen; "off-screen" or "none" otherwise}
 **Music:** {Diegetic source / "none" / "non-diegetic — handle in post"}
+**Audio generation preferences:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
+music=off; narration=off; preserve_silence={true/false}
 ```
 
 ### Video Prompt (assembled in Phase 7)
@@ -118,6 +120,24 @@ Complete once per scene before writing individual shot specs.
 [SUBJECT] {Key visual features for consistency}
 [AUDIO] {From audio direction above}
 [DURATION] {4 / 6 / 8 seconds}
+```
+
+### Audio Generation Preferences
+
+```text
+**Ambient audio:** {on/off}
+**Sound effects:** {on/off}
+**On-screen dialogue/lip-sync:** {on/off}
+**Music:** off
+**Narration:** off
+**Preserve silence:** {true/false}
+```
+
+### Generation Prompt
+
+```text
+{Model-native prompt flattened from the structured tags using
+references/model-routing.md. This is the exact prompt for video-generator.}
 ```
 
 ### Model Routing

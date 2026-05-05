@@ -360,7 +360,7 @@ Using vision capabilities, compare start and end frames:
 - Are character features consistent? (If not → regenerate with stronger identity anchoring)
 - Is lighting direction consistent? (If not → regenerate with explicit lighting direction in prompt)
 
-Log any issues for the full consistency pass in Phase 12.
+Log any issues for the full consistency pass in Phase 13.
 
 ---
 

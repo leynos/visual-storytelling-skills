@@ -151,8 +151,8 @@ Be specific about physical phenomena in frame:
 
 ## 5. Audio Direction
 
-Audio direction specifies what the video model should produce in the audio track.
-See `video-prompt-guide.md` §5 for full handling rules.
+Audio direction specifies what the video model should produce in the audio track and
+what it must not produce. Narration is always out of scope and handled separately.
 
 Key distinction:
 
@@ -160,6 +160,13 @@ Key distinction:
 - **On-screen sound effects** → include with source, quality, timing
 - **Off-screen narration** → do NOT include; handled separately
 - **Non-diegetic music** → do NOT include; end with "No background music."
+
+Every shot must also emit explicit audio-generation preferences:
+
+```text
+ambient={on/off}; sfx={on/off}; dialogue={on/off}; music=off; narration=off;
+preserve_silence={true/false}
+```
 
 ---
 
@@ -189,4 +196,4 @@ Key distinction:
 - Actor direction: complete physical choreography with timing markers
 - Camera: must follow or anticipate the action; specify if camera leads or lags
 - Duration: verify the described action fits within the clip duration using the
-  physical consistency constraint table in `video-prompt-guide.md` §4
+  duration and routing rules in `references/model-routing.md`

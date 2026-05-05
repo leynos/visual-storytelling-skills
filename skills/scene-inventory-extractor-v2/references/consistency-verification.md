@@ -1,6 +1,6 @@
 # Consistency Verification Guide
 
-Read this file before beginning Phase 12 (Consistency Verification). It defines the
+Read this file before beginning Phase 13 (Consistency Verification). It defines the
 vision-based QA procedures for checking generated shot frames against reference images
 and against each other.
 
@@ -19,9 +19,14 @@ and against each other.
 ## 1. Overview
 
 Consistency verification uses the agent's vision capabilities to compare generated shot
-frames against reference images and against each other. The goal is to catch visual
-inconsistencies before they are baked into video prompts, where correction costs an
-entire shot regeneration.
+frames against reference images and against each other. The goal is to catch and fix
+visual inconsistencies before handoff to `shot-specifier` and video generation, where
+correction costs an entire shot regeneration.
+
+This pass is mandatory remediation work, not an informational report. The agent must
+action the findings before handoff: regenerate or correct BLOCK issues, resolve WARN
+issues when the fix is clear, and convert any remaining WARN issue into a concrete
+constraint for `shot-specifier`.
 
 ### Verification Pass Order
 
@@ -42,8 +47,8 @@ Execute checks in this order (each subsequent check assumes prior checks have pa
 
 | Severity | Code | Meaning | Action |
 |----------|------|---------|--------|
-| **BLOCK** | `B` | Inconsistency will produce unusable video or visible continuity error | Must regenerate before proceeding to Phase 13 |
-| **WARN** | `W` | Inconsistency is noticeable but may survive video generation | Log for human review; proceed with caution |
+| **BLOCK** | `B` | Inconsistency will produce unusable video or visible continuity error | Must regenerate or correct before handoff |
+| **WARN** | `W` | Inconsistency is noticeable but may survive video generation | Resolve when clear; otherwise pass an explicit downstream constraint |
 | **INFO** | `I` | Minor variation within acceptable tolerance | Log only; no action required |
 
 ### Classification Rules

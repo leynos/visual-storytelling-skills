@@ -229,7 +229,13 @@ actor direction as N/A.
 * **Punctuations:** {Specific sounds at specific moments in the clip}
 * **Dialogue:** {Exact words if on-screen lip-sync required; "off-screen" otherwise}
 * **Music:** {Diegetic / non-diegetic / none}
+* **Audio generation preferences:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
+  music=off; narration=off; preserve_silence={true/false}
 ```
+
+Narration is always a separate process. Do not request generated narration, voice-over,
+or off-screen explainer audio in the video model prompt. Non-diegetic music defaults to
+off unless the user or scene explicitly requires it.
 
 ---
 
@@ -344,7 +350,9 @@ reports/storyboard_consistency_report.md
 ```
 
 BLOCK-level issues must be resolved before Phase 7. WARN-level issues are logged for
-human review and carried forward as notes in the video prompt.
+human review only when they cannot be fixed locally. The consistency pass is not
+informational: fix clear WARN issues now, and convert remaining WARN items into explicit
+constraints in the affected prompt and manifest row.
 
 ---
 
@@ -379,6 +387,11 @@ Control references, and treat critical text/UI as baked-frame or post-production
 - **Clip boundary (next):** {continuous / scene_cut}
 - **Recommended model:** {model ID — see references/model-routing.md}
 - **Model routing rationale:** {1 sentence explaining the routing choice}
+- **Generation strategy:** {image_to_video / start_end_image / multi_shot / motion_control}
+- **Aspect ratio:** {16:9 / 9:16 / 1:1 / 21:9}
+- **Resolution:** {720p / 1080p}
+- **Audio generation:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
+  music=off; narration=off
 
 ## Frames
 - **Start frame:** shots/{shot_id}/start.png
@@ -403,6 +416,19 @@ Control references, and treat critical text/UI as baked-frame or post-production
 [SUBJECT] {Subject key visual features for consistency}
 [AUDIO] {Audio direction from Phase 4.5}
 [DURATION] {4 / 6 / 8 seconds}
+
+## Audio Generation Preferences
+- **Ambient audio:** {on/off}
+- **Sound effects:** {on/off}
+- **On-screen dialogue/lip-sync:** {on/off; exact lines if on}
+- **Music:** off unless diegetic music is visible in-frame
+- **Narration:** off; narration is a separate process
+- **Preserve silence:** {true/false}
+
+## Generation Prompt
+
+{Model-native plain text assembled with the algorithm in `references/model-routing.md`.
+This is the exact prompt `video-generator` submits to Higgsfield.}
 
 ## Consistency Notes
 - {Any WARN items from storyboard consistency check}
@@ -435,9 +461,9 @@ prompts/manifest.md
 ```markdown
 # Shot Generation Manifest
 
-| Shot ID | Scene | Duration | Model | Start | End | Keys | Prompt File |
-|---------|-------|----------|-------|-------|-----|------|-------------|
-| S11_SH001 | SC-11 | 8s | seedance_2_0 | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
+| Shot ID | Scene | Duration | Model | Strategy | Aspect | Resolution | Audio | Start | End | Keys | Prompt File |
+|---------|-------|----------|-------|----------|--------|------------|-------|-------|-----|------|-------------|
+| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1080p | ambient=on;sfx=on;dialogue=off;music=off;narration=off | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
 ```
 
 ---

@@ -1,10 +1,10 @@
 ---
 name: video-generator
 description: >
-  Execute production video generation from scene-inventory-extractor-v2 or
-  shot-specifier outputs through the Higgsfield MCP. Use when prompts, storyboard frames,
-  media roles, model routing, Higgsfield MCP uploads, generate_video calls, status
-  polling, retakes, resume behaviour, or final assembly order are needed. Bridges
+  Execute production video generation from shot-specifier outputs through the Higgsfield
+  MCP. Use when prompts, storyboard frames, media roles, model routing, Higgsfield MCP
+  uploads, generate_video calls, status polling, retakes, resume behaviour, or final
+  assembly order are needed. Bridges
   structured [TAG] prompt files to model-native plain text prompts, validates model
   duration/aspect constraints, decomposes key-frame shots into supported start/end image
   clips, tracks uploaded media and job IDs, and writes generation logs.
@@ -12,14 +12,21 @@ description: >
 
 # Video Generator
 
-Turns a completed scene pack into generated video clips through the **Higgsfield MCP**.
-This skill begins after `scene-inventory-extractor-v2` Phase 14 or `shot-specifier`
-Phase 7 has produced prompt files, storyboard frames, and `prompts/manifest.md`.
+Turns a completed shot-specifier handoff into generated video clips through the
+**Higgsfield MCP**. This skill begins only after `shot-specifier` Phase 8 has produced
+prompt files, storyboard frames, model routing, generation strategies, explicit
+audio-generation preferences, and `prompts/manifest.md`. `scene-inventory-extractor-v2`
+stops at its Phase 13 handoff and is not a direct input to production video generation.
 
 Do not use this skill for image generation; use `nanobanana` through
 `scene-inventory-extractor-v2` or `shot-specifier` for that. Do not backfill missing
 scene analysis or shot direction here; hand back to `scene-inventory-extractor-v2` or
 `shot-specifier` when upstream fields are absent.
+
+This skill owns the operational gap between "prompt written" and "clip exists on disk":
+resolve local paths, upload or register media, cache returned handles, submit jobs, poll
+until terminal status, download outputs, record retakes, and write assembly order. A shot
+is not complete until a local video file exists or a blocker is recorded.
 
 The job is to be boringly competent: choose an approved Higgsfield video model, pass the
 right images in the right roles, submit resumable jobs, and leave enough state that a
@@ -46,9 +53,9 @@ later agent can continue without guessing.
 
 ## Required Inputs
 
-- `prompts/manifest.md` from `scene-inventory-extractor-v2` or `shot-specifier` with
+- `prompts/manifest.md` from `shot-specifier` with
   shot order, duration, model routing, prompt file, frame paths, aspect ratio,
-  resolution, and generation strategy.
+  resolution, generation strategy, and explicit audio-generation preferences.
 - One prompt file per shot containing both the structured `## Prompt` block and a
   `## Generation Prompt` block.
 - Start and end frames for every generation clip.
@@ -135,9 +142,9 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    media roles, upload/history path, polling path, and output path exist.
 3. **Validate constraints.** Check model duration, supported resolution, aspect ratio,
    and media-role support before upload. Do not discover invalid clips after submission.
-4. **Flatten prompts.** Use the existing `## Generation Prompt` when present. If absent,
-   produce it using `references/prompt-flattening.md`, write it back to the prompt file,
-   then continue.
+4. **Verify model-native prompts.** Use the existing `## Generation Prompt` when
+   present. If absent, produce it using the model-specific algorithm in
+   `references/prompt-flattening.md`, write it back to the prompt file, then continue.
 5. **Decompose key-frame shots.** For any shot with key frames, use
    `references/key-frame-decomposition.md` to create sub-clips with only `start_image`
    and `end_image` roles. Validate each sub-clip duration against the chosen model.
@@ -145,17 +152,22 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    the connected Higgsfield MCP's upload or history/input mechanism for each required
    media file. Cache the returned media handle, UUID, URL, or generation-history ID in
    `generated/media_manifest.md`.
-7. **Submit generation jobs.** Call the connected Higgsfield MCP video-generation tool
+7. **Apply audio preferences.** Map each shot's audio-generation preferences to the live
+   MCP audio parameters. Narration remains off because it is handled as a separate
+   process. If the MCP cannot disable unwanted generated audio, stop rather than letting
+   the model auto-select audio behaviour silently.
+8. **Submit generation jobs.** Call the connected Higgsfield MCP video-generation tool
    (`generate_video` or the current tool-surface equivalent) with the model-native
    prompt string, validated model parameters, and media handles in their roles.
-8. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
+9. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
    returns a job ID. An unlogged job is a lost job.
-9. **Poll and download.** Poll with backoff until a terminal status. Download successful
+10. **Poll and download.** Poll with backoff until a terminal status. Download successful
    clips to `generated/{shot_id}/v{take}.mp4` or
-   `generated/{shot_id}/{subclip_id}_v{take}.mp4`.
-10. **Resume safely.** On rerun, skip completed rows with a local output path unless the
+   `generated/{shot_id}/{subclip_id}_v{take}.mp4`. Do not mark a job complete until this
+   local file exists and is recorded in the log.
+11. **Resume safely.** On rerun, skip completed rows with a local output path unless the
    user requests a retake.
-11. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
+12. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
     and sub-clip order for final editing.
 
 ## Reference Image Discipline
@@ -187,6 +199,8 @@ Stop before generation when:
 - required reference images cannot be passed without exceeding model/tool limits;
 - duration, aspect ratio, or resolution is unsupported;
 - no upload/history mechanism can turn local files into accepted media inputs;
+- explicit audio-generation preferences cannot be honoured and the model would
+  auto-generate unwanted audio;
 - a job cannot be logged or resumed.
 
 Do not silently fall back to another provider, another model family, text-only video, or
