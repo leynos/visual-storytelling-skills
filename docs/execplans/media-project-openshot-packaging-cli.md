@@ -32,6 +32,10 @@ must live at `tools/media-project/pyproject.toml`, and the Python module must
 include `tools/media-project/media_project/__init__.py` and
 `tools/media-project/media_project/cli.py`.
 
+The media-project tool must require Python 3.14 or newer. The Copier bootstrap
+must therefore use `python_version=3.14`, and `tools/media-project/pyproject.toml`
+must keep `requires-python = ">=3.14"`.
+
 The first implementation must not depend on unavailable Python bindings for
 libopenshot. The native Fedora packages `libopenshot-devel` and
 `libopenshot-audio-devel` are installed, but the current Python process cannot
@@ -61,6 +65,15 @@ unreviewed takes as final, or silently skip blocked clips.
 The repository currently has no root Makefile and no root Python project. Gates
 for this work are the generated tool's own Makefile targets plus repository
 Markdown checks and `git diff --check`.
+
+The approved runtime dependency set is intentionally narrow. The CLI should use
+Cyclopts as its preferred command-line library. For Markdown handling, the
+implementation may use exactly one of `Markdown`, `mdast`, or `darn-it` unless a
+specific parser limitation justifies a second Markdown dependency in the
+Decision Log. `httpx`, `msgspec`, and `cuprum` are also acceptable runtime
+dependencies when they materially simplify typed I/O, schema validation, remote
+asset inspection, or command execution. Any dependency outside this list is out
+of scope and requires approval.
 
 ## Tolerances
 
@@ -139,6 +152,8 @@ existing skill chain.
 - [x] (2026-05-06 00:14Z) Probe local Python binding availability and installed
   Fedora packages.
 - [x] (2026-05-06 00:18Z) Draft this implementation plan.
+- [x] (2026-05-06 00:44Z) Update the plan with approved dependencies and
+  Python 3.14 as the minimum runtime.
 - [ ] Bootstrap `tools/media-project` with Copier after user approval.
 - [ ] Add the CLI, parser, project writer, tests, and docs.
 - [ ] Update upstream skills so agents emit media-project creative metadata.
@@ -205,6 +220,16 @@ existing skill chain.
   proven.
   Date/Author: 2026-05-06, Codex.
 
+- Decision: Use Python 3.14 and allow a bounded dependency set.
+  Rationale: The user explicitly set Python 3.14 as the minimum and approved
+  Cyclopts, `Markdown`, `mdast`, `darn-it`, `httpx`, `msgspec`, and `cuprum`.
+  Cyclopts should be preferred for the CLI surface; `msgspec` should be the
+  default choice for typed JSON validation if schema complexity warrants a
+  dependency; and only one Markdown parser should be chosen unless evidence
+  shows the selected parser cannot handle the table shapes in the skill
+  artefacts.
+  Date/Author: 2026-05-06, Codex.
+
 ## Outcomes & Retrospective
 
 No implementation has been performed yet. This plan is a draft awaiting user
@@ -264,11 +289,12 @@ The requested Python package should be bootstrapped from
 
 Stage A is scaffolding. Run Copier into `tools/media-project` with
 `project_name=media-project`, `package_name=media_project`, `use_rust=false`,
-and a Python version compatible with the template and this VM. Then add
+and `python_version=3.14`. Then add
 `tools/media-project/media_project/cli.py` and update
 `tools/media-project/pyproject.toml` with a console script, probably
-`media-project = "media_project.cli:main"`. Keep the generated files confined
-to `tools/media-project`.
+`media-project = "media_project.cli:main"`. Add Cyclopts as the CLI dependency
+unless a direct template constraint blocks it. Keep the generated files
+confined to `tools/media-project`.
 
 Stage B is the data contract. Add a small internal schema in `cli.py` or a
 separate module if the file grows beyond the tolerance. It should parse:
@@ -277,7 +303,11 @@ separate module if the file grows beyond the tolerance. It should parse:
 once the skills emit one. The parser must resolve selected clip paths, validate
 that required clips exist, reject blocked or unreviewed required shots, and
 compute timeline start positions from ordered durations rather than trusting
-filesystem order.
+filesystem order. Prefer `msgspec` for JSON sidecar encoding and validation if
+the schema becomes large enough to justify a dependency. For Markdown table
+parsing, choose one of `Markdown`, `mdast`, or `darn-it` during implementation
+after a small fixture spike shows which one preserves table content with the
+least custom code.
 
 Stage C is OpenShot project writing. Implement a deterministic writer that
 creates an `.osp` JSON document with project settings, imported file entries,
@@ -323,7 +353,7 @@ plan is approved:
 copier copy ../agent-template-python tools/media-project \
   --data project_name=media-project \
   --data package_name=media_project \
-  --data python_version=3.12 \
+  --data python_version=3.14 \
   --data use_rust=false
 ```
 
@@ -371,6 +401,22 @@ uv run media-project package-openshot --help
 
 The help commands should show the command name and the required input/output
 paths without importing unavailable OpenShot Python bindings.
+
+After bootstrapping, update `tools/media-project/pyproject.toml` so runtime
+dependencies include Cyclopts and any selected parser/serializer from the
+approved set. The default planned dependency shape is:
+
+```toml
+dependencies = [
+    "cyclopts",
+    "msgspec",
+]
+```
+
+Add one Markdown parser only when the implementation starts parsing Markdown
+tables directly instead of reading the future media-project manifest. If remote
+asset inspection becomes necessary, add `httpx`. If subprocess execution
+becomes necessary, add `cuprum` from the approved GitHub source.
 
 Run the tool's gates from `tools/media-project`:
 
@@ -459,6 +505,18 @@ Firecrawl research used these sources:
   that outputs an OpenShot Video Editor project file in JSON format and names
   concepts such as `files`, `clips`, `effects`, `width`, `height`, `fps_num`,
   `fps_den`, `sample_rate`, `channels`, and `channel_layout`.
+- `https://pypi.org/project/Cyclopts/`: identifies Cyclopts as a type-hint
+  oriented CLI library.
+- `https://pypi.org/project/msgspec/`: identifies msgspec as a fast
+  serialisation and validation library with JSON support.
+- `https://pypi.org/project/Markdown/`, `https://pypi.org/project/mdast/`, and
+  `https://pypi.org/project/darn-it/`: identify the approved Markdown-handling
+  candidates.
+- `https://pypi.org/project/httpx/`: identifies the approved HTTP client
+  dependency if remote media inspection becomes necessary.
+- `https://github.com/leynos/cuprum`: identifies cuprum as the approved typed
+  asynchronous command-execution dependency if subprocess calls become
+  necessary.
 
 Local probes:
 
@@ -483,10 +541,16 @@ The CLI module must expose `main() -> None` in
 `tools/media-project/media_project/cli.py`. The console script in
 `pyproject.toml` must point to this function.
 
-The implementation should keep runtime dependencies empty for the MVP if
-possible. Use the Python standard library for Markdown table parsing, JSON
-writing, path handling, and CLI parsing. If a stronger CLI framework is needed,
-propose it before adding a dependency.
+The tool must target Python 3.14 or newer. The preferred CLI dependency is
+Cyclopts, with `main()` delegating to a Cyclopts application. The implementation
+may use `msgspec` for typed JSON encoding/decoding and schema validation.
+Markdown table parsing may use `Markdown`, `mdast`, or `darn-it`; choose one
+based on a small fixture spike and record the choice. `httpx` is approved only
+for remote HTTP work, and `cuprum` is approved only for typed command execution.
+
+Do not add any runtime dependency outside Cyclopts, `Markdown`, `mdast`,
+`darn-it`, `httpx`, `msgspec`, and `cuprum` without a plan revision and user
+approval.
 
 Internal data structures should be typed dataclasses or named tuples in
 `media_project.cli` unless the file exceeds the tolerance threshold. Suggested
@@ -538,3 +602,9 @@ reconnaissance, and local package/import probes. The plan deliberately chooses
 direct OpenShot project JSON generation as the first milestone because native
 development libraries are installed but Python libopenshot bindings are not
 currently importable.
+
+Revision on 2026-05-06: update the plan to require Python 3.14, prefer
+Cyclopts for the CLI, and allow the explicitly approved runtime dependencies
+for Markdown handling, typed JSON validation, HTTP, and command execution. This
+narrows dependency decision-making during implementation and changes the Copier
+bootstrap command from `python_version=3.12` to `python_version=3.14`.
