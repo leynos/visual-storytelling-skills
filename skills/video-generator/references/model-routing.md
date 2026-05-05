@@ -78,7 +78,7 @@ update the manifest before submission. Do not submit an invalid duration and wai
 the provider to reject it.
 
 When the selected model is `seedance_2_0`, load `seedance-2-deep-dive` before media
-upload or job submission. Use it for Seedance-specific reference prioritisation, prompt
+upload or job submission. Use it for Seedance-specific reference prioritization, prompt
 shape, duration/aspect defaults, quality/speed choices, and retake triage.
 
 When the selected model is `kling3_0`, load `kling-3-0-deep-dive` before media upload

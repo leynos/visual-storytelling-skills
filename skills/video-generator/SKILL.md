@@ -230,7 +230,7 @@ them as required:
   objects that appear in more than two shots;
 - style references only when they do not crowd out continuity references.
 
-When a model has a reference-count limit, prioritise in this order: start/end anchors,
+When a model has a reference-count limit, prioritize in this order: start/end anchors,
 principal character, active hero prop, recurring visual element, location, style. Stop
 if the limit prevents a required identity or continuity reference from being supplied.
 

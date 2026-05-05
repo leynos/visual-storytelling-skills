@@ -86,10 +86,11 @@ image model.
 1. Locate and confirm the scene inventory document.
 2. Inventory all available reference images and note their categories (characters,
    locations, props, style anchors).
-3. Load the video role manifest. If absent, derive it from the reference image manifest
-   and scouting matrix in the scene inventory.
+3. Load the video role manifest. If absent, halt and instruct the user to run
+   `scene-inventory-extractor-v2` Phase 11.6 before proceeding; do not derive a
+   replacement manifest in this skill.
 4. Load the prompt keyword library. If absent, halt and instruct the user to run
-   scene-inventory-extractor-v2 Phase 2.4.
+   `scene-inventory-extractor-v2` Phase 2.4 before proceeding.
 5. Load the continuity inventory if present. Flag if absent — continuity gaps will be
    carried forward as WARN items.
 6. Record the list of scenes to be processed and their target clip counts.

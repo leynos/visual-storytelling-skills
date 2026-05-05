@@ -657,15 +657,21 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 
 ### Output Files
 
+The extractor-to-`shot-specifier` contract has one formal handoff artifact: the
+**Phase 13 handoff package**. Downstream consumers should read these output keys from
+that package rather than expecting an additional extractor handoff step.
+
 ```text
 {project_name}/
 ├── {project_name}_scene_inventory.md
 ├── {project_name}_continuity_inventory.md
 ├── {project_name}_prompt_keywords.md
+├── {project_name}_recurring_visual_elements.md
 ├── refs/
 │   ├── style/
 │   ├── characters/
 │   ├── locations/
+│   ├── recurring-elements/
 │   └── props/
 ├── shots/
 │   └── {shot_id}/
@@ -673,6 +679,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 │       ├── end.png
 │       └── key{NN}.png (if any)
 └── reports/
+    ├── phase_13_handoff.md
     └── consistency_report.md
 ```
 

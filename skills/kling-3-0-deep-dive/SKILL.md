@@ -167,8 +167,8 @@ Use reference media for the job it is best at:
 | Motion reference video | Transfer camera path, choreography, or physical action |
 | Style reference | Maintain colour, lighting, and texture across a sequence |
 
-For Elements, use 2-3 clean images per character/object when available: front, three-
-quarter, and detail or full-body. Do not overload Elements with many weak references.
+For Elements, use 2-3 clean images per character/object when available: front,
+three-quarter, and detail or full-body. Do not overload Elements with many weak references.
 If the live route exposes only start/end images, do not list Elements or generic
 references as uploadable requirements. Bake the identity, prop, location, and style
 requirements into the storyboard start/end frames in `shot-specifier` Phase 5 and make
@@ -226,7 +226,7 @@ Every strong product prompt needs four components:
 
 Examples of useful product constraints:
 
-- "white quartz countertop with subtle veining";
+- "white quartz worktop with subtle veining";
 - "soft directional studio light from the left creating a single bottle-edge highlight";
 - "backlit liquid creating a warm amber glow";
 - "camera starts tight on label texture and pulls back to reveal the full bottle";
@@ -259,7 +259,7 @@ language. Prefer concrete style lines:
 - "flickering magenta and cyan neon reflecting across wet pavement";
 - "harsh fluorescent overhead light on matte grey walls";
 - "single softbox from upper left, controlled specular highlight";
-- "35mm film grain, shallow depth of field, desaturated teal grade";
+- "35 mm film grain, shallow depth of field, desaturated teal grade";
 - "documentary handheld, natural window light, authentic room tone".
 
 Use the same style-bible sentence across a project only after it has tested well. Do not
@@ -316,6 +316,12 @@ prompt at final quality.
 validate:
 
 - exact live MCP model ID for Kling 3.0;
+- Phase 6 storyboard consistency status before job submission: all BLOCK findings must
+  be resolved, all fixable WARN findings must be resolved, and every remaining WARN
+  finding must already be converted into an explicit prompt constraint;
+- Phase 13 extractor consistency status before handoff: prop consistency against the
+  primary ref, cross-shot prop identity, and recurring visual element consistency are
+  actionable requirements, not informational notes;
 - live duration, resolution, quality, aspect-ratio, and audio support;
 - whether the route accepts start/end frames, Elements, generic image references, motion
   references, seeds, quality modes, or Motion Control;

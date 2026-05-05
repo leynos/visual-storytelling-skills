@@ -61,7 +61,7 @@ when generated audio is the asset rather than an input constraint.
 |----------|---------|--------|
 | Duration | 6-8 s first pass; 4-6 s for identity-critical inserts; keep most clips under 10 s | Drift rises with duration; split long ideas into crisp segments |
 | Upper limit | 15 s only for deliberate hero tests or structured multi-shot prompts | Last seconds are more likely to soften, mutate, or lose continuity |
-| Aspect ratio | Choose before writing the prompt | Ratio changes composition pressure and what the model emphasises |
+| Aspect ratio | Choose before writing the prompt | Ratio changes composition pressure and what the model emphasizes |
 | 9:16 | One strong subject, clean background, text safe area if overlays exist | Tall frames push faces and foreground action forward |
 | 16:9 | Add background control: simple layout, limited background motion, clear negative space | Wide frames invite extra set detail and artifacts |
 | 1:1 or 4:5 | Product, feed, and commercial detail when supported | Keeps product scale readable without excessive background |
@@ -84,7 +84,7 @@ Planning limits commonly reported for Seedance 2.0:
 
 Verify those values against the live Higgsfield MCP before generation.
 
-Prioritise file slots in this order:
+Prioritize file slots in this order:
 
 1. Start and end frame anchors when the workflow requires them.
 2. Principal character or product identity.
