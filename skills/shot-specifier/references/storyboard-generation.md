@@ -92,7 +92,7 @@ different-looking object every time it appears on screen.
 
 ## End Frame Generation: Edit vs Generate
 
-### Use `edit_image` (edit from start frame) when:
+### Use `edit_image` (edit from start frame) when
 
 - The end frame shows the same subject in the same location
 - The change is: subject position shift, expression change, object state change,
@@ -110,7 +110,7 @@ Change only: {exact description of what changes}.
 State the preserved elements first. This is critical — the model defaults to changing
 things when not explicitly told to preserve them.
 
-### Use `generate_image` (generate new) when:
+### Use `generate_image` (generate new) when
 
 - The end frame is a different camera angle or framing
 - The subject has moved significantly through the space

@@ -76,6 +76,7 @@ source material to video-ready assets.
 | Groups/collectives | ☐ ___ | ☐ |
 
 Per character:
+
 - ☐ Role, look, wardrobe, behavioural tells, inner conflict, arc, voice notes, key props
 - ☐ **Reference image requirements specified** (primary, face, expressions, outfits, poses)
 - ☐ **Continuity state chain specified** (wardrobe, carried items, body state, hand/pocket risks)
@@ -90,6 +91,7 @@ Per character:
 | Stylized/insert spaces | ☐ ___ | ☐ |
 
 Per location:
+
 - ☐ Look, sound, continuity constraints, signature motif
 - ☐ **Continuity chain across appearances defined** (first state, later changes, non-negotiable anchors)
 - ☐ **Scouting matrix defined** (angles × lighting × weather × narrative state)

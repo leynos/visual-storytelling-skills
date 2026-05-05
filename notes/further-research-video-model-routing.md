@@ -83,11 +83,13 @@ are the characteristic failure modes of each model?
 ### 6. Model-Specific Parameters
 
 For `seedance_2_0`:
+
 - Does `genre` selection (auto / action / horror / drama / epic) meaningfully change the
   output for non-genre material (e.g., documentary-style shots)?
 - Does `mode` (std vs fast) meaningfully affect quality, or only speed?
 
 For `kling3_0`:
+
 - How does multi-shot mode work? What constraints apply?
 - Is audio generation reliable enough for on-screen sound effects?
 - How does motion transfer from a reference video work in practice?
@@ -122,6 +124,7 @@ Priority test shots:
 ### Test Variables
 
 For each shot, test:
+
 - All available models
 - With and without end frame
 - With strong vs minimal text prompt
@@ -130,6 +133,7 @@ For each shot, test:
 ### Recording Results
 
 For each test, record:
+
 - Model used
 - Parameters used (duration, resolution, mode, genre)
 - Reference images provided and their roles

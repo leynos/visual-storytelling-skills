@@ -128,11 +128,13 @@ Immediately following the table (or linked by Shot ID), provide for each shot:
 Descriptions must answer "What does the camera see?" — not "What does the character feel?"
 
 **Effective:**
+
 - "Rain beads crawling down windscreen; wipers half-hearted"
 - "Hand taps dash twice; boot loop spins on monitor"
 - "Football sticker half-covering fiducial marker; confidence overlay flickers"
 
 **Ineffective (rewrite these):**
+
 - "Miette feels frustrated" → What does the camera see?
 - "The atmosphere is tense" → What visual detail creates tension?
 - "Something important happens" → What specific action?
@@ -144,11 +146,13 @@ Descriptions must answer "What does the camera see?" — not "What does the char
 Specify beds (continuous) and punctuations (discrete). Include technical notes.
 
 **Components:**
+
 - **Bed:** continuous environmental sound
 - **Punctuation:** discrete sounds marking moments
 - **Technical:** compression, distance, processing
 
 **Examples:**
+
 - "Rain roof + distant road wash" (bed + ambient)
 - "Cabin hum; tiny boot chime" (bed + punctuation)
 - "Tinny radio compression; background office chatter" (technical + bed)
@@ -173,6 +177,7 @@ Specify beds (continuous) and punctuations (discrete). Include technical notes.
 ## Continuity Flags Guidelines
 
 State constraints as must/must-not:
+
 - "Avoid modern car UI reflections"
 - "UI must be generic/fictional"
 - "UK road markings; left-hand traffic"
@@ -190,6 +195,7 @@ Note visual rhymes between shots at the end of each sequence:
 ```
 
 **Examples:**
+
 - "Rain streaks on windscreen → vertical scanline flicker on drone feed (directionality)"
 - "Coffee ring stain → heatmap circular pattern (shape echo)"
 - "Phone crack lines → map grid lines (geometry)"

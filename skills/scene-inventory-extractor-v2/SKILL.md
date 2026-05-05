@@ -392,6 +392,7 @@ palette, lighting). These become the visual-style reference for everything that 
 ### 11.2 Character References
 
 For each character, generate in order:
+
 1. **Primary reference** (no prior refs; full visual-style spec in prompt + white bg)
 2. **Additional angles/expressions/wardrobe** (primary ref as input reference)
 
@@ -403,6 +404,7 @@ For each character, generate in order:
 > aircraft looks like three different vehicles across a sequence.
 
 For each prop with `reference priority: required-before-Phase-12`:
+
 1. **Primary reference** (white background, ¾ angle, style spec in prompt)
 2. **Detail / state variants** (primary ref as input)
 
@@ -412,6 +414,7 @@ same pattern.
 ### 11.4 Location Scouting References
 
 For each location, generate across the scouting matrix:
+
 1. **Primary establishing shot** (no prior refs; full style spec in prompt)
 2. **Additional angles** (primary ref as input)
 3. **Lighting/weather/condition variants** (primary ref as input; describe the changed conditions)
@@ -445,6 +448,7 @@ tells downstream tools and the shot-specifier skill how to use each image.
 ```
 
 Video role values:
+
 - `start_image` — anchors the first frame of the clip
 - `end_image` — anchors the last frame of the clip
 - `image` — subject/style consistency reference (visible in clip but not a frame anchor)
@@ -488,11 +492,13 @@ For every shot in every sequence, generate:
 ### End Frame Generation
 
 **If edit-from-start:**
+
 - Tool: `generate_image_variation`
 - References: [start_frame, relevant Phase 11 refs]
 - Prompt: "Edit this image: {changes only}" — do NOT repeat unchanged elements
 
 **If generate-new:**
+
 - Tool: `generate_image`
 - References: [start_frame (as scene ref), relevant Phase 11 refs]
 - Prompt includes: visual style, end-frame framing + visible content, subject end state, "Same location/environment as reference"
@@ -564,6 +570,7 @@ depends on using the same canonical phrases.
 
 Before finalising each prompt, check the location bible's continuity constraints for
 that location and inject any that are relevant. Common constraints to inject:
+
 - Negative space rules ("no trees", "left-hand traffic")
 - Colour exclusions ("no blue sky", "no hard shadows outside")
 - Signature prop requirements ("rubber duck on console throughout")

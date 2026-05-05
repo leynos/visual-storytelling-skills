@@ -51,6 +51,7 @@ Shot IDs are structured as: `S{scene_number_padded}_SH{shot_number_padded}`
 - Shot numbers within a scene: three digits, zero-padded — `SH001`, `SH002`, `SH003`
 
 Examples:
+
 - `S11_SH001` — Scene 11, shot 1 (the gannet on the cradle)
 - `S11_SH002` — Scene 11, shot 2 (rotor spin-up and lift)
 - `S11_SH003` — Scene 11, shot 3 (receding into forward flight)
@@ -110,6 +111,7 @@ each video generation API call — before checking the result.
 
 The generation API returns a job ID when a clip is submitted. This ID is the only way
 to:
+
 - Retrieve the clip URL after generation completes
 - Trace a specific clip back to its source shot
 - Order a retake if the clip is rejected
@@ -139,6 +141,7 @@ an anonymous clip — you can watch it but you cannot manage it.
 ## Assembly Order
 
 When assembling clips into a sequence:
+
 - Use the `selected.mp4` files (not the vN originals)
 - Assemble in shot ID order (lexicographic = scene and shot order)
 - Check `clip_boundary` in the manifest: `continuous` means match the cut precisely;
@@ -152,6 +155,7 @@ boundaries. Use it as the assembly instruction.
 ## Archiving
 
 After a production is complete:
+
 - Keep all storyboard frames (`shots/`)
 - Keep all prompts (`prompts/`)
 - Keep the generation log (`generated/generation_log.md`)

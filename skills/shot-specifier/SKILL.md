@@ -103,6 +103,7 @@ Before writing any shot rows, establish a **duration budget**:
 ```
 
 **Budget rules:**
+
 - Clips must be 4, 6, or 8 seconds.
 - One clip = one action in one location. If the action requires more than 8 seconds,
   split it.
@@ -250,6 +251,7 @@ producing a different-looking object from every other shot in the sequence.
 ### Start Frame Prompt Construction
 
 Combine:
+
 - Global style phrase from the prompt keyword library
 - Location vocabulary for this shot's location type
 - Lighting condition vocabulary for this shot's lighting condition
@@ -259,6 +261,7 @@ Combine:
 - Global negative constraints
 
 Reference images to pass:
+
 - Location ref matching the lighting condition
 - Character ref(s) if human subjects present
 - Prop ref(s) if significant props visible
@@ -268,11 +271,13 @@ Prompt ending: `"no text, no watermarks, no logos, no labels, no annotations"`
 ### End Frame Prompt Construction
 
 **If the end frame shows the same subject in a significantly different state:**
+
 - Use `edit_image` (edit from start frame)
 - Pass the start frame as a reference
 - Describe only what changes; do not repeat unchanged elements
 
 **If the end frame shows a different composition, angle, or subject configuration:**
+
 - Use `generate_image` (generate new)
 - Pass the start frame + location ref as references
 - Full prompt as for start frame but with end-state description
@@ -375,6 +380,7 @@ keyword library. No ad hoc vocabulary.
 ### Continuity Constraint Injection
 
 Before finalising each prompt, check:
+
 - The location bible negative space rules for this location
 - The continuity inventory for this scene
 - Any WARN items from Phase 6
@@ -432,6 +438,7 @@ After each video generation call, log:
 Write to: `generated/generation_log.md`
 
 This log is essential for:
+
 - Tracing which job ID corresponds to which shot (for retrieval and retakes)
 - Identifying shots that need to be regenerated
 - Tracking cost across the production
