@@ -1,0 +1,4 @@
+interface:
+  display_name: "Seedance 2 Deep Dive"
+  short_description: "Plan Seedance 2.0 video prompts and references"
+  default_prompt: "Use $seedance-2-deep-dive to route, prompt, constrain, and troubleshoot Seedance 2.0 video generation."

@@ -132,6 +132,7 @@ ______________________________________________________________________
 | `scene-inventory-extractor-v2` | Reads a script or prose fragment; extracts characters, locations, props, and story state; generates the full reference-image library; produces a continuity inventory for reset-critical scenes. |
 | `shot-specifier` | Takes a scene inventory and produces numbered shot specs: actor position and movement, camera mount and motion, lens, lighting, effects, timing, storyboard keyframes, video prompts, and model routing. |
 | `video-generator` | Takes the prompt manifest and storyboard frames from the upstream skills; uses the Higgsfield MCP to prepare media, call video generation, poll jobs, download takes, resume interrupted runs, and write assembly order. |
+| `seedance-2-deep-dive` | Distils Seedance 2.0 operating guidance: multimodal input planning, reference prioritisation, duration and aspect defaults, prompt structure, quality/speed tradeoffs, settings sweeps, and failure triage. |
 | `nanobanana` | Crafts structured prompts for the Nano Banana image MCP — generation, editing, character consistency, and multi-image fusion. |
 | `phoneticize` | Detects pronunciation hazards in TTS scripts; suggests phonetic respellings; previews via Eleven v3 fragments; emits a phoneticized script and an archived pronunciation table. |
 

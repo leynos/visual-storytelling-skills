@@ -72,7 +72,9 @@ image model.
 
 > **Read order:** Before Phase 4, read `references/shot-direction.md`. Before Phase 5,
 > read `references/storyboard-generation.md`. Before Phase 7, read
-> `references/model-routing.md`. The asset pipeline conventions are in
+> `references/model-routing.md`. If Phase 7 routes any shot to `seedance_2_0`, also
+> load `seedance-2-deep-dive` before finalising the prompt, reference plan, duration,
+> aspect ratio, and generation notes. The asset pipeline conventions are in
 > `references/asset-pipeline.md`.
 
 ---
@@ -352,6 +354,11 @@ human review and carried forward as notes in the video prompt.
 For each shot, assemble a complete video generation prompt. This skill prepares the
 handoff package for `video-generator`; it does not submit Higgsfield jobs itself.
 
+If the recommended model is `seedance_2_0`, apply `seedance-2-deep-dive` before writing
+the prompt. Record why Seedance is the right route, keep the clip short unless the shot
+is a deliberate hero test, assign each reference file a clear purpose, and shape the
+prompt as a Seedance-native multimodal direction rather than a generic video prompt.
+
 ### Prompt Template
 
 ```markdown
@@ -480,6 +487,15 @@ This log is essential for:
 | `references/storyboard-generation.md` | Phase 5 | nanobanana usage for storyboards, prompt construction, reference-role assignment |
 | `references/model-routing.md` | Phase 7 | Video model selection by shot type; routing criteria; known model characteristics |
 | `references/asset-pipeline.md` | Phase 8 | File naming conventions, generation log format, retake workflow |
+
+## Related Skills
+
+| Skill | Use When |
+|-------|----------|
+| `scene-inventory-extractor-v2` | Upstream scene inventory, continuity inventory, and reference library are missing |
+| `nanobanana` | Generating or editing storyboard frames and locked references |
+| `seedance-2-deep-dive` | A shot is routed to `seedance_2_0` and needs Seedance-specific duration, reference, prompt, or troubleshooting guidance |
+| `video-generator` | Prompt manifest, frames, and model routing are ready for Higgsfield MCP submission |
 
 ## Templates
 

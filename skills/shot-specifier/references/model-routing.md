@@ -26,6 +26,8 @@ Three findings matter most for this production.
    look, lighting, and asset continuity. It is multimodal, anchor-heavy, and performs
    best in single-character action, dialogue-adjacent close-ups, product/prop
    image-to-video, and shots where audio sync matters.
+   When routing a shot to `seedance_2_0`, load `seedance-2-deep-dive` before writing the
+   final prompt and manifest row.
 
 2. **Kling 3.0 appears strongest when the shot needs explicit scene structure, camera
    logic, or motion transfer**: multi-shot sequences, aerials with clean geometric
@@ -174,6 +176,9 @@ over 10 s.
 
 **Prompting:** Keep prompts clear and structured; let references do identity work; use
 explicit negatives for camera logic; prefer short, controlled clip durations.
+For detailed Seedance-native multimodal prompt structure, reference-file prioritisation,
+duration/aspect defaults, settings sweeps, and troubleshooting, use the
+`seedance-2-deep-dive` skill.
 
 **References:** Front-facing close-up + full-body + one extra angle for humans; hero prop
 or environment plate + optional motion reference for non-human shots.

@@ -29,6 +29,9 @@ later agent can continue without guessing.
 
 - For model choice and duration limits, read
   [references/model-routing.md](./references/model-routing.md).
+- For Seedance 2.0-specific multimodal reference planning, prompt structure, duration
+  defaults, quality/speed decisions, and troubleshooting, load `seedance-2-deep-dive`
+  whenever a job uses `seedance_2_0`.
 - For converting structured `[TAG]` prompt files into model-native prompt strings, read
   [references/prompt-flattening.md](./references/prompt-flattening.md).
 - For shots with key frames, read
@@ -69,6 +72,12 @@ are unavailable:
 Do not invent model IDs. Translate manifest names such as `seedance_2_0` or `kling3_0`
 to the exact IDs exposed by the live MCP tool surface, record that mapping in the
 generation log, and stop if no matching model is available.
+
+When the resolved model is Seedance 2.0, apply `seedance-2-deep-dive` before submission:
+validate the reference-file plan against live MCP limits, preserve each required
+reference's purpose, keep production clips within the planned duration envelope, and
+use draft/final quality settings deliberately instead of treating quality as a repair
+button.
 
 Do not use a plain text-to-video route for a shot that has required start/end/reference
 frames. Use image-to-video, start/end image, or the equivalent MCP mode that actually

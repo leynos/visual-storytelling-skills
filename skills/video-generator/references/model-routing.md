@@ -46,6 +46,10 @@ reports narrower limits, different parameter names, or different model IDs, obey
 tool and update the manifest before submission. Do not submit an invalid duration and
 wait for the provider to reject it.
 
+When the selected model is `seedance_2_0`, load `seedance-2-deep-dive` before media
+upload or job submission. Use it for Seedance-specific reference prioritisation, prompt
+shape, duration/aspect defaults, quality/speed choices, and retake triage.
+
 ## Routing Procedure
 
 1. Read the shot intent, required references, action complexity, duration, and anchor
