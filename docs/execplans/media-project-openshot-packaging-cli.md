@@ -508,7 +508,7 @@ Firecrawl research used these sources:
 - `https://pypi.org/project/Cyclopts/`: identifies Cyclopts as a type-hint
   oriented CLI library.
 - `https://pypi.org/project/msgspec/`: identifies msgspec as a fast
-  serialisation and validation library with JSON support.
+  serialization and validation library with JSON support.
 - `https://pypi.org/project/Markdown/`, `https://pypi.org/project/mdast/`, and
   `https://pypi.org/project/darn-it/`: identify the approved Markdown-handling
   candidates.
