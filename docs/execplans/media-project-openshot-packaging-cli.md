@@ -163,7 +163,7 @@ existing skill chain.
 ## Surprises & Discoveries
 
 - Observation: Firecrawl found that current `OpenShot/libopenshot` is on the
-  `develop` branch with a latest visible release of `v0.7.0`, while this VM has
+  `develop` branch with the latest visible release of `v0.7.0`, while this VM has
   Fedora `libopenshot-devel-0.4.0-6.fc43.x86_64`.
   Evidence: Firecrawl scrape of `https://github.com/OpenShot/libopenshot` and
   local `rpm -q libopenshot-devel libopenshot-audio-devel`.
