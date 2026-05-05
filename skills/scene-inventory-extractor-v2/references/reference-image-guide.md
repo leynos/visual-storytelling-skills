@@ -179,7 +179,13 @@ weather / condition} has changed."
 |-------------|-------------------|
 | **Story-critical** (carries narrative, appears in multiple scenes) | Primary (¾ angle, white bg) · Detail insert (any specific detail seen in ECU) · In-context (in its typical environment) · State variants (if it changes) |
 | **Supporting** (defines character or location) | Primary (¾ angle, white bg) |
-| **Background** (visible but not foregrounded) | None (location reference covers it) |
+| **Recurring visual element** (object, fixture, interface, machinery, furniture layout, or set dressing that appears in more than two shots and would be noticed if it changed) | Locked primary reference, usually in-context; generate before any location or shot frame where it appears |
+| **Background** (visible but not foregrounded and not recurring) | None (location reference covers it) |
+
+Recurring visual elements are not optional background. If the audience will recognise a
+monitor-bank layout, inspection robot, grow-light strip arrangement, cargo pod, cabinet,
+signage cluster, or workstation layout when it returns, give it its own locked reference
+and pass that reference whenever visible.
 
 ### Generation Order
 
@@ -296,6 +302,8 @@ Identify and collect:
 - Character reference(s) matching the character(s) in this shot (correct outfit variant)
 - Location reference matching this shot's lighting/weather/narrative condition
 - Prop reference(s) for any visible props
+- Recurring visual element reference(s) for any visible fixtures, layouts, interfaces,
+  machinery, or set-dressing elements that appear in more than two shots
 
 ### Step 2: Generate Start Frame
 
@@ -305,10 +313,10 @@ Identify and collect:
 - Model: `gemini-3-pro-image-preview`
 - `referenceImagePaths`:
   - Character-centric: [character identity ref, location ref, required prop refs, style
-    anchor when available]
-  - Environment or prop-led: [location ref, required prop refs, style anchor when
-    available], adding character refs only for visible named characters whose identity
-    must be constrained
+    anchor when available, recurring visual element refs when visible]
+  - Environment or prop-led: [location ref, required prop refs, recurring visual element
+    refs, style anchor when available], adding character refs only for visible named
+    characters whose identity must be constrained
 - Prompt: see §6 Shot Frame Prompts — Start frame
 - Save as `shot_{shot_id}_start.png`
 
@@ -320,7 +328,7 @@ Identify and collect:
   for the described change]
 - If **generate**: Tool nanobanana MCP `generate_image`; model
   `gemini-3-pro-image-preview`; `referenceImagePaths` [start_frame + location ref +
-  required prop refs + style anchor when available]
+  required prop refs + recurring visual element refs + style anchor when available]
 - End frames derived from start frames should use `edit_image` so character, location,
   prop, and style consistency inherit from the start frame naturally.
 - Save as `shot_{shot_id}_end.png`
@@ -337,9 +345,9 @@ For each key frame in order:
 - Model: `gemini-3-pro-image-preview`
 - `referenceImagePaths`:
   - Character-centric: [character identity ref, start_frame, matching location ref,
-    required prop refs, style anchor when available]
+    required prop refs, recurring visual element refs, style anchor when available]
   - Environment or prop-led: [start_frame, matching location ref, required prop refs,
-    style anchor when available]
+    recurring visual element refs, style anchor when available]
   - Edit-derived: [start_frame, only refs needed for the described change]
 - Prompt: intermediate state description
 - Save as `shot_{shot_id}_key{NN}.png`

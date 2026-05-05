@@ -68,6 +68,7 @@ Immediately following the table (or linked by Shot ID), provide for each shot:
   * Character: {refs/characters/{name}/{variant}.png}
   * Location: {refs/locations/{name}/{condition}.png}
   * Props: {refs/props/{name}/{variant}.png}
+  * Recurring visual elements: {refs/recurring-elements/{name}/primary.png}
 
 * **Transition description (for video prompt):**
   {2–4 sentence description including subject appearance, movement trajectory,
@@ -263,7 +264,7 @@ Note visual rhymes between shots at the end of each sequence:
 | **Start/end frames** | Both fully described for every shot? |
 | **Interpolatable change** | End frame differs from start in position/pose/state/composition? |
 | **Edit vs generate** | Derivation method correct per decision table? |
-| **References listed** | Correct character, location, prop refs identified? |
+| **References listed** | Correct character, location, prop, and recurring visual element refs identified? |
 | **Transition description** | ≥ 2 sentences with all four components? |
 | **Boundaries** | Continuous boundaries match adjacent shot start frames? |
 | **Match-cuts** | Visual rhymes identified? |

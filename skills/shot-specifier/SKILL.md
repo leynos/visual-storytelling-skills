@@ -38,7 +38,7 @@ Before beginning, verify the following inputs are available:
 | Video role manifest | Section in scene inventory | Required |
 
 If the prompt keyword library or video role manifest are absent, run
-`scene-inventory-extractor-v2` phases 2.4 and 11.5 first before proceeding.
+`scene-inventory-extractor-v2` phases 2.4 and 11.6 first before proceeding.
 
 ## Execution Context
 
@@ -242,12 +242,16 @@ Before generating any frame for a shot, verify:
 
 1. A canonical reference image exists for every **named character** present in the shot.
 2. A canonical reference image exists for every **named prop** visible in the shot.
-3. A canonical reference image exists for the **specific location variant** (angle ×
+3. A locked reference image exists for every **recurring visual element** visible in
+   the shot: fixtures, interfaces, machinery, furniture layouts, signage clusters, or
+   set dressing that appears in more than two shots and would be noticed if it changed.
+4. A canonical reference image exists for the **specific location variant** (angle ×
    lighting condition) the shot requires.
 
 If any is missing, generate it now before proceeding. This check is mandatory — a frame
-generated without a prop reference will invent the prop's appearance independently,
-producing a different-looking object from every other shot in the sequence.
+generated without a prop, recurring visual element, or location reference will invent
+the object or set dressing independently, producing different monitor layouts, fixture
+arrangements, robots, cabinets, or prop designs across the sequence.
 
 ### Generation Order
 
@@ -271,11 +275,13 @@ Reference images to pass:
 
 - For character-centric shots, use nanobanana MCP `character_consistency` and set
   `referenceImagePaths` to the character identity ref first, followed by the matching
-  location ref, significant prop refs, and style anchor when available.
+  location ref, significant prop refs, visible recurring visual element refs, and style
+  anchor when available.
 - For environment or prop-led shots, use nanobanana MCP `generate_image` and set
   `referenceImagePaths` to the matching location ref plus the specific prop refs needed
-  in the frame. Add the style anchor when available; add character refs only for visible
-  named characters whose identity must be constrained.
+  in the frame plus any visible recurring visual element refs. Add the style anchor
+  when available; add character refs only for visible named characters whose identity
+  must be constrained.
 
 Prompt ending: `"no text, no watermarks, no logos, no labels, no annotations"`
 
@@ -294,7 +300,7 @@ Prompt ending: `"no text, no watermarks, no logos, no labels, no annotations"`
 
 - Use `generate_image` (generate new)
 - Set `referenceImagePaths` to the start frame, matching location ref, required prop
-  refs, and style anchor when available
+  refs, visible recurring visual element refs, and style anchor when available
 - Full prompt as for start frame but with end-state description
 
 ### File Naming
@@ -319,6 +325,7 @@ After generating all storyboard frames, run a vision-based consistency pass.
 | **Character consistency** | Compare against character primary ref | Face, outfit, proportions diverge from reference |
 | **Location consistency** | Compare against location ref | Architecture, layout, materials diverge |
 | **Prop consistency** | Compare against prop ref | Shape, colour, detail diverge |
+| **Recurring visual element consistency** | Compare against locked element refs and across all frames containing each element | Monitor layouts, screen colours, fixture arrays, robots, cabinets, cargo pods, signage, or workstation layouts drift |
 | **Cross-shot prop identity** | For each named prop: gather all frames in the sequence that contain it; view them together | The prop looks like a different physical object across shots — different construction, silhouette, or type |
 | **Lighting continuity** | Compare start and end frames | Light direction or colour-temp contradicts direction spec |
 | **Cross-shot continuity** | Compare end of SH{N} with start of SH{N+1} (if continuous) | Subject position, outfit, or environment jumps |

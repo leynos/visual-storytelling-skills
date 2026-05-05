@@ -206,12 +206,17 @@ Phases 12 and 13. Prop references are classified in Phase 6 as either
 required-before-Phase-12 (props that appear in video frames and must be
 locked before any shot-frame generation begins) or incidental (props
 that can be generated after location references without blocking shot
-generation). The flowchart enforces that all required-before-Phase-12
-prop primaries are locked before location references are generated.
+generation). Phase 6 also identifies recurring visual elements: objects,
+fixtures, interfaces, machinery, furniture layouts, or set dressing that
+appear in more than two shots and would be noticed if changed. The
+flowchart enforces that all required-before-Phase-12 prop primaries and
+recurring visual element refs are locked before location references are
+generated.
 Phase 12 performs a per-shot reference check; if anything is missing,
 control returns to Phase 11. Phase 13 checks both individual prop
 consistency against the primary reference and cross-shot prop identity
-across all frames.
+across all frames, plus recurring visual element consistency across
+every shot where each element is visible.
 
 ```mermaid
 flowchart TD
@@ -231,49 +236,63 @@ flowchart TD
   E --> F{All required-before-Phase-12
   prop primary refs locked?}
   F -- no --> E
-  F -- yes --> G[Generate location refs
-  11.4 Location Scouting References]
-  G --> H[Generate incidental prop refs
+  F -- yes --> G[Generate recurring visual element refs
+  11.4 Recurring Visual Element References]
+  G --> H{All recurring element refs
+  visible in location refs locked?}
+  H -- no --> G
+  H -- yes --> I[Generate location refs
+  11.5 Location Scouting References]
+  I --> J[Generate incidental prop refs
   primary + variants]
 
-  H --> I[Generate reference image manifest]
-  I --> J[Generate video role manifest
-  11.5 Video Role Manifest
+  J --> K[Generate reference image manifest]
+  K --> L[Generate video role manifest
+  11.6 Video Role Manifest
   assign start_image,end_image,image,video,audio roles]
 
-  J --> K[Phase 12: Shot-frame generation
+  L --> M[Phase 12: Shot-frame generation
   Pre-generation check per shot]
 
-  K --> L{For this shot:
+  M --> N{For this shot:
   refs for all named characters,
   required props,
+  recurring visual elements,
   correct location variant exist?}
-  L -- no --> B
-  L -- yes --> M[Generate start, key, end frames
+  N -- no --> B
+  N -- yes --> O[Generate start, key, end frames
   using prompt keyword library
   and locked refs]
 
-  M --> N[Phase 13: Consistency verification]
+  O --> P[Phase 13: Consistency verification]
 
-  N --> O[Check prop consistency
+  P --> Q[Check prop consistency
   vs primary prop ref]
-  N --> P[Check cross-shot prop identity
+  P --> R[Check cross-shot prop identity
   view all frames with each named prop]
+  P --> S[Check recurring visual element consistency
+  view all frames where each element appears]
 
-  O --> Q{Prop mismatch vs primary ref?}
-  Q -- yes --> R[Regenerate offending frames
-  using locked prop primary ref]
-  Q -- no --> S[Prop consistent]
+  Q --> T{Prop mismatch vs primary ref?}
+  T -- yes --> U[Regenerate offending frames
+  using locked prop or element refs]
+  T -- no --> V[Prop consistent]
 
-  P --> T{Prop looks like different object
+  R --> W{Prop looks like different object
   across shots?}
-  T -- yes --> R
-  T -- no --> U[Cross-shot prop identity confirmed]
+  W -- yes --> U
+  W -- no --> X[Cross-shot prop identity confirmed]
+
+  S --> Y{Recurring element drifts
+  across shots?}
+  Y -- yes --> U
+  Y -- no --> Z[Recurring elements confirmed]
 ```
 
 *Figure 3 — Reference image generation and consistency verification
 pipeline (Phases 6, 11, 12, and 13 of `scene-inventory-extractor-v2`).
-Required-before-Phase-12 props must be fully locked before location
-reference generation begins. Phase 12 loops back to Phase 11 if any
-reference is missing. Phase 13 enforces both per-shot prop consistency
-and cross-shot prop identity.*
+Required-before-Phase-12 props and recurring visual elements must be
+fully locked before location reference generation begins when they are
+visible in those locations. Phase 12 loops back to Phase 11 if any
+reference is missing. Phase 13 enforces per-shot prop consistency,
+cross-shot prop identity, and recurring visual element stability.*

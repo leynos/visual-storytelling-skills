@@ -31,9 +31,10 @@ Execute checks in this order (each subsequent check assumes prior checks have pa
 2. **Character consistency** (per shot, per character)
 3. **Location consistency** (per shot)
 4. **Prop consistency** (per shot, per visible prop)
-5. **Intra-shot lighting coherence** (per shot: start vs key frames vs end)
-6. **Cross-shot continuity** (sequential shots with continuous boundary)
-7. **Thematic image consistency** (thematic images vs their source scene refs)
+5. **Recurring visual element consistency** (per shot and across all frames where visible)
+6. **Intra-shot lighting coherence** (per shot: start vs key frames vs end)
+7. **Cross-shot continuity** (sequential shots with continuous boundary)
+8. **Thematic image consistency** (thematic images vs their source scene refs)
 
 ---
 
@@ -143,7 +144,29 @@ structural consistency, not identical framing.
    - Condition/state (if a specific state variant was expected)
 3. Score as PASS / WARN / BLOCK
 
-### 3.5 Intra-Shot Lighting Coherence
+### 3.5 Recurring Visual Element Consistency
+
+**Input:** Shot frame + locked recurring visual element reference image.
+
+Recurring visual elements are objects, fixtures, interfaces, machinery, furniture
+layouts, or set dressing that appear in more than two shots and would be noticed if
+their appearance changed. Examples include monitor banks, screen colour groupings,
+inspection robots, grow-light strip arrays, cargo pods, cabinets, signage clusters, and
+workstation layouts.
+
+**Procedure:**
+
+1. Identify each recurring visual element visible in the shot frame.
+2. Compare against the locked element reference:
+   - Overall layout and silhouette
+   - Count and arrangement of repeated parts
+   - Colour, screen state, lighting pattern, and material
+   - Scale relative to characters and surrounding architecture
+3. Gather all frames containing the element and view them together.
+4. Score as PASS / WARN / BLOCK if the element appears redesigned, rearranged, or
+   materially different across shots.
+
+### 3.6 Intra-Shot Lighting Coherence
 
 **Input:** Start frame, all key frames, and end frame for a single shot.
 
@@ -161,7 +184,7 @@ structural consistency, not identical framing.
 turning on), the change is expected and should be checked for plausibility rather than
 consistency.
 
-### 3.6 Cross-Shot Continuity
+### 3.7 Cross-Shot Continuity
 
 **Input:** End frame of shot N + start frame of shot N+1 (only when boundary is
 `continuous`).
@@ -181,7 +204,7 @@ consistency.
 - Lighting is the same
 - Any props are in the same position
 
-### 3.7 Thematic Image Consistency
+### 3.8 Thematic Image Consistency
 
 **Input:** Each thematic image (from Phase 9) + corresponding scene references.
 

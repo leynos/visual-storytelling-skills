@@ -255,6 +255,20 @@
     |--------|-------------|----------|
     | {ID} | {Description} | refs/props/{name}/{file}.png |
 
+### Recurring Visual Elements
+
+Objects, fixtures, interfaces, machinery, furniture layouts, and set dressing that
+appear in more than two shots and would be noticeable if redesigned.
+
+* **{Element Name}**
+
+  * **Location / set:** {Where it belongs}
+  * **Appearance lock:** {Shape, layout, colour, screen state, arrangement, scale}
+  * **Appears in shots/scenes:** {S01_SH001, S01_SH003, ...}
+  * **Reference image requirement:** locked in Phase 11
+  * **Reference file:** refs/recurring-elements/{name}/primary.png
+  * **Must pass as referenceImagePaths in:** {All shots where visible}
+
 ---
 
 ## 6. Style Frames Audit
@@ -280,6 +294,7 @@
 * **Transitions:** In: {from}. Out: {to}.
 * **Continuity dressing notes:**
   * Fixed location anchors: {architecture, furniture, installed fixtures}
+  * Recurring visual elements: {monitor banks, robots, light strips, cabinets, console layouts, signage clusters}
   * Movable dressing: {objects that can shift position}
   * Character-carried items: {by character}
   * Consumables / depletion states: {food, drink, cigarettes, fuel, paper stacks}
@@ -360,6 +375,7 @@ grain/grade overrides.
 | Character references | {N} | refs/characters/ |
 | Location references | {N} | refs/locations/ |
 | Prop references | {N} | refs/props/ |
+| Recurring visual element references | {N} | refs/recurring-elements/ |
 | Shot frames (start) | {N} | shots/ |
 | Shot frames (end) | {N} | shots/ |
 | Shot frames (key) | {N} | shots/ |

@@ -255,6 +255,32 @@ description, narrative function, sequence appearances.
 For continuity, also record custody, state progression, set-down / pickup moments, and
 scene exit status.
 
+### 6.1 Recurring Visual Elements
+
+Also identify **Recurring Visual Elements**: any object, fixture, interface, machinery,
+set dressing element, furniture layout, or repeated environment component that appears
+in more than two shots and has a specific enough appearance that the audience would
+notice if it changed. These elements do not need full Props Bible custody/state entries
+unless they are handled or narratively transformed, but they do need locked reference
+images.
+
+Treat recurring visual elements as reference-required even when they feel like location
+dressing. Examples include monitor-bank layouts and screen colours, inspection robots,
+grow-light strip configurations, cargo pod designs, storage cabinet designs, recurring
+signage clusters, and a named character's workstation or console layout.
+
+For each recurring visual element, record:
+
+```text
+* **Recurring visual element:** {Name}
+  * Location / set: {Where it belongs}
+  * Appearance lock: {Shape, layout, colour, screen state, arrangement, scale}
+  * Appears in shots/scenes: {S01_SH001, S01_SH003, ...}
+  * Reference image requirement: locked in Phase 11
+  * Reference file: refs/recurring-elements/{name}/primary.png
+  * Must pass as referenceImagePaths in: {All shots where visible}
+```
+
 **Addition — Reference Image Specification per prop:**
 
 ```text
@@ -292,6 +318,7 @@ mode change):
 * **Transitions in/out:** In: {from}. Out: {to}.
 * **Continuity dressing notes:**
   * Fixed location anchors: {architecture, furniture, installed fixtures}
+  * Recurring visual elements: {monitor banks, robots, light strips, cabinets, console layouts, signage clusters}
   * Movable dressing: {objects that can shift position}
   * Character-carried items: {by character}
   * Consumables / depletion states: {food, drink, cigarettes, fuel, paper stacks}
@@ -413,10 +440,20 @@ For each prop with `reference priority: required-before-Phase-12`:
 1. **Primary reference** (white background, ¾ angle, style spec in prompt)
 2. **Detail / state variants** (primary ref as input)
 
-Then, after locations are complete (11.4), generate refs for `incidental` props in the
+Then, after locations are complete (11.5), generate refs for `incidental` props in the
 same pattern.
 
-### 11.4 Location Scouting References
+### 11.4 Recurring Visual Element References
+
+Generate a locked primary reference for every recurring visual element identified in
+Phase 6.1. Use the element's normal in-context environment unless a white-background
+plate would better define the geometry.
+
+Generate these before location scouting references whenever the element appears inside a
+location reference. Otherwise the location reference can bake in one invented version of
+the element while later shot frames invent another.
+
+### 11.5 Location Scouting References
 
 For each location, generate across the scouting matrix:
 
@@ -438,7 +475,7 @@ For each location, generate across the scouting matrix:
 - File naming: `ref_{category}_{name}_{variant}.png`
   - e.g. `ref_char_miette_primary.png`, `ref_loc_control-room_dusk-rain.png`
 
-### 11.5 Video Role Manifest
+### 11.6 Video Role Manifest
 
 After generating all reference images, produce a **video role manifest** that declares
 the intended role of each image when used as a video generation input. This is distinct
@@ -453,6 +490,7 @@ tells downstream tools and the shot-specifier skill how to use each image.
 | LOC-launch-01 | refs/locations/launch-strip/low-pre-dawn-rain.png | start_image | S11_SH001 | Pre-launch static |
 | LOC-launch-03 | refs/locations/launch-strip/gannet-vertical-lift.png | end_image | S11_SH002 | Mid-lift anchor |
 | PROP-gannet-01 | refs/props/gannet-uav/primary.png | image | S11_SH001, S11_SH002 | Subject consistency ref |
+| RVE-control-monitors-01 | refs/recurring-elements/control-room-monitor-layout/primary.png | image | S03_SH001, S03_SH004 | Monitor layout and screen colour lock |
 | CHAR-switch-01 | refs/characters/switch/primary.png | image | S08_SH001 | Identity anchor |
 | style/style_anchor_01.png | refs/style/style_anchor_01.png | image | all | Global style ref |
 ```
@@ -473,16 +511,18 @@ Video role values:
 
 ### Pre-Generation Reference Check (per shot)
 
-Before generating any frame for a shot, answer these three questions explicitly:
+Before generating any frame for a shot, answer these questions explicitly:
 
 1. Does a canonical reference image exist for **every named character** present in this shot?
 2. Does a canonical reference image exist for **every required-before-Phase-12 prop** visible in this shot?
-3. Does a canonical reference image exist for **the specific location variant** (angle × lighting condition) this shot requires?
+3. Does a locked reference image exist for **every recurring visual element** visible in this shot?
+4. Does a canonical reference image exist for **the specific location variant** (angle × lighting condition) this shot requires?
 
 If any answer is no, generate that reference now using the Phase 11 procedure before
 proceeding. Do not skip this check. The failure mode it prevents: a scene frame generated
-before the prop's primary reference exists, where the model independently invents the
-prop's appearance — producing a visually different object from all other shots.
+before the prop, recurring visual element, or location reference exists, where the model
+independently invents monitor layouts, fixture arrangements, robots, cabinets, or prop
+appearance — producing visibly different objects or set dressing across shots.
 
 For every shot in every sequence, generate:
 
@@ -497,10 +537,11 @@ For every shot in every sequence, generate:
 - Model: `gemini-3-pro-image-preview`
 - `referenceImagePaths` for character-centric shots: character identity reference first,
   then the location ref matching lighting/weather, required prop refs, and the style
-  anchor when available
+  anchor when available; include any visible recurring visual element refs
 - `referenceImagePaths` for environment or prop-led shots: location ref matching
-  lighting/weather, required prop refs, and the style anchor when available; include
-  character refs only if a named character is visible and identity must be constrained
+  lighting/weather, required prop refs, recurring visual element refs, and the style
+  anchor when available; include character refs only if a named character is visible
+  and identity must be constrained
 - Prompt includes: visual style (brief), scene environment, framing, visible content, subject appearance + outfit
 - Draw style vocabulary from the **prompt keyword library** produced in Phase 2.4
 - Aspect ratio: from cinematography specification
@@ -535,7 +576,8 @@ For each specified key frame, choose the tool by the frame's dominant continuity
   refs, and style anchor when available.
 - **Environment or prop-led key frame:** use nanobanana MCP `generate_image` with
   `model: gemini-3-pro-image-preview`. Set `referenceImagePaths` to [start_frame,
-  matching location ref, required prop refs, style anchor when available].
+  matching location ref, required prop refs, recurring visual element refs, style anchor
+  when available].
 - **Key frame derived from the start frame by pose, expression, object state, or minor
   camera adjustment:** use nanobanana MCP `edit_image` with
   `model: gemini-3-pro-image-preview`. Set `referenceImagePaths` to [start_frame,
@@ -564,6 +606,7 @@ After generating all shot frames, run a vision-based consistency pass. For each 
 | **Character consistency** | Compare against character primary ref | Face, outfit, proportions diverge |
 | **Location consistency** | Compare against location ref (same condition) | Architecture, materials, layout diverge |
 | **Prop consistency** | Compare against prop primary ref | Object shape, colour, detail diverge |
+| **Recurring visual element consistency** | Compare against each recurring visual element ref and gather all frames containing it | Monitor banks, fixture arrays, robots, cabinets, cargo pods, signage, or workstation layouts change across shots |
 | **Cross-shot prop identity** | For each named prop: gather all frames containing it and view them together | The prop looks like a different physical object across shots — different construction, silhouette, or type entirely |
 | **Intra-shot lighting** | Compare start, key, end frames | Lighting direction or colour-temp contradicts |
 | **Cross-shot continuity** | Compare end frame of shot N with start frame of shot N+1 (if continuous) | Discontinuity in subject position, wardrobe, environment |

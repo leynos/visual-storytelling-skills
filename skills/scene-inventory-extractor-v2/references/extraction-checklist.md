@@ -111,6 +111,8 @@ Per location:
 | Scene exit status logged | ☐ |
 | **Reference image requirements specified** | ☐ |
 | **Reference priority classified for each prop (required-before-Phase-12 / incidental)** | ☐ |
+| **Recurring visual elements identified** (objects, fixtures, interfaces, machinery, furniture layouts, or set dressing appearing in more than two shots) | ☐ |
+| **Locked reference requirement recorded for each recurring visual element** | ☐ |
 
 ### 6. Scene Inventory
 
@@ -182,8 +184,9 @@ Per location:
 
 ## Reference Image Generation (Phase 11)
 
-Generation order: style → characters → **required-before-Phase-12 props** → locations → incidental props.
-Do not advance to locations until all required-before-Phase-12 prop primary refs are locked.
+Generation order: style → characters → **required-before-Phase-12 props** → recurring visual elements → locations → incidental props.
+Do not advance to locations until all required-before-Phase-12 prop primary refs and any
+recurring visual element refs visible in those locations are locked.
 
 | Check | Status |
 |-------|--------|
@@ -193,6 +196,7 @@ Do not advance to locations until all required-before-Phase-12 prop primary refs
 | All additional character refs generated (using primary as input) | ☐ |
 | All **required-before-Phase-12** prop primary refs generated | ☐ |
 | All required-before-Phase-12 prop variants generated | ☐ |
+| All recurring visual element refs generated | ☐ |
 | All primary location refs generated | ☐ |
 | All location scouting-matrix variants generated | ☐ |
 | All **incidental** prop primary refs generated | ☐ |
@@ -210,6 +214,7 @@ Do not advance to locations until all required-before-Phase-12 prop primary refs
 |----------------|--------|
 | Named character refs verified present for this shot | ☐ per shot |
 | Reference-required prop refs verified present for this shot | ☐ per shot |
+| Recurring visual element refs verified present for this shot | ☐ per shot |
 | Location ref (correct angle + lighting condition) verified present for this shot | ☐ per shot |
 
 If any answer is no: generate the missing reference using Phase 11 procedure before proceeding.
@@ -236,6 +241,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | Character consistency checked for all shots | ☐ |
 | Location consistency checked for all shots | ☐ |
 | Prop consistency checked for all shots (vs primary prop ref) | ☐ |
+| Recurring visual element consistency checked for all shots (vs locked element ref and across every frame where visible) | ☐ |
 | **Cross-shot prop identity checked** (all frames containing each named prop viewed together; prop looks like the same physical object throughout) | ☐ |
 | Intra-shot lighting checked for all shots | ☐ |
 | Cross-shot continuity checked for continuous boundaries | ☐ |
