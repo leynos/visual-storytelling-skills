@@ -6,9 +6,12 @@ paths for reviewability, so generation must convert those paths into whatever me
 handle the connected Higgsfield MCP accepts: uploaded media UUID, CDN URL, generation
 history ID, or a tool-specific file input.
 
-Use the Higgsfield MCP first. The official Higgsfield SDK documents `uploadImage()` and
-generic `upload()` helpers for CDN upload, but those are fallback context for API/SDK
-workflows, not a replacement for an available MCP upload tool.
+Use the Higgsfield MCP first. Higgsfield's public MCP page says agents can use previous
+generations as inputs, and the official CLI page says the CLI handles authentication,
+uploads, and polling for Codex-like agents. The official SDK documents `uploadImage()`
+and generic `upload()` helpers for CDN upload. Treat CLI and SDK behaviour as fallback
+context for understanding handles; do not replace an available MCP upload/history tool
+with a separate path unless the user explicitly approves it.
 
 ## Media Manifest
 
@@ -25,10 +28,17 @@ not changed, reuse the handle.
 
 1. Resolve each local path relative to the project root.
 2. Confirm the file exists and is readable.
-3. Upload or register start and end frames first.
-4. Upload style, character, prop, and recurring visual element refs only when the chosen
+3. Inspect the live MCP schema for accepted media input forms: local file, upload
+   handle, CDN URL, generation-history ID, or previous-output selector.
+4. Upload or register start and end frames first.
+5. Upload character, location, prop, and recurring visual element refs only when the chosen
    model accepts `image` role references for the job.
-5. Record the handle immediately.
+6. Upload style references last.
+7. Record the handle immediately.
+
+If the live MCP route only accepts public image URLs, use the MCP's own upload/history
+tool or an approved Higgsfield upload helper to create those URLs. Stop if no approved
+path exists from local frame files to accepted MCP media inputs.
 
 ## Generation Log
 
