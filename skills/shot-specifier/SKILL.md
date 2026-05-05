@@ -517,9 +517,9 @@ After each video generation call, log:
 ```markdown
 ## Generation Log
 
-| Shot ID | Date | Model | Job ID | Duration | Status | Take | Notes |
-|---------|------|-------|--------|----------|--------|------|-------|
-| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-... | 8s | completed | v1 | |
+| Shot ID | Date | Model | Job ID | Duration | Status | Take | File Size | Actual Resolution | Review | Notes |
+|---------|------|-------|--------|----------|--------|------|-----------|-------------------|--------|-------|
+| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-... | 8s | completed | v1 | 21MB | 1920x1080 | accepted | |
 ```
 
 Write to: `generated/generation_log.md`
@@ -529,6 +529,7 @@ This log is essential for:
 - Tracing which job ID corresponds to which shot (for retrieval and retakes)
 - Identifying shots that need to be regenerated
 - Tracking cost across the production
+- Recording verification data needed by `video-generator` review gates
 
 ---
 
