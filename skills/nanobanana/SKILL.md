@@ -52,6 +52,10 @@ Use this skill to turn a vague image request into a prompt that Nano Banana can 
 - `output_path` must stay inside the tool's allowed repo-local output area. In practice, use a simple filename or relative path; do not pass an absolute path outside `image_out`.
 - Every image-generation or image-editing MCP call must explicitly pass
   `model: gemini-3-pro-image-preview`.
+- Pass image inputs through `referenceImagePaths` with the smallest complete set of
+  references for the operation. Do not throw every available reference into a general
+  pool; assign only the location, prop, style, and character anchors that constrain the
+  current frame.
 - If `gemini-3-pro-image-preview` is unavailable, rejected by the tool, or cannot
   accept the required reference images, character-consistency images, or
   multi-image-fusion inputs for the requested operation, stop the workflow and report

@@ -492,9 +492,15 @@ For every shot in every sequence, generate:
 
 ### Start Frame Generation
 
-- Tool: nanobanana MCP `generate_image`
+- **Character-centric shots:** Tool: nanobanana MCP `character_consistency`
+- **Environment or prop-led shots:** Tool: nanobanana MCP `generate_image`
 - Model: `gemini-3-pro-image-preview`
-- References: relevant character ref(s) + location ref (matching lighting/weather) + prop ref(s)
+- `referenceImagePaths` for character-centric shots: character identity reference first,
+  then the location ref matching lighting/weather, required prop refs, and the style
+  anchor when available
+- `referenceImagePaths` for environment or prop-led shots: location ref matching
+  lighting/weather, required prop refs, and the style anchor when available; include
+  character refs only if a named character is visible and identity must be constrained
 - Prompt includes: visual style (brief), scene environment, framing, visible content, subject appearance + outfit
 - Draw style vocabulary from the **prompt keyword library** produced in Phase 2.4
 - Aspect ratio: from cinematography specification
@@ -506,8 +512,11 @@ For every shot in every sequence, generate:
 
 - Tool: nanobanana MCP `edit_image`
 - Model: `gemini-3-pro-image-preview`
-- References: [start_frame, relevant Phase 11 refs]
+- `referenceImagePaths`: [start_frame, only the Phase 11 refs needed to describe the
+  intended delta]
 - Prompt: "Edit this image: {changes only}" — do NOT repeat unchanged elements
+- Use this path whenever the end frame derives from the start frame; the start frame
+  carries character, location, prop, and style consistency forward naturally.
 
 **If generate-new:**
 
@@ -518,8 +527,23 @@ For every shot in every sequence, generate:
 
 ### Key Frame Generation
 
-For each specified key frame, generate as for start frame but with the intermediate
-state description, using start frame and relevant refs as references.
+For each specified key frame, choose the tool by the frame's dominant continuity risk:
+
+- **Character-centric key frame:** use nanobanana MCP `character_consistency` with
+  `model: gemini-3-pro-image-preview`. Put the character identity reference first in
+  `referenceImagePaths`, followed by start_frame, matching location ref, required prop
+  refs, and style anchor when available.
+- **Environment or prop-led key frame:** use nanobanana MCP `generate_image` with
+  `model: gemini-3-pro-image-preview`. Set `referenceImagePaths` to [start_frame,
+  matching location ref, required prop refs, style anchor when available].
+- **Key frame derived from the start frame by pose, expression, object state, or minor
+  camera adjustment:** use nanobanana MCP `edit_image` with
+  `model: gemini-3-pro-image-preview`. Set `referenceImagePaths` to [start_frame,
+  needed Phase 11 refs] and describe only the change.
+
+Do not use `generate_image` for a character-centric key frame just by adding the
+character reference to a mixed reference pool. Use `character_consistency` so identity
+anchoring is the operation's primary constraint.
 
 ### File Naming
 

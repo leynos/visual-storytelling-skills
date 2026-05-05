@@ -299,9 +299,16 @@ Identify and collect:
 
 ### Step 2: Generate Start Frame
 
-- Tool: nanobanana MCP `generate_image`
+- Tool:
+  - `character_consistency` for character-centric shots
+  - `generate_image` for environment or prop-led shots
 - Model: `gemini-3-pro-image-preview`
-- Attach gathered references
+- `referenceImagePaths`:
+  - Character-centric: [character identity ref, location ref, required prop refs, style
+    anchor when available]
+  - Environment or prop-led: [location ref, required prop refs, style anchor when
+    available], adding character refs only for visible named characters whose identity
+    must be constrained
 - Prompt: see §6 Shot Frame Prompts — Start frame
 - Save as `shot_{shot_id}_start.png`
 
@@ -309,18 +316,31 @@ Identify and collect:
 
 - Determine edit or generate from §7 decision table
 - If **edit**: Tool nanobanana MCP `edit_image`; model
-  `gemini-3-pro-image-preview`; attach [start_frame + refs]
+  `gemini-3-pro-image-preview`; `referenceImagePaths` [start_frame + only refs needed
+  for the described change]
 - If **generate**: Tool nanobanana MCP `generate_image`; model
-  `gemini-3-pro-image-preview`; attach [start_frame + refs]
+  `gemini-3-pro-image-preview`; `referenceImagePaths` [start_frame + location ref +
+  required prop refs + style anchor when available]
+- End frames derived from start frames should use `edit_image` so character, location,
+  prop, and style consistency inherit from the start frame naturally.
 - Save as `shot_{shot_id}_end.png`
 
 ### Step 4: Generate Key Frames (if specified)
 
 For each key frame in order:
 
-- Tool: nanobanana MCP `generate_image`
+- Tool:
+  - `character_consistency` for character-centric key frames
+  - `generate_image` for environment or prop-led key frames
+  - `edit_image` when the key frame is derived from the start frame by a limited pose,
+    expression, object-state, or camera-position change
 - Model: `gemini-3-pro-image-preview`
-- Attach [start_frame + refs]
+- `referenceImagePaths`:
+  - Character-centric: [character identity ref, start_frame, matching location ref,
+    required prop refs, style anchor when available]
+  - Environment or prop-led: [start_frame, matching location ref, required prop refs,
+    style anchor when available]
+  - Edit-derived: [start_frame, only refs needed for the described change]
 - Prompt: intermediate state description
 - Save as `shot_{shot_id}_key{NN}.png`
 

@@ -269,9 +269,13 @@ Combine:
 
 Reference images to pass:
 
-- Location ref matching the lighting condition
-- Character ref(s) if human subjects present
-- Prop ref(s) if significant props visible
+- For character-centric shots, use nanobanana MCP `character_consistency` and set
+  `referenceImagePaths` to the character identity ref first, followed by the matching
+  location ref, significant prop refs, and style anchor when available.
+- For environment or prop-led shots, use nanobanana MCP `generate_image` and set
+  `referenceImagePaths` to the matching location ref plus the specific prop refs needed
+  in the frame. Add the style anchor when available; add character refs only for visible
+  named characters whose identity must be constrained.
 
 Prompt ending: `"no text, no watermarks, no logos, no labels, no annotations"`
 
@@ -280,13 +284,17 @@ Prompt ending: `"no text, no watermarks, no logos, no labels, no annotations"`
 **If the end frame shows the same subject in a significantly different state:**
 
 - Use `edit_image` (edit from start frame)
-- Pass the start frame as a reference
+- Set `referenceImagePaths` to the start frame plus only the Phase 11 refs needed for
+  the described change
 - Describe only what changes; do not repeat unchanged elements
+- Prefer this path for any end frame derived from the start frame; character, location,
+  prop, and style consistency should inherit from the start frame naturally.
 
 **If the end frame shows a different composition, angle, or subject configuration:**
 
 - Use `generate_image` (generate new)
-- Pass the start frame + location ref as references
+- Set `referenceImagePaths` to the start frame, matching location ref, required prop
+  refs, and style anchor when available
 - Full prompt as for start frame but with end-state description
 
 ### File Naming

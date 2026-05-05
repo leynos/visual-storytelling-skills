@@ -24,7 +24,8 @@ is documented in `skills/nanobanana/SKILL.md`. Read that skill before using the 
 
 | Operation | Tool |
 |-----------|------|
-| New storyboard frame (no prior frame to build from) | `generate_image` |
+| Character-centric storyboard frame | `character_consistency` |
+| Environment or prop-led storyboard frame | `generate_image` |
 | End frame that is a modified version of the start frame | `edit_image` |
 | Shot involving a recurring human character across multiple frames | `character_consistency` |
 | Frame that combines multiple reference subjects | `multi_image_fusion` |
@@ -86,6 +87,18 @@ The prop ref is mandatory whenever a named prop appears in frame — omitting it
 model licence to invent the prop's appearance independently per shot, producing a
 different-looking object every time it appears on screen.
 
+Pass these paths through `referenceImagePaths`; do not provide references as an
+unclassified general pool. Choose the smallest complete set for the operation:
+
+- **Character-centric frame:** use `character_consistency`; set `referenceImagePaths`
+  to [character identity ref, location ref, required prop refs, style anchor when
+  available].
+- **Environment or prop-led frame:** use `generate_image`; set `referenceImagePaths`
+  to [location ref, required prop refs, style anchor when available]. Add character refs
+  only when a visible named character needs identity anchoring.
+- **Frame derived from an existing start frame:** use `edit_image`; set
+  `referenceImagePaths` to [start_frame, only refs needed for the described change].
+
 ---
 
 ## End Frame Generation: Edit vs Generate
@@ -107,6 +120,9 @@ Change only: {exact description of what changes}.
 
 State the preserved elements first. This is critical — the model defaults to changing
 things when not explicitly told to preserve them.
+Use `edit_image` for end frames derived from start frames. The start frame should carry
+character identity, location layout, prop appearance, and style treatment forward
+naturally; the prompt should only describe the delta.
 
 ### Use `generate_image` (generate new) when
 
@@ -133,6 +149,9 @@ When a character appears across multiple shots in the same sequence, use
 This maintains face and identity consistency more reliably than passing the primary ref
 repeatedly, because the first storyboard frame captures the character as they appear in
 this production's style (rather than the neutral white-bg reference).
+This rule also applies to scene key frames: if the frame is character-centric, use
+`character_consistency` rather than `generate_image` with the character reference mixed
+into a larger reference pool.
 
 ---
 
