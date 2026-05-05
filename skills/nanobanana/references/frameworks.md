@@ -24,7 +24,7 @@ Structure:
 - Canvas/anchors
 - Main subject blocks
 - Typography blocks
-- Color/material system
+- Colour/material system
 - Lighting/rendering
 - Constraints
 
@@ -46,7 +46,7 @@ Typography:
 - Typographic character: [bold condensed / elegant serif / technical mono]
 
 Visual system:
-- Palette: [colors]
+- Palette: [colours]
 - Materials/textures: [paper, acrylic, matte ceramic, grain, etc.]
 
 Lighting/rendering:
@@ -108,7 +108,7 @@ Template:
 ```text
 Preserve: [identity / pose / wardrobe / composition / lighting direction / background elements].
 Change only: [targeted change].
-Match existing: [perspective / shadows / color temperature / texture].
+Match existing: [perspective / shadows / colour temperature / texture].
 Do not alter: [critical locked elements].
 ```
 
@@ -124,7 +124,7 @@ Use this pattern when several images are provided.
 - `Image B`: pose or gesture
 - `Image C`: wardrobe/material details
 - `Image D`: environment/background
-- `Image E`: lighting/color grade
+- `Image E`: lighting/colour grade
 
 Prompt pattern:
 

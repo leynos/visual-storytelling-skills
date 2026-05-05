@@ -22,6 +22,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Official docs team
 - **Platform:** Official documentation
 - **Date of source:** 23–26 April 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Seedance 2.0
 - **Evidence type:** Official documentation
 - **Evidence rating:** High for feature availability; medium for quality claims
@@ -41,6 +43,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Official docs team
 - **Platform:** Official documentation
 - **Date of source:** 14 April 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Seedance 2.0
 - **Evidence type:** Official workflow guidance
 - **Evidence rating:** High for reference-image handling guidance
@@ -60,6 +64,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** OpenCreator Team
 - **Platform:** Creator / workflow review
 - **Date of source:** 23 February 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Seedance 2.0
 - **Evidence type:** Hands-on workflow analysis
 - **Evidence rating:** Medium-high
@@ -82,6 +88,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Not clearly surfaced
 - **Platform:** Comparison blog
 - **Date of source:** 20 February 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Seedance 2.0, Seedance 1.5 Pro
 - **Evidence type:** Comparison / workflow note
 - **Evidence rating:** Medium
@@ -100,6 +108,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Tyler Smith
 - **Platform:** Creator review — Curious Refuge
 - **Date of source:** 20 February 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Seedance 2.0; Kling 3.0 in side-by-side examples
 - **Evidence type:** Hands-on review with failure discussion
 - **Evidence rating:** High among creator tests
@@ -121,6 +131,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Site staff
 - **Platform:** Creator benchmark / review — Curious Refuge
 - **Date of source:** 5 February 2026; later February update
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Kling 3.0
 - **Evidence type:** Benchmark-style review
 - **Evidence rating:** High among creator tests
@@ -141,6 +153,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Mariam Barova
 - **Platform:** Official product guide — Higgsfield
 - **Date of source:** 3 February 2026; 5 March 2026; 3 September 2025 (start/end article)
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Kling 3.0; Kling Motion Control; Kling start/end frames
 - **Evidence type:** Official workflow documentation
 - **Evidence rating:** High for feature availability; medium for quality claims
@@ -161,6 +175,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** WiroBlogAgent
 - **Platform:** Raw-test blog — Wiro AI
 - **Date of source:** 8 March 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Kling V3 Motion Control
 - **Evidence type:** Raw creator tests
 - **Evidence rating:** Medium-high
@@ -181,6 +197,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Not fully surfaced
 - **Platform:** Comparison / tutorial blog — Alici AI
 - **Date of source:** March–April 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Kling Motion Control; Seedance 2.0
 - **Evidence type:** Side-by-side / practical tutorial
 - **Evidence rating:** Medium
@@ -201,6 +219,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Not clearly disclosed
 - **Platform:** Creator test / workflow blog
 - **Date of source:** 7 April 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Seedance 2.0
 - **Evidence type:** Large creator test
 - **Evidence rating:** Medium-high
@@ -222,6 +242,8 @@ Full synthesis available in the conversation record for this date.
 - **Author / creator:** Chase Jarvis
 - **Platform:** Creator review
 - **Date of source:** 48-hour early review, February 2026
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:** Kling 3.0
 - **Evidence type:** Practical creator review
 - **Evidence rating:** Medium-high
@@ -239,12 +261,14 @@ Full synthesis available in the conversation record for this date.
 
 ## Template for New Entries
 
-```
+```text
 ### [Source title] — [Author / organisation]
 
 - **Author / creator:**
 - **Platform:**
 - **Date of source:**
+- **Source URL:** TODO
+- **Date accessed:** 2026-05-05
 - **Models discussed:**
 - **Evidence type:** official documentation | hands-on review | raw test | comparison | tutorial | user report
 - **Evidence rating:** high | medium-high | medium | low

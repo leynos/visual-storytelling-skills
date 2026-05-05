@@ -26,7 +26,7 @@ the production script.
 Always. The hyphen forces the model to treat each chunk as a discrete
 syllable; without it, syllables fuse and stress drifts.
 
-```
+```text
 Siobhán       → shi-VAWN
 sláinte       → SLAWN-cha
 Llanfair      → HLAN-vair
@@ -37,7 +37,7 @@ caffeinated   → ka-FEEN-ay-ted
 
 Stressed syllable in `ALL CAPS`. Unstressed lowercase.
 
-```
+```text
 shi-VAWN          (Siobhán — stress on second)
 LLAN-fair         (Welsh — stress always penultimate)
 ka-FEEN-ay-ted    (caffeinated — stress on the second)
@@ -46,7 +46,7 @@ ka-FEEN-ay-ted    (caffeinated — stress on the second)
 For monosyllables, no caps needed unless the engine is
 mispronouncing something specific:
 
-```
+```text
 sass        (SaaS — single-syllable, no stress markup needed)
 nan         (NaN — same)
 ```
@@ -79,7 +79,7 @@ trip the model into pronouncing the `y`; use `noo` instead. `wun` for
 Standard English makes `c` and `g` ambiguous. When the model is
 mispronouncing, force the hand:
 
-```
+```text
 cat   → kat        (avoids c being read /s/)
 goal  → gohl       (avoids g being read /dʒ/)
 geo-  → JEE-oh     (forces the soft g)
@@ -91,7 +91,7 @@ ceres → SEE-reez   (forces the soft c)
 The model's number-handling is inconsistent and depends heavily on
 context. Spell digits as words:
 
-```
+```text
 Atari 2600   → Atari twenty-six hundred
              (or "two thousand six hundred" if the user prefers)
 Z80          → Z eighty
@@ -141,7 +141,7 @@ context-induced failures show up.
 For the IPA column, use standard IPA with primary stress marked `ˈ`
 before the stressed syllable, secondary `ˌ` where relevant.
 
-```
+```text
 Siobhán    ʃɪˈvɔːn
 df12       ˌdiːˌɛfˈtwɛlv
 Llanelli   ɬaˈnɛɬi          (note ɬ for Welsh ll)
@@ -179,7 +179,7 @@ Sometimes a single letter trick works better than a full respelling.
 The Eleven docs note that capitals, dashes, and apostrophes all push
 the model in useful directions. For minor adjustments:
 
-```
+```text
 trapezii  → trapezIi      (force emphasis on the ii — capital alone)
 read      → re-ad         (force two-syllable reading — dash alone)
 the       → THE           (force stress — caps alone)

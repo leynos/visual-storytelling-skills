@@ -98,9 +98,10 @@ GAELIC_PATTERN = re.compile(
 # Alphanumeric brand/model: at least one letter and one digit
 ALPHANUM_PATTERN = re.compile(
     r"\b("
-    r"[a-z]+\d+[a-zA-Z0-9]*"          # df12, mxd2 (lowercase start + digit)
-    r"|[A-Z][a-zA-Z]*\d+[a-zA-Z0-9]*"  # Z80, RTX4090, iPhone15
-    r"|\d+[a-zA-Z]+\d*"                # 2600AD
+    r"[a-z][a-zA-Z]*\d+[a-zA-Z0-9]*"        # iPhone15, iPad3 (lower-camel + numeric suffix)
+    r"|[a-z]+\d+[a-zA-Z0-9]*"                 # df12, mxd2 (lowercase start + digit)
+    r"|[A-Z][a-zA-Z]*\d+[a-zA-Z0-9]*"         # Z80, RTX4090 (uppercase start)
+    r"|\d+[a-zA-Z]+\d*"                        # 2600AD
     r")\b"
 )
 
@@ -194,13 +195,27 @@ def is_sentence_initial(text: str, position: int) -> bool:
     return bool(SENTENCE_END.search(preceding))
 
 
-def appears_lowercase_elsewhere(token: str, text: str) -> bool:
+def _lowercase_token_set(text: str) -> set[str]:
+    """Precompute all lowercase word tokens for O(1) membership tests.
+
+    Mirrors the semantics of the old per-call regex: only retains tokens
+    that already appear in all-lowercase form (i.e. not title-case or
+    all-caps occurrences).  Building this set once avoids a full-text
+    regex scan for every title-case candidate.
+    """
+    return {
+        w
+        for w in re.findall(r"\b[A-Za-z\u00c0-\u024f]+\b", text, re.UNICODE)
+        if w == w.lower()
+    }
+
+
+def appears_lowercase_elsewhere(token: str, lowercase_tokens: set[str]) -> bool:
     """Heuristic: does the lowercase form appear as a separate word?"""
     lower = token.lower()
     if lower == token:
         return False
-    # Word-boundary search for the lowercase form
-    return bool(re.search(rf"\b{re.escape(lower)}\b", text))
+    return lower in lowercase_tokens
 
 
 # ---------------------------------------------------------------------------
@@ -212,6 +227,7 @@ def find_candidates(text: str, allowlist: set[str]) -> list[Candidate]:
     """Run all detection passes and merge into deduplicated candidates."""
     found: dict[str, Candidate] = OrderedDict()
     seen_offsets: set[int] = set()
+    lowercase_tokens = _lowercase_token_set(text)
 
     # Order matters: more specific patterns first so they win the category.
     passes: list[tuple[re.Pattern[str], str | None]] = [
@@ -259,7 +275,7 @@ def find_candidates(text: str, allowlist: set[str]) -> list[Candidate]:
             if (
                 pattern is TITLE_CASE_PATTERN
                 and is_sentence_initial(text, start)
-                and appears_lowercase_elsewhere(token, text)
+                and appears_lowercase_elsewhere(token, lowercase_tokens)
             ):
                 continue
 
@@ -316,8 +332,15 @@ def main(argv: list[str] | None = None) -> int:
     text = args.script.read_text(encoding="utf-8")
 
     allowlist: set[str] = set()
-    if args.allowlist and args.allowlist.exists():
-        data = json.loads(args.allowlist.read_text(encoding="utf-8"))
+    if args.allowlist:
+        if not args.allowlist.exists():
+            print(f"error: allowlist not found: {args.allowlist}", file=sys.stderr)
+            return 2
+        try:
+            data = json.loads(args.allowlist.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            print(f"error: invalid allowlist JSON: {exc}", file=sys.stderr)
+            return 2
         if isinstance(data, dict):
             allowlist = set(data.keys())
         elif isinstance(data, list):

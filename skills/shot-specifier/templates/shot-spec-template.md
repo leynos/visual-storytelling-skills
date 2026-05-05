@@ -10,7 +10,7 @@ human subjects).
 
 Complete once per scene before writing individual shot specs.
 
-```
+```text
 **Scene ID:** SC-{XX}
 **Scene name:** {Brief name}
 **Total duration target:** {N} seconds
@@ -28,7 +28,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Basic Fields
 
-```
+```text
 **Shot ID:** S{XX}_SH{XXX}
 **Scene:** SC-{XX} — {scene name}
 **Frame size:** XW / W / M / CU / ECU / POV / INS / OTS
@@ -44,7 +44,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Frame Roles
 
-```
+```text
 **Start frame ref:** {Ref ID or "generate-new in Phase 5"}
 **End frame ref:** {Ref ID or "generate-new in Phase 5"}
 **Key frames required:** {Yes — N frames / No}
@@ -54,7 +54,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Actor Direction
 
-```
+```text
 **Actor(s):** {Name(s) or "None"}
 **Position (start):** {Lateral / depth / vertical}
 **Posture / body state:** {Standing, seated, leaning; tension or ease}
@@ -67,7 +67,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Camera Direction
 
-```
+```text
 **Mount:** {See above}
 **Starting position:** {Physical camera location}
 **Motion path:** {Direction, speed, arc extent}
@@ -78,7 +78,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Lighting Direction
 
-```
+```text
 **Key source:** {Source name, position, quality}
 **Fill:** {Source or "none"; ratio to key}
 **Practicals in frame:** {List each visible source with colour and intensity}
@@ -88,7 +88,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Effects Direction
 
-```
+```text
 **Rain:** {Present / absent; if present: intensity, direction, visibility}
 **Wind:** {Present / absent; if present: which elements move, speed}
 **Steam / smoke:** {Present / absent; if present: source, density, behaviour}
@@ -99,7 +99,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Audio Direction
 
-```
+```text
 **Bed:** {Constant ambient — source and character}
 **Punctuations:** {Specific sounds at specific moments; format: "[Ns] {sound}"}
 **Dialogue:** {Exact words if on-screen; "off-screen" or "none" otherwise}
@@ -108,7 +108,7 @@ Complete once per scene before writing individual shot specs.
 
 ### Video Prompt (assembled in Phase 7)
 
-```
+```text
 [STYLE] {Copy from keyword library}
 [FILMSTOCK] {Copy from keyword library}
 [SCENE] {Location + lighting vocabulary + negative constraints — copy from keyword library}
@@ -122,14 +122,14 @@ Complete once per scene before writing individual shot specs.
 
 ### Model Routing
 
-```
+```text
 **Recommended model:** {model ID}
 **Routing rationale:** {1 sentence}
 ```
 
 ### Consistency Notes
 
-```
+```text
 {Any WARN items anticipated; cross-references to continuity inventory; prop positions}
 ```
 

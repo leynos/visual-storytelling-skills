@@ -1,7 +1,7 @@
 ---
 name: phoneticize
 description: >
-  Build pronunciation tables, generate TTS preview samples, and produce
+  Build pronunciation tables, generate text-to-speech (TTS) preview samples, and produce
   phoneticized scripts ready for narration. Use whenever a script is
   intended for text-to-speech rendering and the user wants to catch
   words the engine will mispronounce — proper nouns, Gaelic and Welsh
@@ -143,9 +143,9 @@ Mark uncertain rows `?` in the Respelling column. Don't fabricate.
 
 ### Find the tool
 
-If you have not already located the Higgsfield TTS tool, search:
+If the Higgsfield TTS tool has not already been located, search:
 
-```
+```text
 tool_search keywords=["tts", "speech", "higgsfield", "eleven"]
 ```
 
@@ -157,8 +157,8 @@ If nothing matches, surface the gap to the user via
 For each row with status `pending`:
 
 1. Take the **phoneticized fragment** (not the isolated word — context
-   matters for prosody and you need to hear the syllable boundaries
-   land in surrounding speech)
+   matters for prosody; syllable boundaries must land in surrounding
+   speech to be correctly evaluated)
 2. Call the TTS tool with the fragment, requesting `eleven_v3` (or
    whatever string the tool exposes for the v3 model)
 3. Save the audio to `samples/<ID>_<lemma_slug>.mp3` —
@@ -170,9 +170,9 @@ sequential rendering gives the user deterministic ordering for review.
 
 ### Present and pause
 
-Present the table with samples linked. Tell the user the response
-shape you expect (acceptance, revision, rejection, addition — see
-Phase 4). Then wait. Do not proceed to Phase 5 without explicit
+Present the table with samples linked. Communicate the expected
+response shape to the user (acceptance, revision, rejection, addition
+— see Phase 4). Then wait. Do not proceed to Phase 5 without explicit
 sign-off.
 
 ## Phase 4 — Iterate
@@ -202,8 +202,10 @@ deliverable that goes into Eleven v3.
 Substitution rules:
 
 - Every occurrence of every accepted token's lemma → respelling
-- Possessives and inflections handled at the surface form:
-  `Siobhán's` → `shi-VAWNs`; `df12's` → `dee-eff-TWELVEs`
+- Possessives and inflections handled at the surface form, preserving the
+  apostrophe in possessive output as shown in
+  `skills/phoneticize/references/respelling-conventions.md` lines 133-136:
+  `Siobhán's` → `shi-VAWN's`; `df12's` → `dee-eff-TWELVE's`
 - Sentence-initial capitalization preserved: `Siobhán arrived` →
   `Shi-VAWN arrived` (capitalize the first letter, keep the stress
   capitals where they were)
@@ -237,7 +239,7 @@ the table as an ElevenLabs PLS alias dictionary too — see
 
 Final deliverables, presented via `present_files`:
 
-```
+```text
 output/
 ├── script.respelled.txt        ← primary: feeds into Eleven v3
 ├── script.ssml.xml             ← secondary: for SSML-aware engines

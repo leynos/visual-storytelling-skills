@@ -19,7 +19,7 @@ temperatures even though the underlying spec is identical. Over a 20-shot produc
 accumulation of small vocabulary variations produces visible tonal incoherence.
 
 The prompt keyword library solves this by establishing canonical phrases during Phase 2,
-immediately after the cinematography spec is finalised. Every prompt written in Phase 14
+immediately after the cinematography spec is finalized. Every prompt written in Phase 14
 copies from the library rather than inventing language. The library is the mechanism that
 makes the cinematography spec reproducible across independently generated clips.
 
@@ -32,7 +32,7 @@ makes the cinematography spec reproducible across independently generated clips.
 A single sentence (or two) encoding the project's filmstock, grain character, and colour
 process. This phrase opens every `[STYLE]` and `[FILMSTOCK]` field.
 
-```
+```text
 Example:
 "35 mm spherical, Kodak Vision3 250D characteristics, fine-to-medium organic grain,
 accurate daylight balance, slightly desaturated shadows, gentle highlight rolloff,
@@ -54,7 +54,7 @@ room, etc.), write a canonical phrase set covering:
 - Atmosphere (haze, dust, humidity, rain)
 - What must NOT appear (negative constraints)
 
-```
+```text
 Example exterior overcast:
 "flat pewter Atlantic overcast, no direct sun, wet peat and stone surfaces, fence posts
 leaning eastward under wind, diffused ambient with no hard shadows, lifted blacks,
@@ -70,7 +70,7 @@ floor, no natural light from windows"
 
 For each named lighting condition in the scouting matrix, write a canonical phrase:
 
-```
+```text
 Example pre-dawn sodium:
 "near-dark pre-dawn, sodium-orange practicals, deep grey-blue surround, rain halos
 visible around point sources, wet tarmac reflecting orange sodium, no ambient daylight"
@@ -85,7 +85,7 @@ mid-range, no windows, corrugated metal ceiling overhead"
 A bulleted list of things that must never appear. These are injected into every prompt
 to prevent the model defaulting to its training-data biases.
 
-```
+```text
 Example:
 - no trees (Lewis moor is treeless inland)
 - no dual carriageways or modern road markings
@@ -100,7 +100,7 @@ Example:
 
 List any objects that are exempt from the global colour treatment:
 
-```
+```text
 Example:
 - Strawberry scarlet is exempt from the global desaturation pass; maintain full
   vibrancy and push selectively against all surrounding desaturated elements
@@ -111,7 +111,7 @@ Example:
 For any shot type that requires a departure from the global filmstock spec, record the
 override vocabulary explicitly:
 
-```
+```text
 Example drone / machine-vision POV:
 "digital-flat image, no film grain, deep focus throughout, no organic camera movement,
 gimbal-stabilised, machine-vision rendering — clean, clinical, no atmospheric haze"
@@ -149,7 +149,7 @@ For every video prompt in Phase 14:
    `[ACTION]`.
 6. **Apply any POV overrides** if this is a machine-vision or special-mode shot.
 
-If you feel the urge to invent a new phrase not in the library, stop. Either the library
+If there is an urge to invent a new phrase not in the library, stop. Either the library
 is missing that term (update the library first) or the invention is unnecessary. Adding
 ad hoc vocabulary mid-production is how tonal drift starts.
 
@@ -157,9 +157,9 @@ ad hoc vocabulary mid-production is how tonal drift starts.
 
 ## Updating the Library
 
-The library is living documentation. If during Phase 12 (shot-frame generation) you
-discover that a phrase consistently fails to produce the intended result, update the
-library with a better phrase and regenerate affected frames. Do not let a known-bad
+The library is living documentation. If during Phase 12 (shot-frame generation) a phrase
+consistently fails to produce the intended result, update the library with a better phrase
+and regenerate affected frames. Do not let a known-bad
 phrase persist in the library because updating it is inconvenient.
 
 Document changes: add a brief note in the library file explaining what was changed and

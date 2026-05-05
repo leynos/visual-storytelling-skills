@@ -7,13 +7,13 @@ the agent can do. Run both — neither catches everything alone.
 
 | Code | Meaning | Examples |
 |---|---|---|
-| `NAM` | Proper noun (person/place) | Siobhán, Featherstonehaugh, Worcester, Reykjavík |
+| `NAM` | Proper noun (person/place) | Siobhán, Featherstonehaugh, Worcester, Reykjavík, Gdańsk |
 | `CEL` | Gaelic / Welsh word | Llanfair, sláinte, cymru, Eilidh |
-| `BRA` | Brand / product name | df12, Nginx, Gdańsk, IKEA, iPhone |
+| `BRA` | Brand / product name | df12, Nginx, Xiaomi, IKEA, iPhone |
 | `MOD` | Electronic model name with embedded numerics | Atari 2600, Z80, ESP32, RTX 4090 |
 | `ART` | Term of art / acronym | SaaS, OAuth, JWT, JSON, CRUD, kubectl |
 | `DOC` | Document specifier | ADR-0012, RFC 2119, ISO 27001, IEEE-754 |
-| `OTH` | Other (rare diacritics, obscure jargon) | naïve, façade, Gdańsk |
+| `OTH` | Other (rare diacritics, obscure jargon) | naïve, façade |
 
 ## Regex passes (deterministic)
 
@@ -24,19 +24,21 @@ their categorisation wins on overlap.
 ### 1. Document specifiers
 
 ```regex
-\b([A-Z]{2,6})[-_/\s]?(\d{2,})\b
+\b([A-Z]{2,6})[-_/\s](\d{2,})\b
 ```
 
-Matches `ADR-0012`, `RFC 2119`, `ISO/IEC 27001`, `IEEE-754`. Always `DOC`.
+Matches `ADR-0012`, `RFC 2119`, `ISO/IEC 27001`, `IEEE-754`. The separator is
+required; compact model names such as `ESP32` and `Z80` fall through to the
+alphanumeric brand / model pass. Always `DOC`.
 
 ### 2. Welsh / Gaelic markers
 
 Distinctive Celtic patterns the model will mangle:
 
-- Welsh: `ll`, `rh`, `dd`, `ch`, `ng`, `ff` followed by a vowel;
-  Welsh circumflexes `ŵ`, `ŷ`, `â`, `ê`, `î`, `ô`, `û`
-- Irish/Scottish lenition: `mh`, `bh`, `dh`, `fh`, `gh` adjacent to a
-  vowel (including `á`, `é`, `í`, `ó`, `ú`)
+- Welsh: word-initial `ll`, `rh`, or `dd` followed by a vowel; Welsh
+  circumflexes `ŵ`, `ŷ`, `â`, `ê`, `î`, `ô`, `û`
+- Irish/Scottish lenition: `mh`, `bh`, `dh`, `fh`, or `gh` followed by an
+  accented Irish vowel (`á`, `é`, `í`, `ó`, `ú`)
 
 Always `CEL`.
 
@@ -47,12 +49,13 @@ or Celtic diacritics trigger.
 ### 3. Alphanumeric brand / model
 
 ```regex
-\b([a-z]+\d+[a-zA-Z0-9]*|[A-Z][a-zA-Z]*\d+[a-zA-Z0-9]*|\d+[a-zA-Z]+\d*)\b
+\b([a-z][a-zA-Z]*\d+[a-zA-Z0-9]*|[a-z]+\d+[a-zA-Z0-9]*|[A-Z][a-zA-Z]*\d+[a-zA-Z0-9]*|\d+[a-zA-Z]+\d*)\b
 ```
 
-Matches `df12`, `mxd2`, `Z80`, `RTX4090`, `iPhone15`, `2600AD`.
+Matches `df12`, `mxd2`, `Z80`, `RTX4090`, `iPhone15`, `iPad3`, `2600AD`.
 
-- Opens lowercase → `BRA` (df12, mxd2)
+- Lower-camel + numeric suffix → `BRA` (iPhone15, iPad3)
+- Opens lowercase + digit → `BRA` (df12, mxd2)
 - Opens uppercase → `MOD` (Z80, RTX4090)
 - Opens with digit → `MOD` (2600AD)
 
@@ -163,7 +166,7 @@ with category `MOD`. Same for `RFC 2119`, `Section 230`, `Apollo 11`.
 After the user agrees a respelling, save it for future runs of the
 same project. Recommended location:
 
-```
+```text
 references/project-pronunciations.json
 ```
 

@@ -101,7 +101,8 @@ different-looking object every time it appears on screen.
 - More than 60% of the frame is unchanged
 
 **Prompt format for edits:**
-```
+
+```text
 Keep all of the following unchanged: {list everything that must stay the same}.
 Change only: {exact description of what changes}.
 ```

@@ -7,7 +7,7 @@ description: >
   lighting setup, practical effects, timing, and clip boundaries. Generates storyboard
   keyframe images via nanobanana, assembles video generation prompts with model routing,
   and maintains an asset pipeline with consistent file naming and a generation manifest.
-  Use when a scene inventory exists and you need to move from scene descriptions to
+  Use when a scene inventory exists and the workflow must move from scene descriptions to
   individual, generation-ready clips. Also trigger when the user mentions "shot list",
   "shot breakdown", "storyboard", "video prompt", "model routing", "clip generation",
   or "per-shot direction".
@@ -44,7 +44,7 @@ If the prompt keyword library or video role manifest are absent, run
 
 This skill requires:
 
-- **Image generation MCP** (`nanobanana` tools preferred; see `references/storyboard-generation.md`)
+- **Image generation Model Context Protocol (MCP)** (`nanobanana` tools preferred; see `references/storyboard-generation.md`)
 - **Vision capabilities** (for storyboard consistency verification)
 - **File system access** (structured output directories)
 
@@ -94,7 +94,7 @@ For each scene in the scene inventory, decompose it into numbered shots.
 
 Before writing any shot rows, establish a **duration budget**:
 
-```
+```text
 * **Scene ID:** SC-{XX}
 * **Scene description:** {brief}
 * **Total duration target:** {N} seconds
@@ -167,7 +167,7 @@ For each shot, write full directorial direction covering:
 
 ### 4.1 Actor Direction
 
-```
+```text
 * **Actor(s):** {Who is in frame}
 * **Position:** {Where in frame — left/centre/right; near/mid/far; above/below eyeline}
 * **Posture/body state:** {Standing, seated, leaning; tension or ease in body}
@@ -183,7 +183,7 @@ actor direction as N/A.
 
 ### 4.2 Camera Direction
 
-```
+```text
 * **Mount:** {Tripod / Steadicam / handheld / crane / drone gimbal}
 * **Starting position:** {Physical location of camera at shot start}
 * **Motion path:** {Exact description of camera movement — direction, speed, arc}
@@ -195,7 +195,7 @@ actor direction as N/A.
 
 ### 4.3 Lighting Direction
 
-```
+```text
 * **Key source:** {Natural / artificial; direction; quality — hard/soft/diffused}
 * **Fill:** {Fill source or none; ratio to key}
 * **Practicals:** {Any visible light sources in frame — colour, position, intensity}
@@ -205,7 +205,7 @@ actor direction as N/A.
 
 ### 4.4 Effects Direction
 
-```
+```text
 * **Practical effects:** {Rain, smoke, steam, dust, water, fire — present/absent}
 * **Environmental motion:** {Wind in grasses, ripples on water, steam from vents}
 * **Subject effects:** {Rotors spinning, droplets on fuselage, breath condensing}
@@ -213,7 +213,7 @@ actor direction as N/A.
 
 ### 4.5 Audio Direction
 
-```
+```text
 * **Bed:** {Constant ambient — wind, hum, traffic, crowd}
 * **Punctuations:** {Specific sounds at specific moments in the clip}
 * **Dialogue:** {Exact words if on-screen lip-sync required; "off-screen" otherwise}
@@ -268,18 +268,18 @@ Prompt ending: `"no text, no watermarks, no logos, no labels, no annotations"`
 ### End Frame Prompt Construction
 
 **If the end frame shows the same subject in a significantly different state:**
-- Use `generate_image_variation` (edit from start frame)
-- Pass start frame as reference
+- Use `edit_image` (edit from start frame)
+- Pass the start frame as a reference
 - Describe only what changes; do not repeat unchanged elements
 
 **If the end frame shows a different composition, angle, or subject configuration:**
 - Use `generate_image` (generate new)
-- Pass start frame + location ref as references
+- Pass the start frame + location ref as references
 - Full prompt as for start frame but with end-state description
 
 ### File Naming
 
-```
+```text
 shots/{shot_id}/start.png
 shots/{shot_id}/end.png
 shots/{shot_id}/key{NN}.png
@@ -308,7 +308,7 @@ After generating all storyboard frames, run a vision-based consistency pass.
 
 Write a storyboard consistency report:
 
-```
+```text
 reports/storyboard_consistency_report.md
 ```
 
@@ -385,7 +385,7 @@ Inject all applicable constraints into `[SCENE]` or `[ACTION]`.
 
 After writing all prompt files, produce:
 
-```
+```text
 prompts/manifest.md
 ```
 
@@ -408,7 +408,7 @@ source shots, retaken efficiently, and assembled in the correct order.
 
 ### File Naming Convention
 
-```
+```text
 shots/{shot_id}/start.png          — start frame image
 shots/{shot_id}/end.png            — end frame image
 shots/{shot_id}/key{NN}.png        — key frame(s)

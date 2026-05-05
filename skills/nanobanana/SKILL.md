@@ -16,13 +16,13 @@ Use this skill to turn a vague image request into a prompt that Nano Banana can 
 - `character_consistency`: keep one character stable across scenes.
 - `multi_image_fusion`: combine several references into one coherent result.
 
-2. Choose the lowest-complexity prompt shape that fits the ask.
+1. Choose the lowest-complexity prompt shape that fits the ask.
 
 - Use a short natural-language prompt for simple scenes.
 - Use a structured block for multi-part layouts, infographics, or scene logic.
 - Use JSON-like structure when the user needs many simultaneous constraints or multiple reference roles.
 
-3. Build the prompt in this order.
+1. Build the prompt in this order.
 
 - Subject: who or what must appear.
 - Action/state: what is happening.
@@ -32,13 +32,13 @@ Use this skill to turn a vague image request into a prompt that Nano Banana can 
 - Style/materiality: photoreal, editorial, infographic, matte acrylic, film grain, etc.
 - Constraint layer: exact text, counts, positions, identity preservation, what must remain unchanged.
 
-4. Prefer positive, explicit constraints.
+1. Prefer positive, explicit constraints.
 
 - Say what should be present and how it should behave.
 - For edits, explicitly state what must remain unchanged.
 - For text rendering, quote exact text and specify placement plus typographic character.
 
-5. Use edit-first iteration.
+1. Use edit-first iteration.
 
 - If the first output is close, preserve the successful parts and request only the delta.
 - Example: `Keep composition, subject identity, and wardrobe identical; shift lighting to golden hour and replace background with a foggy bridge.`

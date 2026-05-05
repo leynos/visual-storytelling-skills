@@ -28,7 +28,7 @@ that bears no resemblance to the Irish pronunciation).
 The workaround: respell inline. Replace the printed letters with
 letters the model pronounces correctly:
 
-```
+```text
 I met shi-VAWN at the bar.
 ```
 
@@ -70,17 +70,17 @@ phoneticization, but they interact with respellings in one critical
 way: don't put a respelt word inside square brackets. The tag parser
 treats anything in `[…]` as a stage direction, not as text to render.
 
-```
+```text
 GOOD: [excited] I met shi-VAWN at the bar!
 BAD:  I met [shi-VAWN] at the bar.       # parsed as a directive
 ```
 
 ## Pause control
 
-`<break time="0.5s"/>` works in v3 for pauses up to about 3 seconds.
-Use sparingly: the docs explicitly note that excessive `<break>` tags
-cause "instability" — drift, artefacts, unexpected speed-ups — in the
-generated audio.
+Eleven v3 does not support SSML `<break>` tags. For pause control, use
+supported audio and expressive tags such as `[pause]`, `[short pause]`,
+and `[long pause]`, plus punctuation such as ellipses and sentence/paragraph
+structure.
 
 ## Capital letters and punctuation as prosody hints
 
@@ -133,7 +133,7 @@ every render — no inline substitution needed in the script source.
 
 The skill assumes a Higgsfield MCP TTS tool is available. Discover via:
 
-```
+```text
 tool_search keywords=["tts", "higgsfield", "speech", "eleven"]
 ```
 

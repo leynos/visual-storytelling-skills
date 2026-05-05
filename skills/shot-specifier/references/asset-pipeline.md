@@ -16,7 +16,7 @@ generation.
 
 ## Directory Structure
 
-```
+```text
 {project}/
 ├── scene-pack/
 │   └── {project}_scene_inventory.md

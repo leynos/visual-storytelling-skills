@@ -45,12 +45,14 @@ Always record the continuity state entering and exiting the shot:
 ### Examples
 
 **Insufficient:**
-```
+
+```text
 Switch looks worried at her console.
 ```
 
 **Sufficient:**
-```
+
+```text
 Switch is seated at her console, centre-frame, slightly left of the rubber duck.
 She leans forward toward the screens, right arm extended, fingertips near the
 keyboard but not touching. After two seconds she sits back, turning her head
@@ -95,7 +97,7 @@ Always include: start position, end position, speed, and arc extent.
 
 Specify together:
 
-```
+```text
 * 85 mm spherical, f/2.8 — face sharp, control room background soft
 * 28 mm spherical, f/11 — deep focus throughout; fence posts, moor, and sky all sharp
 * 50 mm spherical, f/5.6 — moderate depth; subject sharp, background readable but soft

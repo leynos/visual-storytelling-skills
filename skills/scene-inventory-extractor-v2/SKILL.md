@@ -60,7 +60,6 @@ during generation phases. Halt only on consistency failures that require human j
 > `references/video-prompt-guide.md`. The consistency verification procedure in Phase 13
 > is defined in `references/consistency-verification.md`. The prompt keyword library
 > format is defined in `references/prompt-keyword-library.md`.
-
 > **Downstream skill:** When full per-shot storyboarding, detailed actor/camera/lighting
 > direction, model routing, and asset-pipeline management are required, hand off to the
 > `shot-specifier` skill. That skill takes the scene inventory and reference images
@@ -93,7 +92,7 @@ Extract and name the visual, storytelling, and cinematographic approaches.
 
 ### 2.1 Visual Aesthetic
 
-```
+```text
 **Name:** {Evocative 2–4 word title}
 **Definition:** {One sentence capturing look and feel}
 ```
@@ -103,7 +102,7 @@ Warmth rules. See `templates/scene-inventory-template.md` for field structure.
 
 ### 2.2 Storytelling Style
 
-```
+```text
 **Name:** {Evocative 2–4 word title}
 **Definition:** {One sentence capturing narrative approach}
 ```
@@ -145,7 +144,7 @@ is correct.
 Write the library as a section in the scene inventory document and also as a standalone
 file at `{project_name}_prompt_keywords.md`.
 
-```
+```text
 ### Prompt Keyword Library
 
 * **Global style phrase:** {1–2 sentences encoding filmstock, grain, colour process}
@@ -197,7 +196,7 @@ collective).
 
 For every character who appears on screen, append:
 
-```
+```text
 * **Reference image requirements:**
   * Primary: {Full body, neutral pose, front-facing, white background}
   * Face detail: {Head-and-shoulders, ¾ angle}
@@ -253,7 +252,7 @@ scene exit status.
 
 **Addition — Reference Image Specification per prop:**
 
-```
+```text
 * **Reference image requirements:**
   * Reference priority: required-before-Phase-12 / incidental
     (required-before-Phase-12: prop appears prominently on screen across multiple shots
@@ -274,7 +273,7 @@ scene exit status.
 For each scene (new scene on location change, significant time passage, POV shift, or
 mode change):
 
-```
+```text
 #### SC-{XX}
 
 * **Scene ID:** SC-{XX}
@@ -325,7 +324,7 @@ Before decomposing each scene into individual shots, establish a **duration budg
 3. Record the budget before writing individual shot rows — it prevents collapsing
    multi-beat scenes into a single over-stuffed clip.
 
-```
+```text
 * **Scene duration budget:** {total seconds}
 * **Clip count:** {N clips}
 * **Per-clip targets:** {e.g. SH001: 8s, SH002: 6s, SH003: 4s}
@@ -333,7 +332,7 @@ Before decomposing each scene into individual shots, establish a **duration budg
 
 > **Common error:** SC-11-style launch sequences feel like one shot but contain at least
 > three distinct clips (pre-launch static, rotor spin-up and lift, forward flight
-> receding). Budget before you decompose, not after.
+> receding). Budget before decomposing, not after.
 
 ### Expanded Shot Table Columns
 
@@ -356,7 +355,7 @@ Before decomposing each scene into individual shots, establish a **duration budg
 
 For each shot, also record (these feed Phase 12):
 
-```
+```text
 * **Start frame:** {Framing + visible content + subject state}
 * **End frame:** {Framing + visible content + subject state}
 * **Key frames (if any):** {Intermediate states the interpolation must pass through}
@@ -463,7 +462,7 @@ Video role values:
 Before generating any frame for a shot, answer these three questions explicitly:
 
 1. Does a canonical reference image exist for **every named character** present in this shot?
-2. Does a canonical reference image exist for **every reference-required prop** visible in this shot?
+2. Does a canonical reference image exist for **every required-before-Phase-12 prop** visible in this shot?
 3. Does a canonical reference image exist for **the specific location variant** (angle × lighting condition) this shot requires?
 
 If any answer is no, generate that reference now using the Phase 11 procedure before
@@ -543,7 +542,7 @@ the video generation model alongside the keyframe images; it must be self-contai
 
 ### Video Prompt Structure
 
-```
+```text
 [STYLE] {Visual style — brief}
 [FILMSTOCK] {Format, grain, colour process — brief}
 [SCENE] {Environment description}
@@ -620,7 +619,7 @@ Compile the final scene inventory document using `templates/scene-inventory-temp
 
 ### Output Files
 
-```
+```text
 {project_name}/
 ├── {project_name}_scene_inventory.md
 ├── {project_name}_continuity_inventory.md
@@ -683,7 +682,7 @@ source.
 phone, keyring, utensil, paper stack, cigarette, badge, bag, or desk object can move or
 change state, it belongs in continuity tracking.
 
-**Budget Before You Decompose.** Establish a clip-duration budget for each scene before
+**Budget Before Decomposing.** Establish a clip-duration budget for each scene before
 writing individual shot rows. Multi-beat scenes collapsed into a single oversized clip
 produce rushed, incoherent video. Three clips of 6s each is almost always better than
 one clip of 18s.
@@ -708,9 +707,9 @@ enforce textual rules ("no trees", "left-hand traffic", "no blue sky outside").
 images. Never generate additional refs without using the primary as a reference input.
 
 **References First, Always.** Lock canonical reference images for every named character,
-every reference-required prop, and every key location before generating any composite
+every required-before-Phase-12 prop, and every key location before generating any composite
 scene or storyboard frame. The generation order is: style anchor → characters →
-reference-required props → locations → incidental props. Never generate a location image
+required-before-Phase-12 props → locations → incidental props. Never generate a location image
 that contains a named prop until that prop's primary reference is locked. Skipping this
 produces the category error where the same object — a vehicle, a device, a named weapon —
 looks like a completely different thing in every shot it appears.
