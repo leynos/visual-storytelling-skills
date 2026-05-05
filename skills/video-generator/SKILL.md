@@ -34,8 +34,11 @@ later agent can continue without guessing.
 
 ## Read Before Running
 
-- For model choice and duration limits, read
-  [references/model-routing.md](./references/model-routing.md).
+- For execution validation, live-schema constraints, default overrides, and empirical
+  output checks, read [references/model-routing.md](./references/model-routing.md).
+  Model choice and model-native prompt ordering are owned upstream by
+  `shot-specifier/references/model-routing.md`; do not re-route shots here unless the
+  manifest is being explicitly repaired.
 - For Seedance 2.0-specific multimodal reference planning, prompt structure, duration
   defaults, quality/speed decisions, and troubleshooting, load `seedance-2-deep-dive`
   whenever a job uses `seedance_2_0`.

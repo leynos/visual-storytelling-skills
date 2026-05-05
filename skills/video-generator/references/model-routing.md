@@ -3,6 +3,27 @@
 Use this when turning prompt manifests into Higgsfield MCP generation jobs. This is the
 execution-facing companion to `skills/shot-specifier/references/model-routing.md`.
 
+## Source Of Truth Boundary
+
+`skills/shot-specifier/references/model-routing.md` is the single source of truth for:
+
+- shot-type to model routing;
+- creative routing rationale;
+- model-native prompt flattening order;
+- reference-priority intent;
+- manifest intent fields emitted by `shot-specifier`.
+
+This file is the single source of truth for:
+
+- validating that a completed manifest can be submitted through the live Higgsfield MCP;
+- mapping manifest intent to live schema parameters and exact model IDs;
+- runtime default overrides;
+- empirical output constraints, file-size checks, and actual-resolution checks.
+
+If the two files appear to disagree, use `shot-specifier` routing for creative intent and
+use the live MCP schema for executable parameter validity. Update both files in the same
+commit whenever a change crosses that boundary.
+
 ## Manifest Fields
 
 Every row must include:
@@ -22,18 +43,21 @@ Every row must include:
 | `required_refs` | Continuity-critical refs that must reach the generation job |
 | `review_gate` | `required` or `optional` |
 
-## Routing Defaults
+## Manifest Routing Validation
 
-| Shot type | Default model | Reason |
-|-----------|---------------|--------|
-| Character-centric action or dialogue-adjacent shot | `seedance_2_0` | Best default for identity and reference preservation |
-| Complex action or large pose interpolation | `seedance_2_0` at `1080p` | Better fit for reference-heavy interpolation |
-| Landscape establishing or smooth pan | `seedance_2_0` or `kling3_0` | Use Seedance when visual refs dominate; Kling when camera path dominates |
-| Drone or machine-vision POV | `kling3_0` or `seedance_2_0` | Choose based on whether camera motion or visual refs dominate |
-| Static CU or minimal motion insert | `seedance_2_0` unless a cheaper validated Higgsfield model is specified | Low motion; references still protect identity |
-| Product, prop, or recurring-element detail | `seedance_2_0` | Reference fidelity matters more than motion richness |
-| Cinematic camera move from one strong frame | Higgsfield DoP or Cinema route when exposed | Use only when the route accepts the needed anchors |
-| Manifest-approved provider-specific shot | Veo route when exposed | Use only when the manifest names it and media roles match |
+Do not choose a new model from this file during normal generation. A completed manifest
+must already contain `recommended_model`, `routing_rationale`, reference requirements,
+duration, audio preferences, and overrides from `shot-specifier`.
+
+Use this file to validate whether that manifest can run:
+
+1. Translate the manifest model alias to the exact live Higgsfield model ID.
+2. Validate media roles, duration, aspect ratio, resolution parameter, audio controls,
+   count, and default overrides against the live schema.
+3. Stop if the model cannot carry required anchors or continuity refs.
+4. If rerouting is required, return to `shot-specifier/references/model-routing.md`,
+   write a new manifest row, and record the production decision. Do not silently select
+   a fallback model inside `video-generator`.
 
 ## Constraint Table
 

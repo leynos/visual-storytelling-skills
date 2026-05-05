@@ -3,6 +3,23 @@
 Read this before Phase 7 (Video Prompt Assembly). Covers how to route individual shots
 to the appropriate video generation model.
 
+## Source Of Truth Boundary
+
+This file is the single source of truth for creative model routing and prompt shaping:
+
+- shot-type to model routing;
+- routing rationale;
+- model-native `## Generation Prompt` flattening order;
+- reference-priority intent;
+- manifest intent fields emitted by `shot-specifier`.
+
+`skills/video-generator/references/model-routing.md` is the execution-facing companion.
+It owns live Higgsfield MCP schema validation, exact provider model IDs, runtime default
+overrides, empirical output constraints, file-size checks, and actual-resolution checks.
+If routing guidance changes, update this file first; update the `video-generator`
+reference in the same commit only when executable constraints or parameter mappings also
+change.
+
 > **Scope and confidence note**
 > This routing guidance synthesises current official documentation, creator tests,
 > comparison write-ups, and recurring user reports as at early May 2026. The evidence
