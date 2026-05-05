@@ -5,9 +5,9 @@ description: >
   narrative writing, extracts continuity inventory and reset-critical state before prompt
   writing, generates all reference images (characters, locations under multiple
   angles/conditions, props), produces start/end/keyframe shot references with
-  consistency verification, and then hands off to shot-specifier for model-routed video
-  prompt assembly. Use when analysing stories, scripts, or prose to create
-  production-ready scene breakdowns with full visual asset pipelines. Also trigger when
+  consistency verification, and then hands off to shot-specifier for per-shot direction,
+  model routing, and prompt manifests. Use when analysing stories, scripts, or prose to
+  create production-ready scene breakdowns with full visual asset pipelines. Also trigger when
   the user mentions "scene breakdown", "shot list", "character bible", "location bible",
   "continuity inventory", "reference images", "storyboarding", or any request to
   prepare narrative material for AI video generation. This skill expects access to an
