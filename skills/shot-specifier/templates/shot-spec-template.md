@@ -105,7 +105,7 @@ Complete once per scene before writing individual shot specs.
 **Dialogue:** {Exact words if on-screen; "off-screen" or "none" otherwise}
 **Music:** {Diegetic source / "none" / "non-diegetic — handle in post"}
 **Audio generation preferences:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
-music=off; narration=off; preserve_silence={true/false}
+music=off; narration=off; source={generated/none/supplied}; preserve_silence={true/false}
 ```
 
 ### Video Prompt (assembled in Phase 7)
@@ -130,6 +130,7 @@ music=off; narration=off; preserve_silence={true/false}
 **On-screen dialogue/lip-sync:** {on/off}
 **Music:** off
 **Narration:** off
+**Audio source:** {generated / none / supplied}
 **Preserve silence:** {true/false}
 ```
 

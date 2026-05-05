@@ -45,7 +45,8 @@ source material to video-ready assets.
 | Format / gauge | ☐ | Film gauge or digital sensor equivalent |
 | Stock / sensor | ☐ | Named stock or sensor family |
 | Native aspect ratio | ☐ | Width:height |
-| Generation resolution | ☐ | 16:9 or 9:16 |
+| Target resolution | ☐ | Pixel dimensions or delivery target |
+| Generation resolution parameter | ☐ | Model parameter such as 720p or 1080p |
 | Grain structure | ☐ | Size, distribution, character, exposure response |
 | Colour process | ☐ | Named process or described appearance |
 | Colour timing (global) | ☐ | Bias, shadow/midtone/highlight colours, saturation |

@@ -89,10 +89,10 @@ each video generation API call — before checking the result.
 
 ## {Project Name}
 
-| Shot ID | Date | Model | Job ID | Duration | Status | Take | Routing Rationale | Notes |
-|---------|------|-------|--------|----------|--------|------|-------------------|-------|
-| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-32c6-48cb-821e-ccd260ff638b | 8s | completed | v1 | Consistent subject identity; start/end anchor | |
-| S11_SH002 | 2026-05-04 | seedance_2_0 | — | 6s | pending | v1 | | |
+| Shot ID | Date | Model | Job ID | Duration | Status | Take | File Size | Actual Resolution | Review | Routing Rationale | Notes |
+|---------|------|-------|--------|----------|--------|------|-----------|-------------------|--------|-------------------|-------|
+| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-32c6-48cb-821e-ccd260ff638b | 8s | completed | v1 | 21MB | 1920x1080 | accepted | Consistent subject identity; start/end anchor | |
+| S11_SH002 | 2026-05-04 | seedance_2_0 | — | 6s | pending | v1 | — | — | required | | |
 ```
 
 ### Required Fields
@@ -104,6 +104,9 @@ each video generation API call — before checking the result.
 - **Duration:** Clip duration in seconds
 - **Status:** pending / in_progress / completed / failed
 - **Take:** v1, v2, etc.
+- **File Size:** Size of the downloaded local clip, for capacity planning
+- **Actual Resolution:** Pixel dimensions measured from the downloaded clip
+- **Review:** required / optional / accepted / retake / blocked
 - **Routing Rationale:** One sentence explaining why this model was chosen for this shot
 - **Notes:** Any anomalies, quality issues, or decisions made on review
 

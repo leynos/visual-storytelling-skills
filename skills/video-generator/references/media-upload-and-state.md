@@ -44,15 +44,45 @@ path exists from local frame files to accepted MCP media inputs.
 
 Write `generated/generation_log.md`:
 
-| Shot ID | Sub-clip | Take | Model | Job ID | Status | Output URL | Local file | Prompt hash | Notes |
-|---------|----------|------|-------|--------|--------|------------|------------|-------------|-------|
+| Shot ID | Sub-clip | Take | Model | Job ID | Status | Output URL | Local file | File size | Actual resolution | Review | Prompt hash | Notes |
+|---------|----------|------|-------|--------|--------|------------|------------|-----------|-------------------|--------|-------------|-------|
 
 Append a row as soon as the Higgsfield MCP video tool returns a job ID, request ID, or
 job-set ID. Update the row while polling.
+
+After download, fill in `File size` and `Actual resolution` from the local file. These
+fields are capacity-planning data, not cosmetic metadata: large model-to-model bitrate
+variance can change storage and transfer costs across a full production.
+
+## Review Gates
+
+Each manifest row carries `review_gate`:
+
+- `required` for character-centric, continuity-critical, dialogue, product, prop, UI, or
+  expensive hero shots;
+- `optional` for low-risk v1 landscape or atmosphere shots.
+
+For required gates, download the take, update the log, then pause automatic progression
+until the take is reviewed against the shot spec, storyboard frames, continuity
+constraints, and audio preferences. Record `accepted`, `retake`, or `blocked` in the
+`Review` column.
+
+## Submission Strategy
+
+Record the batching strategy in `generated/generation_log.md` or
+`generated/submission_plan.md` before submitting large runs.
+
+- Interleave Kling and Seedance jobs when both are present.
+- Expect Seedance jobs to queue serially on some surfaces; do not treat queue delay as a
+  failure by itself.
+- For Seedance-heavy batches, submit in bounded groups and leave enough state to resume
+  without duplicate jobs.
 
 ## Resume Rules
 
 - If a row is `completed` and `Local file` exists, skip it.
 - If a row has a job ID but no terminal status, poll before resubmitting.
 - If a row is `failed`, create the next take unless the user asks to retry the same job.
+- If a row is `completed` but `Review` is `retake`, create the next take after fixing the
+  root cause.
 - Never overwrite an existing take; write `v2`, `v3`, etc.

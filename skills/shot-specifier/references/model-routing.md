@@ -200,6 +200,22 @@ multiple subjects.
 | Landscape, one-vector camera moves | 8–10 s |
 | Hero-shot experiments, structured multi-shot | up to 15 s |
 
+### Parameters and API Defaults
+
+Do not leave generation-critical parameters implicit. The prompt manifest must carry
+the intended value so `video-generator` can override undesirable provider defaults.
+
+| Model | Observed/default behaviour | Manifest requirement |
+|-------|----------------------------|----------------------|
+| `seedance_2_0` | Higgsfield may auto-enable generated audio (`generate_audio: true`) | Emit explicit audio source: `generated`, `none`, or `supplied`; use `none` for silent shots and `supplied` when external audio drives the take |
+| `kling3_0` | Higgsfield may auto-set `sound: "on"` and `cfg_scale: 0.5` | Emit explicit sound preference and a reference-adherence note; for identity/reference-critical shots, request a stronger reference balance if the live schema exposes CFG or guidance |
+| All models | Actual pixel dimensions may differ from labels such as `1080p` | Emit both target pixel resolution and provider resolution parameter; `video-generator` must verify actual output dimensions after download |
+
+If the live MCP schema exposes model-specific parameters such as `mode`, `quality`,
+`genre`, `sound`, `generate_audio`, `cfg_scale`, or guidance strength, set them from the
+manifest or stop for a production decision. Do not let the provider choose defaults for
+audio, reference adherence, mode, or resolution on continuity-critical shots.
+
 ### Fast vs. Standard Mode (Seedance 2.0)
 
 **Draft in fast, keepers in standard.** Fast roughly halves cost and latency; public

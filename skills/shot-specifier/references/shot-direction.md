@@ -165,7 +165,7 @@ Every shot must also emit explicit audio-generation preferences:
 
 ```text
 ambient={on/off}; sfx={on/off}; dialogue={on/off}; music=off; narration=off;
-preserve_silence={true/false}
+source={generated/none/supplied}; preserve_silence={true/false}
 ```
 
 ---

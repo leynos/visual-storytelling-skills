@@ -31,7 +31,7 @@ colour science, and aspect ratio decisions.
 | **Gauge** | Film gauge or digital sensor equivalent | Super 8, 16 mm, 35 mm, 65 mm, "RED Monstro equivalent" |
 | **Stock / sensor** | Named stock or sensor family | Kodak Vision3 500T, Fuji Eterna Vivid 160, "ARRI ALEXA LF equivalent" |
 | **Native aspect ratio** | Width:height | 1.33:1, 1.66:1, 1.85:1, 2.39:1 (anamorphic), 16:9 |
-| **Target resolution** | Generation resolution | 16:9 (1280×720) or 9:16 (720×1280) for AI generation |
+| **Target resolution** | Required output size for generation and delivery | 1920×1080, 1344×768, 1080×1920 |
 | **Exposure latitude** | Shadow/highlight recovery behaviour | "Generous highlight rolloff, crushed blacks" |
 
 ### Choosing a Stock
@@ -275,7 +275,8 @@ Use this template in the scene inventory document under Creative Pillars § 2.3:
 * **Format:** {Gauge / sensor equivalent}
 * **Stock / sensor:** {Named stock or sensor family}
 * **Aspect ratio:** {Width:height}
-* **Generation resolution:** {e.g. 16:9}
+* **Target resolution:** {e.g. 1920×1080, 1344×768, or 1080×1920}
+* **Generation resolution parameter:** {e.g. 1080p; model-specific equivalent}
 
 * **Grain:**
   * Size: {fine / medium / coarse}

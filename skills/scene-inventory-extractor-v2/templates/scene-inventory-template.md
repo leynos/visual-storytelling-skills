@@ -73,7 +73,8 @@
 * **Format:** {Gauge / sensor equivalent}
 * **Stock / sensor:** {Named stock or sensor family}
 * **Aspect ratio:** {Width:height}
-* **Generation resolution:** {e.g. 16:9}
+* **Target resolution:** {e.g. 1920×1080, 1344×768, or 1080×1920}
+* **Generation resolution parameter:** {e.g. 1080p; model-specific equivalent}
 
 * **Grain:**
   * Size: {fine / medium / coarse}

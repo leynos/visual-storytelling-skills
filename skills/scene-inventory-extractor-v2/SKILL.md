@@ -127,6 +127,7 @@ post-production characteristics of the image pipeline:
 | Element | What to Define |
 |---------|----------------|
 | **Format / filmstock** | Gauge (Super 8, 16 mm, 35 mm, 65 mm, digital sensor equivalent), aspect ratio, native resolution |
+| **Target resolution** | Required output size for generation and delivery, e.g. `1920x1080`, `1344x768`, or `1080p` with aspect |
 | **Grain structure** | Fine/medium/coarse; organic vs digital noise; grain response to exposure |
 | **Colour process** | Photochemical reference (Kodachrome, Ektachrome, Vision3 500T) or digital LUT family |
 | **Colour timing** | Overall bias (cool, warm, cross-processed); scene-specific timing rules |

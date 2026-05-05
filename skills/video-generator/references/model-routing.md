@@ -13,8 +13,11 @@ Every row must include:
 | `routing_rationale` | One sentence explaining the choice |
 | `duration_seconds` | Validated per model |
 | `aspect_ratio` | Machine parameter, e.g. `16:9` |
-| `resolution` | Machine parameter, e.g. `1080p` |
+| `target_resolution` | Intended output dimensions, e.g. `1920x1080` |
+| `resolution_parameter` | Machine parameter, e.g. `1080p` |
 | `generation_strategy` | `single_clip`, `split_at_keyframe`, or `merge_keyframe_motion` |
+| `audio_generation_preferences` | `generated`, `none`, or `supplied` plus ambient/sfx/dialogue flags |
+| `review_gate` | `required` or `optional` |
 
 ## Routing Defaults
 
@@ -31,10 +34,10 @@ Every row must include:
 
 ## Constraint Table
 
-| Model | Duration | Resolution | Image roles |
-|-------|----------|------------|-------------|
+| Model | Duration | Resolution parameter | Image roles |
+|-------|----------|----------------------|-------------|
 | `seedance_2_0` | 4-15 s for this workflow | `480p`, `720p`, `1080p` | `start_image`, `end_image`, `image` when exposed |
-| `kling3_0` | 3-15 s for this workflow | `720p`, `1080p` | `start_image`, `end_image`, `image` when exposed; motion-control variants may differ |
+| `kling3_0` | 3-15 s for this workflow | `720p`, `1080p`; verify actual pixels after download | `start_image`, `end_image`, `image` when exposed; motion-control variants may differ |
 | Higgsfield DoP/Cinema route | Use live MCP limit | Use live MCP limit | Usually image-to-video; validate start/end support before routing |
 | Veo route | Use live MCP limit | Use live MCP limit | Use only when live MCP route accepts required references |
 
@@ -55,6 +58,20 @@ or job submission. Use it for Kling-specific shot structure, camera language, El
 and Motion Control planning, native audio/dialogue syntax, product prompting, text/UI
 safety, and retake triage.
 
+## Default Parameter Overrides
+
+Do not rely on provider defaults for audio, reference adherence, mode, quality, genre, or
+resolution.
+
+| Model | Observed/default behaviour | Execution rule |
+|-------|----------------------------|----------------|
+| `seedance_2_0` | Higgsfield may set `generate_audio: true` | Set generated audio explicitly from `audio_generation_preferences`; use `none` when silence or post audio is required |
+| `kling3_0` | Higgsfield may set `sound: "on"` and `cfg_scale: 0.5` | Set sound explicitly; if CFG/guidance is exposed, use the manifest's reference-adherence intent instead of accepting the default on identity-critical shots |
+| All models | Labelled resolution may not equal actual pixel dimensions | Verify downloaded dimensions against `target_resolution` and log any mismatch |
+
+Stop if the live schema cannot honour an explicit audio or reference-adherence
+preference on a continuity-critical shot.
+
 ## Routing Procedure
 
 1. Read the shot intent, required references, action complexity, duration, and anchor
@@ -62,7 +79,8 @@ safety, and retake triage.
 2. Pick the default model from the routing table.
 3. Inspect the live Higgsfield MCP model list or tool schema.
 4. Translate the manifest model alias to the exact provider ID.
-5. Validate duration, aspect ratio, resolution, and media roles.
+5. Validate duration, aspect ratio, target resolution, resolution parameter, audio
+   preferences, default overrides, and media roles.
 6. Record `recommended_model`, `actual_model_id`, and `routing_rationale`.
 7. Stop if the chosen model cannot carry every required reference or anchor.
 

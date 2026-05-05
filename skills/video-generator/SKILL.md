@@ -55,7 +55,8 @@ later agent can continue without guessing.
 
 - `prompts/manifest.md` from `shot-specifier` with
   shot order, duration, model routing, prompt file, frame paths, aspect ratio,
-  resolution, generation strategy, and explicit audio-generation preferences.
+  target resolution, resolution parameter, generation strategy, review-gate metadata,
+  and explicit audio-generation preferences.
 - One prompt file per shot containing both the structured `## Prompt` block and a
   `## Generation Prompt` block.
 - Start and end frames for every generation clip.
@@ -110,6 +111,8 @@ observed contract in `generated/generation_log.md` or `generated/mcp_schema_note
 - supported media roles, especially `start_image`, `end_image`, and generic reference
   image roles;
 - duration, aspect-ratio, resolution, quality, motion, genre, and audio parameters;
+- model-specific default parameters, especially `generate_audio`, `sound`, `cfg_scale`,
+  `mode`, `quality`, `genre`, and guidance/reference-adherence controls;
 - upload/history tools and the handle type they return;
 - status polling tool, terminal statuses, and output-download field.
 
@@ -121,7 +124,8 @@ generate_video(
   prompt={generation_prompt},
   aspect_ratio={aspect_ratio},
   duration={duration_seconds},
-  resolution={resolution},
+  resolution={resolution_parameter},
+  audio={audio_generation_preferences},
   media=[
     {value: start_media_handle, role: "start_image"},
     {value: end_media_handle, role: "end_image"},
@@ -136,12 +140,14 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
 ## Workflow
 
 1. **Audit manifest.** Confirm every shot has `recommended_model`, `aspect_ratio`,
-   `resolution`, `duration`, `generation_strategy`, `prompt_file`, `start_image`, and
+   `target_resolution`, `resolution_parameter`, `duration`, `generation_strategy`,
+   `audio_generation_preferences`, `review_gate`, `prompt_file`, `start_image`, and
    `end_image`. Halt if any required field is missing.
 2. **Inspect Higgsfield MCP.** Load the live MCP schema and confirm the selected model,
    media roles, upload/history path, polling path, and output path exist.
-3. **Validate constraints.** Check model duration, supported resolution, aspect ratio,
-   and media-role support before upload. Do not discover invalid clips after submission.
+3. **Validate constraints and defaults.** Check model duration, supported resolution,
+   aspect ratio, media-role support, and model-specific defaults before upload. Override
+   unwanted defaults explicitly; do not discover invalid clips after submission.
 4. **Verify model-native prompts.** Use the existing `## Generation Prompt` when
    present. If absent, produce it using the model-specific algorithm in
    `references/prompt-flattening.md`, write it back to the prompt file, then continue.
@@ -156,18 +162,27 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    MCP audio parameters. Narration remains off because it is handled as a separate
    process. If the MCP cannot disable unwanted generated audio, stop rather than letting
    the model auto-select audio behaviour silently.
-8. **Submit generation jobs.** Call the connected Higgsfield MCP video-generation tool
+8. **Plan submission order.** Interleave Seedance and Kling jobs when both are present,
+   or accept Seedance serial queueing explicitly in the generation log. Do not flood a
+   Seedance-heavy run without recording the queue strategy.
+9. **Submit generation jobs.** Call the connected Higgsfield MCP video-generation tool
    (`generate_video` or the current tool-surface equivalent) with the model-native
    prompt string, validated model parameters, and media handles in their roles.
-9. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
+10. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
    returns a job ID. An unlogged job is a lost job.
-10. **Poll and download.** Poll with backoff until a terminal status. Download successful
+11. **Poll and download.** Poll with backoff until a terminal status. Download successful
    clips to `generated/{shot_id}/v{take}.mp4` or
    `generated/{shot_id}/{subclip_id}_v{take}.mp4`. Do not mark a job complete until this
    local file exists and is recorded in the log.
-11. **Resume safely.** On rerun, skip completed rows with a local output path unless the
+12. **Verify output file.** Record local file size and actual pixel dimensions. If the
+   file is missing, zero-length, unexpectedly tiny, or at the wrong dimensions for the
+   model route, mark the take for review or retake.
+13. **Run review gate.** If the manifest marks the shot `review_gate=required`, stop
+   automatic progression after download until the take is reviewed against the shot spec
+   and storyboard frames. Landscape or low-risk v1 shots may use `review_gate=optional`.
+14. **Resume safely.** On rerun, skip completed rows with a local output path unless the
    user requests a retake.
-12. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
+15. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
     and sub-clip order for final editing.
 
 ## Reference Image Discipline
@@ -201,6 +216,8 @@ Stop before generation when:
 - no upload/history mechanism can turn local files into accepted media inputs;
 - explicit audio-generation preferences cannot be honoured and the model would
   auto-generate unwanted audio;
+- model-specific defaults would alter audio, reference adherence, mode, or resolution and
+  the live MCP schema does not expose an override;
 - a job cannot be logged or resumed.
 
 Do not silently fall back to another provider, another model family, text-only video, or

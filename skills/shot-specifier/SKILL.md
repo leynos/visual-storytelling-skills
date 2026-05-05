@@ -389,9 +389,10 @@ Control references, and treat critical text/UI as baked-frame or post-production
 - **Model routing rationale:** {1 sentence explaining the routing choice}
 - **Generation strategy:** {image_to_video / start_end_image / multi_shot / motion_control}
 - **Aspect ratio:** {16:9 / 9:16 / 1:1 / 21:9}
-- **Resolution:** {720p / 1080p}
+- **Target resolution:** {pixel dimensions from cinematography spec}
+- **Resolution parameter:** {720p / 1080p / model-specific equivalent}
 - **Audio generation:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
-  music=off; narration=off
+  music=off; narration=off; source={generated/none/supplied}
 
 ## Frames
 - **Start frame:** shots/{shot_id}/start.png
@@ -423,6 +424,7 @@ Control references, and treat critical text/UI as baked-frame or post-production
 - **On-screen dialogue/lip-sync:** {on/off; exact lines if on}
 - **Music:** off unless diegetic music is visible in-frame
 - **Narration:** off; narration is a separate process
+- **Audio source:** {generated / none / supplied}
 - **Preserve silence:** {true/false}
 
 ## Generation Prompt
@@ -461,9 +463,9 @@ prompts/manifest.md
 ```markdown
 # Shot Generation Manifest
 
-| Shot ID | Scene | Duration | Model | Strategy | Aspect | Resolution | Audio | Start | End | Keys | Prompt File |
-|---------|-------|----------|-------|----------|--------|------------|-------|-------|-----|------|-------------|
-| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1080p | ambient=on;sfx=on;dialogue=off;music=off;narration=off | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
+| Shot ID | Scene | Duration | Model | Strategy | Aspect | Target Resolution | Resolution Param | Audio | Review Gate | Start | End | Keys | Prompt File |
+|---------|-------|----------|-------|----------|--------|-------------------|------------------|-------|-------------|-------|-----|------|-------------|
+| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1920x1080 | 1080p | ambient=on;sfx=on;dialogue=off;music=off;narration=off;source=generated | required | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
 ```
 
 ---
@@ -471,9 +473,10 @@ prompts/manifest.md
 ## Phase 8: Asset Pipeline
 
 > **Downstream handoff:** Once Phase 8 has produced `prompts/manifest.md`, prompt files,
-> storyboard frames, model routing, generation strategy, aspect ratio, resolution, and
-> clip-boundary metadata, hand off to `video-generator` for Higgsfield MCP media upload,
-> job submission, polling, resume handling, and assembly-order output.
+> storyboard frames, model routing, generation strategy, aspect ratio, target
+> resolution, resolution parameter, audio-generation preferences, review-gate metadata,
+> and clip-boundary metadata, hand off to `video-generator` for Higgsfield MCP media
+> upload, job submission, polling, resume handling, and assembly-order output.
 > **Prerequisite:** Read `references/asset-pipeline.md`.
 
 Maintain a consistent asset pipeline so generated clips can be traced back to their
