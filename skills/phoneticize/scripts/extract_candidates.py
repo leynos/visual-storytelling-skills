@@ -218,6 +218,21 @@ def appears_lowercase_elsewhere(token: str, lowercase_tokens: set[str]) -> bool:
     return lower in lowercase_tokens
 
 
+def candidate_category(
+    pattern: re.Pattern[str],
+    token: str,
+    forced_category: str | None,
+) -> str:
+    """Return the category for a regex match."""
+    if forced_category is not None:
+        return forced_category
+    if pattern is ALPHANUM_PATTERN:
+        return "BRA" if token[0].islower() else "MOD"
+    if pattern is DIACRITIC_PATTERN:
+        return "NAM" if token[0].isupper() else "OTH"
+    return "OTH"
+
+
 # ---------------------------------------------------------------------------
 # Detection
 # ---------------------------------------------------------------------------
@@ -260,15 +275,7 @@ def find_candidates(text: str, allowlist: set[str]) -> list[Candidate]:
             if forced_category == "NAM" and lemma in COMMON_TITLE_CASE:
                 continue
 
-            # Decide category.
-            category = forced_category
-            if category is None:
-                if pattern is ALPHANUM_PATTERN:
-                    category = "BRA" if token[0].islower() else "MOD"
-                elif pattern is DIACRITIC_PATTERN:
-                    category = "NAM" if token[0].isupper() else "OTH"
-                else:
-                    category = "OTH"
+            category = candidate_category(pattern, token, forced_category)
 
             # Sentence-initial title-case: only flag if the lowercase form
             # is NOT used elsewhere (i.e. it really is a proper noun).
