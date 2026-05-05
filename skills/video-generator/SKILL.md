@@ -32,6 +32,9 @@ later agent can continue without guessing.
 - For Seedance 2.0-specific multimodal reference planning, prompt structure, duration
   defaults, quality/speed decisions, and troubleshooting, load `seedance-2-deep-dive`
   whenever a job uses `seedance_2_0`.
+- For Kling 3.0-specific shot structure, camera language, Elements, Motion Control,
+  native audio/dialogue, product prompting, and troubleshooting, load
+  `kling-3-0-deep-dive` whenever a job uses `kling3_0`.
 - For converting structured `[TAG]` prompt files into model-native prompt strings, read
   [references/prompt-flattening.md](./references/prompt-flattening.md).
 - For shots with key frames, read
@@ -78,6 +81,11 @@ validate the reference-file plan against live MCP limits, preserve each required
 reference's purpose, keep production clips within the planned duration envelope, and
 use draft/final quality settings deliberately instead of treating quality as a repair
 button.
+
+When the resolved model is Kling 3.0, apply `kling-3-0-deep-dive` before submission:
+validate the shot structure, camera endpoint, frame anchors, Elements, Motion Control,
+and native-audio plan against live MCP limits, and stop rather than downgrading a
+structured Kling job to plain text-to-video.
 
 Do not use a plain text-to-video route for a shot that has required start/end/reference
 frames. Use image-to-video, start/end image, or the equivalent MCP mode that actually

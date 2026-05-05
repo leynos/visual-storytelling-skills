@@ -74,8 +74,10 @@ image model.
 > read `references/storyboard-generation.md`. Before Phase 7, read
 > `references/model-routing.md`. If Phase 7 routes any shot to `seedance_2_0`, also
 > load `seedance-2-deep-dive` before finalising the prompt, reference plan, duration,
-> aspect ratio, and generation notes. The asset pipeline conventions are in
-> `references/asset-pipeline.md`.
+> aspect ratio, and generation notes. If Phase 7 routes any shot to `kling3_0`, also
+> load `kling-3-0-deep-dive` before finalising shot structure, camera motion, Elements
+> or Motion Control references, duration, aspect ratio, audio notes, and generation
+> notes. The asset pipeline conventions are in `references/asset-pipeline.md`.
 
 ---
 
@@ -359,6 +361,11 @@ the prompt. Record why Seedance is the right route, keep the clip short unless t
 is a deliberate hero test, assign each reference file a clear purpose, and shape the
 prompt as a Seedance-native multimodal direction rather than a generic video prompt.
 
+If the recommended model is `kling3_0`, apply `kling-3-0-deep-dive` before writing the
+prompt. Record why Kling is the right route, structure multi-beat work as labelled shots
+with durations, specify camera behaviour and endpoint, identify any Elements or Motion
+Control references, and treat critical text/UI as baked-frame or post-production work.
+
 ### Prompt Template
 
 ```markdown
@@ -495,6 +502,7 @@ This log is essential for:
 | `scene-inventory-extractor-v2` | Upstream scene inventory, continuity inventory, and reference library are missing |
 | `nanobanana` | Generating or editing storyboard frames and locked references |
 | `seedance-2-deep-dive` | A shot is routed to `seedance_2_0` and needs Seedance-specific duration, reference, prompt, or troubleshooting guidance |
+| `kling-3-0-deep-dive` | A shot is routed to `kling3_0` and needs Kling-specific shot structure, camera, Elements, Motion Control, audio, product, or troubleshooting guidance |
 | `video-generator` | Prompt manifest, frames, and model routing are ready for Higgsfield MCP submission |
 
 ## Templates

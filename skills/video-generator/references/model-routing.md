@@ -50,6 +50,11 @@ When the selected model is `seedance_2_0`, load `seedance-2-deep-dive` before me
 upload or job submission. Use it for Seedance-specific reference prioritisation, prompt
 shape, duration/aspect defaults, quality/speed choices, and retake triage.
 
+When the selected model is `kling3_0`, load `kling-3-0-deep-dive` before media upload
+or job submission. Use it for Kling-specific shot structure, camera language, Elements
+and Motion Control planning, native audio/dialogue syntax, product prompting, text/UI
+safety, and retake triage.
+
 ## Routing Procedure
 
 1. Read the shot intent, required references, action complexity, duration, and anchor

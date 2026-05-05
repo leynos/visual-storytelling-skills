@@ -34,6 +34,8 @@ Three findings matter most for this production.
    anchors, photorealistic exteriors, and any shot where you can drive motion from a
    reference video. Kling Motion Control, not plain text prompting, is the strongest
    public case for difficult human or physical action.
+   When routing a shot to `kling3_0`, load `kling-3-0-deep-dive` before writing the
+   final prompt and manifest row.
 
 3. **Neither model is trustworthy for generated UI or exact on-screen text**: bake
    critical screens into the reference frame and animate minimally instead.
@@ -224,6 +226,9 @@ drift with larger casts or longer sequences; weak text/UI generation.
 **Prompting:** Think in shots, timing, scene boundaries, and camera moves. For difficult
 physical action, prefer Motion Control over plain prompting — the public case for Motion
 Control is materially stronger than for text-only generation in action categories.
+For detailed Kling-native scene structure, camera language, Elements and Motion Control
+planning, native audio/dialogue syntax, product prompt anatomy, and troubleshooting, use
+the `kling-3-0-deep-dive` skill.
 
 **References:** 2–3 clean identity images for Elements; driving clip for Motion Control;
 avoid overloading the model.
