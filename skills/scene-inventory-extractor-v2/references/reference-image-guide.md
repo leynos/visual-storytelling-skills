@@ -1,6 +1,6 @@
 # Reference Image Generation Guide
 
-Read this file before beginning Phase 10 (Reference Image Generation). It defines
+Read this file before beginning Phase 11 (Reference Image Generation). It defines
 generation order, prompting rules, the location scouting matrix, and the
 edit-vs-generate decision table for shot frames.
 
@@ -196,7 +196,7 @@ and pass that reference whenever visible.
 
 ## 6. Prompt Construction Rules
 
-### Reference Image Prompts (Phase 10)
+### Reference Image Prompts (Phase 11)
 
 **Primary references** (no input reference image):
 
@@ -245,7 +245,7 @@ Edit this image: {describe only what changes — subject position, pose, express
 or composition shift}. Everything else remains identical.
 ```
 
-References to attach: [start_frame, relevant Phase 10 refs]
+References to attach: [start_frame, relevant Phase 11 refs]
 
 **End frame (generate mode):**
 
@@ -259,7 +259,7 @@ temperature, and depth of field.
 No text, no watermarks, no logos, no annotations.
 ```
 
-References to attach: [start_frame (as scene ref), relevant Phase 10 refs]
+References to attach: [start_frame (as scene ref), relevant Phase 11 refs]
 
 **Key frames:**
 
@@ -383,8 +383,13 @@ Log any issues for the full consistency pass in Phase 13.
 │   │       ├── establishing_{condition}.png
 │   │       ├── {angle}_{condition}.png
 │   │       └── ...
-│   └── props/
-│       └── {prop_name}/
+│   ├── props/
+│   │   └── {prop_name}/
+│   │       ├── primary.png
+│   │       ├── detail.png
+│   │       └── state_{variant}.png
+│   └── recurring-elements/
+│       └── {element_name}/
 │           ├── primary.png
 │           ├── detail.png
 │           └── state_{variant}.png
@@ -397,3 +402,6 @@ Log any issues for the full consistency pass in Phase 13.
 ```
 
 Use lowercase, hyphen-separated names throughout. No spaces in filenames.
+Recurring visual element assets are canonical locked references reused across
+characters, locations, props, and every shot where the element appears; do not mix them
+into `refs/props/`.

@@ -306,7 +306,7 @@ over 10 s.
 
 **Prompting:** Keep prompts clear and structured; let references do identity work; use
 explicit negatives for camera logic; prefer short, controlled clip durations.
-For detailed Seedance-native multimodal prompt structure, reference-file prioritisation,
+For detailed Seedance-native multimodal prompt structure, reference-file prioritization,
 duration/aspect defaults, settings sweeps, and troubleshooting, use the
 `seedance-2-deep-dive` skill.
 

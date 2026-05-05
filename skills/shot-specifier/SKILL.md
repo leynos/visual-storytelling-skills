@@ -73,9 +73,9 @@ image model.
 > **Read order:** Before Phase 4, read `references/shot-direction.md`. Before Phase 5,
 > read `references/storyboard-generation.md`. Before Phase 7, read
 > `references/model-routing.md`. If Phase 7 routes any shot to `seedance_2_0`, also
-> load `seedance-2-deep-dive` before finalising the prompt, reference plan, duration,
+> load `seedance-2-deep-dive` before finalizing the prompt, reference plan, duration,
 > aspect ratio, and generation notes. If Phase 7 routes any shot to `kling3_0`, also
-> load `kling-3-0-deep-dive` before finalising shot structure, camera motion, Elements
+> load `kling-3-0-deep-dive` before finalizing shot structure, camera motion, Elements
 > or Motion Control references, duration, aspect ratio, audio notes, and generation
 > notes. The asset pipeline conventions are in `references/asset-pipeline.md`.
 
@@ -471,7 +471,7 @@ keyword library. No ad hoc vocabulary.
 
 ### Continuity Constraint Injection
 
-Before finalising each prompt, check:
+Before finalizing each prompt, check:
 
 - The location bible negative space rules for this location
 - The continuity inventory for this scene

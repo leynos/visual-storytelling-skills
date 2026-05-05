@@ -28,6 +28,11 @@ action the findings before handoff: regenerate or correct BLOCK issues, resolve 
 issues when the fix is clear, and convert any remaining WARN issue into a concrete
 constraint for `shot-specifier`.
 
+Every finding is an action item requiring remediation before handoff. Phase 13 must
+enforce per-shot prop consistency against the primary prop reference, cross-shot prop
+identity across all frames for each named prop, and recurring visual element
+consistency across every shot where the element is visible.
+
 ### Verification Pass Order
 
 Execute checks in this order (each subsequent check assumes prior checks have passed):
@@ -49,7 +54,10 @@ Execute checks in this order (each subsequent check assumes prior checks have pa
 |----------|------|---------|--------|
 | **BLOCK** | `B` | Inconsistency will produce unusable video or visible continuity error | Must regenerate or correct before handoff |
 | **WARN** | `W` | Inconsistency is noticeable but may survive video generation | Resolve when clear; otherwise pass an explicit downstream constraint |
-| **INFO** | `I` | Minor variation within acceptable tolerance | Log only; no action required |
+
+All findings must be recorded as action items. Use **BLOCK** when the issue prevents
+handoff; use **WARN** when the issue can be remediated by a concrete downstream
+constraint after local fixes are exhausted.
 
 ### Classification Rules
 
@@ -67,8 +75,8 @@ Execute checks in this order (each subsequent check assumes prior checks have pa
 | Background detail inconsistency (minor) | **WARN** |
 | Depth of field inconsistency between frames | **WARN** |
 | Prop detail variation (minor shape/colour shift) | **WARN** |
-| Grain/texture slightly different from style anchor | **INFO** |
-| Minor composition drift from specified framing | **INFO** |
+| Grain/texture slightly different from style anchor | **WARN** |
+| Minor composition drift from specified framing | **WARN** |
 
 ---
 
@@ -276,7 +284,6 @@ Output the consistency report as:
 * **Total shots checked:** {N}
 * **BLOCK issues found:** {N} (resolved: {N}, unresolved: {N})
 * **WARN issues found:** {N}
-* **INFO issues found:** {N}
 
 ---
 
@@ -302,14 +309,6 @@ Output the consistency report as:
 * **Description:** {What is wrong}
 * **Frame(s) affected:** {filename(s)}
 * **Recommendation:** {Suggested action for human review}
-
----
-
-## INFO Issues
-
-| Issue ID | Shot ID | Check | Description |
-|----------|---------|-------|-------------|
-| {ID} | {Shot} | {Check} | {Brief description} |
 
 ---
 

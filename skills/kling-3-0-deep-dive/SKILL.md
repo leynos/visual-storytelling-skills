@@ -299,7 +299,9 @@ prompt at final quality.
 ## Handoff Rules
 
 `shot-specifier` should use this skill before Phase 7 when a shot is routed to
-`kling3_0`. It should emit:
+`kling3_0`. Phase 6 storyboard consistency must pass before routing a Kling job: all
+BLOCK findings fixed, all fixable WARN findings fixed, and any remaining WARN findings
+converted into explicit prompt constraints. It should emit:
 
 - why Kling 3.0 is the recommended model;
 - whether the job is single-shot, multi-shot, image-to-video, start/end transition,

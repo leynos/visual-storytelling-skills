@@ -127,7 +127,8 @@ post-production characteristics of the image pipeline:
 | Element | What to Define |
 |---------|----------------|
 | **Format / filmstock** | Gauge (Super 8, 16 mm, 35 mm, 65 mm, digital sensor equivalent), aspect ratio, native resolution |
-| **Target resolution** | Required output size for generation and delivery, e.g. `1920x1080`, `1344x768`, or `1080p` with aspect |
+| **Target resolution** | Explicit pixel dimensions for generation and delivery, e.g. `1920x1080` or `1344x768`; do not put preset labels here |
+| **resolution-parameter** | Provider-facing preset label when needed, e.g. `720p` or `1080p` |
 | **Grain structure** | Fine/medium/coarse; organic vs digital noise; grain response to exposure |
 | **Colour process** | Photochemical reference (Kodachrome, Ektachrome, Vision3 500T) or digital LUT family |
 | **Colour timing** | Overall bias (cool, warm, cross-processed); scene-specific timing rules |
@@ -137,6 +138,9 @@ post-production characteristics of the image pipeline:
 | **Shutter behaviour** | Shutter angle/speed rules (180° default, or intentional motion blur/strobing) |
 
 Full specification format and examples are in `references/cinematography-specification.md`.
+Use this resolution contract consistently across extractor, `shot-specifier`, and
+`video-generator`: **Target resolution** is always explicit pixel dimensions, while
+**resolution-parameter** carries any provider preset label.
 
 ### 2.4 Prompt Keyword Library
 
