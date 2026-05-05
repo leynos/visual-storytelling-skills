@@ -4,7 +4,7 @@ This guide describes the architecture and workflows of the
 visual-storytelling-skills toolkit. It covers the shot-specifier
 execution sequence, the relationships between all skills and their
 supporting components, and the reference-image generation pipeline
-inside the scene-inventory-extractor.
+inside the scene-inventory-extractor-v2.
 
 ______________________________________________________________________
 
@@ -174,7 +174,6 @@ classDiagram
   Shot_specifier --> Model_routing_guidance : consults
 
   Phoneticize --> Extract_candidates_py : invokes
-  Phoneticize --> Nanobanana_skill : no_relation
 
   Phoneticize --> Eleven_v3_notes : consults
 ```
