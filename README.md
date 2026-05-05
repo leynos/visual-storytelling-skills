@@ -89,6 +89,8 @@ ______________________________________________________________________
 
 ## Learn more
 
+- [Users' guide](docs/users-guide.md) — workflow diagrams and
+  architecture overview
 - [AGENTS.md](AGENTS.md) — agent workflow guidelines and conventions
 - `skills/*/SKILL.md` — full workflow documentation for each skill
 - `skills/*/references/` — supporting reference documents loaded
