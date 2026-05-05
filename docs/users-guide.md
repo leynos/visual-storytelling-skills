@@ -86,6 +86,11 @@ consults `eleven-v3-notes` for engine constraints, and applies
 image-generation layer used by both extractor and specifier; it has no
 dependency on `phoneticize`.
 
+All nanobanana image calls in this pipeline must request
+`model: gemini-3-pro-image-preview`. If that model is unavailable or cannot accept the
+reference images or character-consistency images required by the current operation, the
+image-generation workflow stops instead of selecting a fallback model.
+
 ```mermaid
 classDiagram
   class Scene_inventory_extractor_v2 {

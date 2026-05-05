@@ -50,12 +50,20 @@ Use this skill to turn a vague image request into a prompt that Nano Banana can 
 - `mcp__nanobanana__character_consistency` is for repeated scenes with one character reference.
 - `mcp__nanobanana__multi_image_fusion` is for combining several references.
 - `output_path` must stay inside the tool's allowed repo-local output area. In practice, use a simple filename or relative path; do not pass an absolute path outside `image_out`.
+- Every image-generation or image-editing MCP call must explicitly pass
+  `model: gemini-3-pro-image-preview`.
+- If `gemini-3-pro-image-preview` is unavailable, rejected by the tool, or cannot
+  accept the required reference images, character-consistency images, or
+  multi-image-fusion inputs for the requested operation, stop the workflow and report
+  the blocker. Do not fall back to another image model.
 
 ## Model Selection
 
-- Use `gemini-3-pro-image-preview` for the highest-fidelity structured prompting, typography, technical diagrams, and dense layout work.
-- Use `gemini-3.1-flash-image-preview` when speed matters or when extra-wide ratios like `4:1`, `1:4`, `8:1`, or `1:8` are required.
-- Use `gemini-2.5-flash-image` for fast, simpler iterations when top-end fidelity is not necessary.
+- Use `gemini-3-pro-image-preview` for all Nano Banana image workflows, including
+  generation, editing, character consistency, and multi-image fusion.
+- Do not choose a speed, aspect-ratio, or fast-iteration fallback model. If the required
+  image operation cannot run on `gemini-3-pro-image-preview`, stop and surface the
+  exact limitation.
 
 ## Prompting Patterns
 

@@ -44,12 +44,18 @@ If the prompt keyword library or video role manifest are absent, run
 
 This skill requires:
 
-- **Image generation Model Context Protocol (MCP)** (`nanobanana` tools preferred; see `references/storyboard-generation.md`)
+- **nanobanana image generation Model Context Protocol (MCP)** (see
+  `references/storyboard-generation.md`), with every storyboard image call explicitly
+  using `model: gemini-3-pro-image-preview`
 - **Vision capabilities** (for storyboard consistency verification)
 - **File system access** (structured output directories)
 
 Generation runs **silently** — no user confirmation gates during storyboard or prompt
 phases. Halt only on consistency failures that require human judgement.
+If `gemini-3-pro-image-preview` is unavailable through nanobanana, or if it cannot
+accept the required reference images or character-consistency images for the current
+storyboard operation, **STOP** and report the blocker. Do not continue with a fallback
+image model.
 
 ## Workflow Overview
 
@@ -227,7 +233,8 @@ actor direction as N/A.
 
 > **Prerequisite:** Read `references/storyboard-generation.md`.
 
-Generate storyboard keyframe images for every shot. Use the nanobanana MCP tools.
+Generate storyboard keyframe images for every shot. Use the nanobanana MCP tools with
+`model: gemini-3-pro-image-preview` on every image call.
 
 ### Pre-Generation Reference Check (per shot)
 

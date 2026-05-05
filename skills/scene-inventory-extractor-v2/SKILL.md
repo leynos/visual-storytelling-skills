@@ -26,12 +26,17 @@ order.
 
 This skill is designed for a command-line agent with:
 
-- **Image generation MCP** (e.g. `generate_image`, `generate_image_variation`)
+- **nanobanana image generation MCP** (`generate_image`, `edit_image`,
+  `character_consistency`, and `multi_image_fusion` as needed), with every image call
+  explicitly using `model: gemini-3-pro-image-preview`
 - **Vision capabilities** (ability to inspect generated images for consistency)
 - **File system access** (structured output directories)
 
 All image generation and verification runs **silently** — no user confirmation gates
 during generation phases. Halt only on consistency failures that require human judgement.
+If `gemini-3-pro-image-preview` is unavailable through the nanobanana MCP, or if it
+cannot accept the reference images or character-consistency images required by the
+current phase, **STOP** and report the blocker. Do not switch to another image model.
 
 ## Workflow Overview
 
@@ -421,6 +426,11 @@ For each location, generate across the scouting matrix:
 
 ### Generation Rules
 
+- Use the nanobanana MCP for every reference-image call and pass
+  `model: gemini-3-pro-image-preview` explicitly.
+- If `gemini-3-pro-image-preview` cannot run the requested operation with the required
+  primary references, character references, or multi-image inputs, **STOP** the
+  workflow and report the unavailable capability. Do not continue with a fallback model.
 - Every prompt ends with `"no text, no watermarks, no logos, no labels, no annotations"`
 - Additional refs always use the primary ref as a reference image input
 - Prompts for additional angles carry forward the style spec in abbreviated form
@@ -482,7 +492,8 @@ For every shot in every sequence, generate:
 
 ### Start Frame Generation
 
-- Tool: `generate_image`
+- Tool: nanobanana MCP `generate_image`
+- Model: `gemini-3-pro-image-preview`
 - References: relevant character ref(s) + location ref (matching lighting/weather) + prop ref(s)
 - Prompt includes: visual style (brief), scene environment, framing, visible content, subject appearance + outfit
 - Draw style vocabulary from the **prompt keyword library** produced in Phase 2.4
@@ -493,13 +504,15 @@ For every shot in every sequence, generate:
 
 **If edit-from-start:**
 
-- Tool: `generate_image_variation`
+- Tool: nanobanana MCP `edit_image`
+- Model: `gemini-3-pro-image-preview`
 - References: [start_frame, relevant Phase 11 refs]
 - Prompt: "Edit this image: {changes only}" — do NOT repeat unchanged elements
 
 **If generate-new:**
 
-- Tool: `generate_image`
+- Tool: nanobanana MCP `generate_image`
+- Model: `gemini-3-pro-image-preview`
 - References: [start_frame (as scene ref), relevant Phase 11 refs]
 - Prompt includes: visual style, end-frame framing + visible content, subject end state, "Same location/environment as reference"
 

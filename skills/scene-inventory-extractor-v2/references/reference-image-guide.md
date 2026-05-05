@@ -299,7 +299,8 @@ Identify and collect:
 
 ### Step 2: Generate Start Frame
 
-- Tool: `generate_image`
+- Tool: nanobanana MCP `generate_image`
+- Model: `gemini-3-pro-image-preview`
 - Attach gathered references
 - Prompt: see §6 Shot Frame Prompts — Start frame
 - Save as `shot_{shot_id}_start.png`
@@ -307,15 +308,18 @@ Identify and collect:
 ### Step 3: Generate End Frame
 
 - Determine edit or generate from §7 decision table
-- If **edit**: Tool `generate_image_variation`; attach [start_frame + refs]
-- If **generate**: Tool `generate_image`; attach [start_frame + refs]
+- If **edit**: Tool nanobanana MCP `edit_image`; model
+  `gemini-3-pro-image-preview`; attach [start_frame + refs]
+- If **generate**: Tool nanobanana MCP `generate_image`; model
+  `gemini-3-pro-image-preview`; attach [start_frame + refs]
 - Save as `shot_{shot_id}_end.png`
 
 ### Step 4: Generate Key Frames (if specified)
 
 For each key frame in order:
 
-- Tool: `generate_image`
+- Tool: nanobanana MCP `generate_image`
+- Model: `gemini-3-pro-image-preview`
 - Attach [start_frame + refs]
 - Prompt: intermediate state description
 - Save as `shot_{shot_id}_key{NN}.png`

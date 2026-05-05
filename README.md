@@ -85,6 +85,11 @@ ______________________________________________________________________
 | `nanobanana` | Crafts structured prompts for the Nano Banana image MCP — generation, editing, character consistency, and multi-image fusion. |
 | `phoneticize` | Detects pronunciation hazards in TTS scripts; suggests phonetic respellings; previews via Eleven v3 fragments; emits a phoneticized script and an archived pronunciation table. |
 
+Image-generation skills must use the nanobanana MCP with
+`model: gemini-3-pro-image-preview`. If that model is unavailable or cannot accept the
+required reference or character-consistency images, the workflow stops instead of
+falling back to another image model.
+
 ______________________________________________________________________
 
 ## Learn more

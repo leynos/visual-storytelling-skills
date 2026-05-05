@@ -13,14 +13,12 @@ is documented in `skills/nanobanana/SKILL.md`. Read that skill before using the 
 
 ### Model Selection
 
-| When | Use |
-|------|-----|
-| Highest-fidelity storyboard frames; complex scene compositions; typography or text in frame | `gemini-3-pro-image-preview` |
-| Speed matters and top-end fidelity is not required; wide aspect ratios (4:1, 8:1) | `gemini-3.1-flash-image-preview` |
-| Fast iteration; simple scenes; checking composition before full-quality generation | `gemini-2.5-flash-image` |
-
-For production storyboards that will be used as start/end frames in video generation,
-prefer `gemini-3-pro-image-preview` for all character and complex location frames.
+- Use `gemini-3-pro-image-preview` for every storyboard image call.
+- Pass the model explicitly in the nanobanana MCP request.
+- If `gemini-3-pro-image-preview` is unavailable, rejected by the tool, or unable to
+  accept the required reference images, character-consistency image, or multi-image
+  fusion inputs, **STOP** and report the blocker. Do not fall back to another image
+  model for speed, aspect ratio, or iteration.
 
 ### Tool Selection by Operation
 
