@@ -79,7 +79,10 @@ document in the toolkit and the relationships between them.
 prompt keyword library and scene inventory that feed `shot-specifier`,
 and uses `nanobanana` to generate all reference images.
 `shot-specifier` consults `model-routing-guidance` to select a video
-model and uses `nanobanana` for storyboard keyframes. `phoneticize`
+model and uses `nanobanana` for storyboard keyframes. `video-generator`
+takes the resulting prompt manifest and storyboard frames and uses the
+Higgsfield MCP for media preparation, video generation, job polling,
+take download, resume handling, and assembly order. `phoneticize`
 invokes `extract_candidates.py` for regex-based candidate detection,
 consults `eleven-v3-notes` for engine constraints, and applies
 `respelling-conventions` throughout. `nanobanana` is a shared

@@ -349,7 +349,8 @@ human review and carried forward as notes in the video prompt.
 > **Prerequisite:** Read `references/model-routing.md`. Phase 6 complete with no
 > unresolved BLOCK issues.
 
-For each shot, assemble a complete video generation prompt.
+For each shot, assemble a complete video generation prompt. This skill prepares the
+handoff package for `video-generator`; it does not submit Higgsfield jobs itself.
 
 ### Prompt Template
 
@@ -429,6 +430,10 @@ prompts/manifest.md
 
 ## Phase 8: Asset Pipeline
 
+> **Downstream handoff:** Once Phase 8 has produced `prompts/manifest.md`, prompt files,
+> storyboard frames, model routing, generation strategy, aspect ratio, resolution, and
+> clip-boundary metadata, hand off to `video-generator` for Higgsfield MCP media upload,
+> job submission, polling, resume handling, and assembly-order output.
 > **Prerequisite:** Read `references/asset-pipeline.md`.
 
 Maintain a consistent asset pipeline so generated clips can be traced back to their

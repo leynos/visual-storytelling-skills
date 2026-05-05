@@ -58,6 +58,12 @@ current phase, **STOP** and report the blocker. Do not switch to another image m
 | 14 | Video Prompt Assembly | Complete prompt per shot, ready for generation |
 | 15 | Output Assembly | Final compiled document + asset manifest |
 
+> **Skill chain:** `scene-inventory-extractor-v2` prepares the scene pack and image
+> assets. Hand off to `shot-specifier` when per-shot direction, storyboard generation,
+> and prompt manifests are needed. Hand off to `video-generator` only after prompt files,
+> frame paths, model routing, and generation strategy fields exist and the goal is to
+> submit jobs through the Higgsfield MCP.
+>
 > **Read order for reference files:** Before starting Phase 2, read
 > `references/cinematography-specification.md`. Before Phase 8, read
 > `references/continuity-inventory.md`. Before Phase 11, read
@@ -68,7 +74,8 @@ current phase, **STOP** and report the blocker. Do not switch to another image m
 > **Downstream skill:** When full per-shot storyboarding, detailed actor/camera/lighting
 > direction, model routing, and asset-pipeline management are required, hand off to the
 > `shot-specifier` skill. That skill takes the scene inventory and reference images
-> produced here as its input.
+> produced here as its input. When video generation itself is required, use
+> `video-generator`; this skill does not call Higgsfield directly.
 
 ---
 
