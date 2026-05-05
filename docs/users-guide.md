@@ -8,92 +8,118 @@ inside the scene-inventory-extractor-v2.
 
 ______________________________________________________________________
 
-## Shot-specifier workflow
+## End-to-end video production sequence
 
-The sequence diagram below traces a single run of the `shot-specifier`
-skill. The skill loads all prerequisite assets from the file system,
-works through shot decomposition, frame-role assignment, and directorial
-direction, then enters a per-shot loop. Inside the loop it checks for
-missing references (generating and cataloguing any that are absent),
-generates storyboard frames via `nanobanana`, runs and actions
-consistency checks, and assembles model-routed video prompts. The
-`video-generator` skill then submits jobs through the Higgsfield MCP,
-polls them, downloads clips, and updates the generation log.
+The sequence diagram below traces the whole video-production chain. The
+`scene-inventory-extractor-v2` skill prepares source analysis,
+reference images, the prompt keyword library, continuity inventory,
+recurring visual element references, shot-frame assets, and its Phase 13
+handoff. It does not assemble final video prompts or call Higgsfield.
 
-The purple band covers the three preparatory phases; the blue band
-covers storyboard generation and actionable consistency remediation; the
-green band covers model routing and prompt assembly before handoff to
-`video-generator`.
+`shot-specifier` then loads that scene pack, generates storyboard
+frames through `nanobanana`, runs and actions storyboard consistency
+checks, consults the model-specific deep-dive skills during per-shot
+routing, and writes prompt files plus `prompts/manifest.md`.
+`video-generator` owns the operational run from manifest to local clips:
+it inspects the Higgsfield MCP schema, resolves and uploads media,
+applies model overrides and explicit audio preferences, submits jobs,
+polls status, downloads clips, updates the generation log, and writes
+assembly order.
 
 ```mermaid
 sequenceDiagram
   actor User
-  participant Shot_specifier as shot_specifier
-  participant Nanobanana as nanobanana_skill
-  participant Video_generator as video_generator
-  participant Video_models as video_models_seedance_kling
-  participant FS as file_system_assets
+  participant Extractor as scene_inventory_extractor_v2
+  participant Nano as nanobanana_Gemini3Pro
+  participant Shot as shot_specifier
+  participant SeedanceDD as seedance_2_deep_dive
+  participant KlingDD as kling_3_0_deep_dive
+  participant VideoGen as video_generator
+  participant Higgs as Higgsfield_MCP
+  participant FS as file_system
 
-  User->>Shot_specifier: Provide scene_inventory
-  Shot_specifier->>FS: Load scene_inventory, prompt_keywords, reference_images, video_role_manifest
+  User->>Extractor: Provide_script_or_prose
+  Extractor->>FS: Read_source_and_references
+  Extractor->>Nano: generate_image\ncharacter_consistency\nedit_image
+  Nano-->>FS: Write_reference_images
+  Extractor->>FS: Write_scene_inventory_continuity_and_phase_13_handoff
 
-  rect rgb(230,230,250)
-    Shot_specifier->>Shot_specifier: Phase_2_Shot_Decomposition
-    Shot_specifier->>Shot_specifier: Phase_3_Frame_Role_Assignment
-    Shot_specifier->>Shot_specifier: Phase_4_Shot_Direction
+  User->>Shot: Request_shot_specification
+  Shot->>FS: Load_scene_inventory_continuity_keyword_library_and_refs
+  Shot->>Nano: Generate_storyboard_frames\nmodel_gemini_3_pro_image_preview
+  Nano-->>FS: Write_start_end_key_frames
+  Shot->>FS: Run_and_action_storyboard_consistency_checks
+
+  loop Per_shot_model_routing
+    Shot->>FS: Read_prompt_metadata_and_reference_audit
+    alt Route_to_seedance_2_0
+      Shot->>SeedanceDD: Load_guidance
+      SeedanceDD-->>Shot: Seedance_specific_rules
+    else Route_to_kling3_0
+      Shot->>KlingDD: Load_guidance
+      KlingDD-->>Shot: Kling_specific_rules
+    end
+    Shot->>FS: Update_generation_prompt_audio_preferences_overrides_and_refs
+    Shot->>FS: Append_manifest_row
   end
 
-  loop For_each_shot
-    Shot_specifier->>FS: Pre_generation_reference_check
-    alt Missing_reference
-      Shot_specifier->>FS: Generate_missing_reference
-      Shot_specifier->>FS: Update_video_role_manifest
+  User->>VideoGen: Run_video_generation
+  VideoGen->>FS: Load_manifest_prompts_frames_and_required_refs
+  VideoGen->>Higgs: Inspect_MCP_schema
+
+  loop Per_shot_submission
+    VideoGen->>FS: Resolve_media_paths_and_verify_required_refs
+    VideoGen->>Higgs: Upload_start_end_and_reference_images
+    Higgs-->>VideoGen: Media_handles
+
+    alt Model_seedance_2_0
+      VideoGen->>SeedanceDD: Validate_reference_plan_duration_and_audio
+      SeedanceDD-->>VideoGen: Seedance_submission_plan
+    else Model_kling3_0
+      VideoGen->>KlingDD: Validate_shot_structure_camera_and_audio
+      KlingDD-->>VideoGen: Kling_submission_plan
     end
 
-    rect rgb(220,245,255)
-      Shot_specifier->>Nanobanana: Request_start_end_key_frames with style_keywords + refs
-      Nanobanana-->>FS: Write_start_end_key_frames
+    VideoGen->>Higgs: generate_video_with_model_overrides
+    Higgs-->>VideoGen: Job_id
+    VideoGen->>FS: Append_generation_log_entry
+
+    loop Poll_until_terminal_status
+      VideoGen->>Higgs: get_generation_status
+      Higgs-->>VideoGen: queued_or_in_progress_or_completed
     end
 
-    Shot_specifier->>FS: Run_and_action_storyboard_consistency_checks (character, location, prop, cross_shot_prop_identity)
-
-    rect rgb(240,255,220)
-      Shot_specifier->>Shot_specifier: Consult_model_routing_guidance
-      Shot_specifier->>FS: Assemble_model_native_prompt_and_audio_preferences
-      Shot_specifier->>Video_generator: Hand_off_prompt_manifest_and_frames
-      Video_generator->>Video_models: Submit_generation_job
-      Video_models-->>FS: Write_generated_clip
-      Video_generator-->>FS: Append_generation_log_entry
-    end
+    VideoGen->>Higgs: Download_clip
+    Higgs-->>VideoGen: Video_file
+    VideoGen->>FS: Write_clip_and_update_log
   end
+
+  VideoGen->>FS: Write_assembly_order
 ```
 
-*Figure 1 — Shot-specifier execution sequence. The skill processes one
-shot at a time. Missing references are resolved before storyboard frames
-are generated. Video generation does not begin until consistency checks
-have been actioned: BLOCK findings are fixed, fixable WARN findings are
-resolved, and remaining WARN findings are converted into explicit prompt
-constraints.*
+*Figure 1 — End-to-end production sequence. The extractor stops after
+Phase 13 and hands a checked scene pack to `shot-specifier`.
+`shot-specifier` actions consistency findings before it writes prompt
+files and the manifest. `video-generator` is the only skill that calls
+Higgsfield video generation, and it must verify required references,
+audio preferences, model overrides, and resumable job logging before a
+shot is considered complete.*
 
 ______________________________________________________________________
 
-## Skill architecture
+## Video skill architecture
 
-The class diagram below shows every skill, script, and reference
-document in the toolkit and the relationships between them.
-`scene-inventory-extractor-v2` is the upstream skill: it produces the
-prompt keyword library and scene inventory that feed `shot-specifier`,
-and uses `nanobanana` to generate all reference images.
-`shot-specifier` consults `model-routing-guidance` to select a video
-model and uses `nanobanana` for storyboard keyframes. `video-generator`
-takes the resulting prompt manifest and storyboard frames and uses the
-Higgsfield MCP for media preparation, video generation, job polling,
-take download, resume handling, and assembly order. `phoneticize`
-invokes `extract_candidates.py` for regex-based candidate detection,
-consults `eleven-v3-notes` for engine constraints, and applies
-`respelling-conventions` throughout. `nanobanana` is a shared
-image-generation layer used by both extractor and specifier; it has no
-dependency on `phoneticize`.
+The class diagram below shows the video-production portion of the
+toolkit and the relationships between the skills and supporting
+artefacts. `scene-inventory-extractor-v2` produces the scene pack,
+continuity inventory, prompt keyword library, recurring visual element
+definitions, and reference images. `shot-specifier` consumes that
+package, uses `nanobanana` for storyboard frames, consults the Seedance
+or Kling deep-dive skill when a shot is routed to that model, and emits
+prompt files plus the manifest. `video-generator` consumes that handoff
+and submits jobs through the Higgsfield MCP. The `phoneticize` skill is
+part of the repository but is independent of this visual generation
+pipeline.
 
 All nanobanana image calls in this pipeline must request
 `model: gemini-3-pro-image-preview`. If that model is unavailable or cannot accept the
@@ -103,107 +129,107 @@ image-generation workflow stops instead of selecting a fallback model.
 ```mermaid
 classDiagram
   class Scene_inventory_extractor_v2 {
-    +Phase_1_Source_analysis()
-    +Phase_2_Creative_pillars()
-    +Phase_2_4_Prompt_keyword_library()
-    +Phase_6_Scene_inventory()
-    +Phase_8_Continuity_inventory()
-    +Phase_9_Shot_lists_with_duration_budget()
-    +Phase_11_Reference_image_generation()
-    +Phase_11_5_Video_role_manifest()
-    +Phase_12_Shot_frame_generation()
-    +Phase_13_Consistency_verification()
-    +Phase_14_Video_prompt_assembly()
+    +run_phases()
+    +generate_reference_images()
+    +verify_consistency_phase_13()
+    +handoff_to_shot_specifier()
   }
 
   class Shot_specifier {
-    +Phase_1_Input_audit()
-    +Phase_2_Shot_decomposition()
-    +Phase_3_Frame_role_assignment()
-    +Phase_4_Shot_direction()
-    +Phase_5_Storyboard_generation()
-    +Phase_6_Storyboard_consistency_check()
-    +Phase_7_Video_prompt_assembly()
-    +Phase_8_Asset_pipeline()
-    -use_model_routing_guidance()
-    -use_asset_pipeline_conventions()
+    +load_scene_inventory()
+    +plan_shots()
+    +generate_storyboard_frames()
+    +run_storyboard_consistency_checks()
+    +route_models_per_shot()
+    +assemble_video_prompts()
+    +emit_prompt_manifest()
   }
 
-  class Phoneticize {
-    +Phase_1_Scan_and_extract_candidates()
-    +Phase_2_Suggest_respellings()
-    +Phase_3_Render_TTS_samples()
-    +Phase_4_Iterate_with_user()
-    +Phase_5_Emit_phoneticized_script()
-    -load_detection_heuristics()
-    -apply_respelling_conventions()
-    -respect_eleven_v3_constraints()
+  class Nanobanana {
+    +generate_image(model)
+    +edit_image(model)
+    +character_consistency(model)
+    +multi_image_fusion(model)
   }
 
-  class Extract_candidates_py {
-    +main(argv)
-    +find_candidates(text,allowlist)
-    +lemmatise(token)
-    +context_fragment(text,position,token_length)
-    +is_sentence_initial(text,position)
-    +appears_lowercase_elsewhere(token,text)
-    -COMMON_ALL_CAPS
-    -COMMON_TITLE_CASE
+  class Video_generator {
+    +load_manifest_and_prompts()
+    +inspect_higgsfield_mcp_schema()
+    +upload_media_and_cache_handles()
+    +submit_generate_video_jobs()
+    +poll_and_download_clips()
+    +write_generation_log()
+    +write_assembly_order()
   }
 
-  class Nanobanana_skill {
-    +generate_image(prompt,model,aspect_ratio,output_path)
-    +edit_image(prompt,input_path,model,output_path)
-    +character_consistency(prompt,character_ref,model,output_path)
-    +multi_image_fusion(prompt,refs,model,output_path)
-    +select_prompt_framework()
+  class Seedance_2_deep_dive {
+    +advise_when_to_use_seedance()
+    +plan_multimodal_references()
+    +shape_seedance_prompts()
+    +suggest_duration_and_aspect()
+    +troubleshoot_seedance_failures()
   }
 
-  class Model_routing_guidance {
-    +select_model_for_shot_type()
-    +document_routing_rationale()
-    +log_online_evidence()
-    +plan_further_research()
+  class Kling_3_0_deep_dive {
+    +advise_when_to_use_kling()
+    +plan_shot_structure()
+    +plan_camera_and_motion()
+    +plan_elements_and_motion_control()
+    +shape_kling_prompts()
+    +troubleshoot_kling_failures()
   }
 
-  class Prompt_keyword_library_doc {
-    +define_global_style_phrase()
-    +define_location_vocabulary()
-    +define_lighting_condition_vocabulary()
-    +define_negative_constraints()
-    +define_POV_overrides()
+  class Higgsfield_MCP {
+    +generate_video()
+    +upload_media()
+    +get_generation_status()
   }
 
-  class Eleven_v3_notes {
-    +document_phoneme_tag_limits()
-    +document_alias_dictionary_format()
-    +document_pause_and_prosody_rules()
+  class Prompt_keyword_library {
+    +provide_style_phrases()
+    +ensure_style_consistency()
   }
 
-  class Respelling_conventions {
-    +define_respelling_style_rules()
-    +document_possessive_format()
-    +archive_IPA_examples()
+  class Continuity_inventory {
+    +list_props_and_recurring_elements()
+    +list_constraints()
   }
 
-  Scene_inventory_extractor_v2 --> Prompt_keyword_library_doc : produces_and_uses
-  Scene_inventory_extractor_v2 --> Shot_specifier : downstream_skill_input
-  Scene_inventory_extractor_v2 --> Nanobanana_skill : uses_for_reference_images
+  class Recurring_visual_element_ref {
+    +element_name
+    +location_set
+    +appearance_lock
+    +reference_file
+  }
 
-  Shot_specifier --> Nanobanana_skill : uses_for_storyboards
-  Shot_specifier --> Model_routing_guidance : consults
+  Scene_inventory_extractor_v2 --> Nanobanana : uses_for_reference_images
+  Scene_inventory_extractor_v2 --> Continuity_inventory : produces
+  Scene_inventory_extractor_v2 --> Recurring_visual_element_ref : defines
 
-  Phoneticize --> Extract_candidates_py : invokes
+  Shot_specifier --> Nanobanana : uses_for_storyboards
+  Shot_specifier --> Prompt_keyword_library : uses_for_style_language
+  Shot_specifier --> Continuity_inventory : reads_for_constraints
 
-  Phoneticize --> Eleven_v3_notes : consults
-  Phoneticize --> Respelling_conventions : applies
+  Shot_specifier --> Seedance_2_deep_dive : consults_when_model_seedance_2_0
+  Shot_specifier --> Kling_3_0_deep_dive : consults_when_model_kling_3_0
+  Shot_specifier --> Video_generator : upstream_of
+
+  Video_generator --> Higgsfield_MCP : submits_jobs_to
+  Video_generator --> Seedance_2_deep_dive : uses_for_seedance_jobs
+  Video_generator --> Kling_3_0_deep_dive : uses_for_kling_jobs
+
+  Continuity_inventory --> Recurring_visual_element_ref : contains
+  Prompt_keyword_library ..> Scene_inventory_extractor_v2 : produced_in_phase_2_4
 ```
 
-*Figure 2 — Skill and component relationships. Arrows show dependency
-direction: an arrow from A to B means A depends on or produces input for
-B. `nanobanana` is a shared image-generation layer; it does not depend
-on any other skill. `phoneticize` is independent of the
-image-generation pipeline.*
+*Figure 2 — Video skill and artefact relationships. Solid arrows show
+runtime dependency or handoff direction: the extractor creates
+continuity and recurring-element constraints, `shot-specifier` turns
+them into per-shot prompt and reference requirements, and
+`video-generator` submits only after validating those requirements
+against the live Higgsfield MCP. The dashed arrow records provenance:
+the prompt keyword library is produced by extractor Phase 2.4 and then
+reused downstream for style consistency.*
 
 ______________________________________________________________________
 
