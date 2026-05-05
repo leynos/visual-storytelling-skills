@@ -166,6 +166,12 @@ classDiagram
     +document_pause_and_prosody_rules()
   }
 
+  class Respelling_conventions {
+    +define_respelling_style_rules()
+    +document_possessive_format()
+    +archive_IPA_examples()
+  }
+
   Scene_inventory_extractor_v2 --> Prompt_keyword_library_doc : produces_and_uses
   Scene_inventory_extractor_v2 --> Shot_specifier : downstream_skill_input
   Scene_inventory_extractor_v2 --> Nanobanana_skill : uses_for_reference_images
@@ -176,6 +182,7 @@ classDiagram
   Phoneticize --> Extract_candidates_py : invokes
 
   Phoneticize --> Eleven_v3_notes : consults
+  Phoneticize --> Respelling_conventions : applies
 ```
 
 *Figure 2 — Skill and component relationships. Arrows show dependency
