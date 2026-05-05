@@ -33,7 +33,7 @@ from pathlib import Path
 
 COMMON_ALL_CAPS = {
     "I", "A", "OK", "OKAY", "TV", "PM", "AM", "USA", "UK", "EU", "UN",
-    "AI", "ML", "OS", "DB", "ID", "OS", "PR", "QA", "QC", "RD",
+    "AI", "ML", "OS", "DB", "ID", "PR", "QA", "QC", "RD",
     "II", "III", "IV", "VI", "VII", "VIII", "IX",  # Roman numerals
 }
 
@@ -54,11 +54,11 @@ COMMON_TITLE_CASE = {
     "After", "Before", "During", "Since", "Until", "Within",
     "About", "Above", "Across", "Under", "Over", "Through",
     "Some", "Many", "Most", "Each", "Every", "Both", "Either", "Neither",
-    "Here", "There", "Today", "Tomorrow", "Yesterday",
+    "Here", "Today", "Tomorrow", "Yesterday",
     "Yes", "Also", "Even", "Just", "Only", "Then", "Thus",
     "Would", "Could", "Should", "Might", "Must", "Will", "Shall",
     "Have", "Been", "Were", "Was", "Has", "Had", "Does", "Did",
-    "They", "Them", "Such", "Both", "Some",
+    "They", "Them", "Such",
     # Honorifics — handled separately by sentence context but listed here
     # as a defensive measure
     "Mister", "Missus", "Doctor", "Professor",
