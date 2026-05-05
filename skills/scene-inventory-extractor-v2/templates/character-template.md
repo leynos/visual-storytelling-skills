@@ -183,18 +183,21 @@ Use for groups functioning as a single narrative unit.
 ## Language Guidelines
 
 **Operational language:**
+
 - ✓ "Clears warnings on reflex"
 - ✓ "Jaw tightens at bad news"
 - ✗ "Feels frustrated by the system"
 - ✗ "Experiences existential dread"
 
 **Specific physicality:**
+
 - ✓ "Mid-30s; tired posture; alert eyes"
 - ✓ "Rubs eyes hard at threshold moments"
 - ✗ "Looks tired"
 - ✗ "Seems stressed"
 
 **Function, not identity:**
+
 - ✓ "Institutional boredom; pushes procedure"
 - ✓ "Recruitment pressure; reframes her agency"
 - ✗ "The villain"

@@ -76,6 +76,7 @@ source material to video-ready assets.
 | Groups/collectives | ☐ ___ | ☐ |
 
 Per character:
+
 - ☐ Role, look, wardrobe, behavioural tells, inner conflict, arc, voice notes, key props
 - ☐ **Reference image requirements specified** (primary, face, expressions, outfits, poses)
 - ☐ **Continuity state chain specified** (wardrobe, carried items, body state, hand/pocket risks)
@@ -90,6 +91,7 @@ Per character:
 | Stylized/insert spaces | ☐ ___ | ☐ |
 
 Per location:
+
 - ☐ Look, sound, continuity constraints, signature motif
 - ☐ **Continuity chain across appearances defined** (first state, later changes, non-negotiable anchors)
 - ☐ **Scouting matrix defined** (angles × lighting × weather × narrative state)
@@ -108,6 +110,7 @@ Per location:
 | Set-down / pickup moments logged | ☐ |
 | Scene exit status logged | ☐ |
 | **Reference image requirements specified** | ☐ |
+| **Reference priority classified for each prop (required-before-Phase-12 / incidental)** | ☐ |
 
 ### 6. Scene Inventory
 
@@ -179,22 +182,37 @@ Per location:
 
 ## Reference Image Generation (Phase 11)
 
+Generation order: style → characters → **required-before-Phase-12 props** → locations → incidental props.
+Do not advance to locations until all required-before-Phase-12 prop primary refs are locked.
+
 | Check | Status |
 |-------|--------|
 | `references/reference-image-guide.md` read | ☐ |
 | Style anchor(s) generated and validated | ☐ |
 | All primary character refs generated | ☐ |
 | All additional character refs generated (using primary as input) | ☐ |
+| All **required-before-Phase-12** prop primary refs generated | ☐ |
+| All required-before-Phase-12 prop variants generated | ☐ |
 | All primary location refs generated | ☐ |
 | All location scouting-matrix variants generated | ☐ |
-| All primary prop refs generated | ☐ |
-| All prop variants generated | ☐ |
+| All **incidental** prop primary refs generated | ☐ |
+| All incidental prop variants generated | ☐ |
 | File naming convention followed | ☐ |
 | All prompts end with artefact-suppression string | ☐ |
 
 ---
 
 ## Shot Frame Generation (Phase 12)
+
+**Pre-generation check — answer before generating any frame for a shot:**
+
+| Per-shot check | Status |
+|----------------|--------|
+| Named character refs verified present for this shot | ☐ per shot |
+| Reference-required prop refs verified present for this shot | ☐ per shot |
+| Location ref (correct angle + lighting condition) verified present for this shot | ☐ per shot |
+
+If any answer is no: generate the missing reference using Phase 11 procedure before proceeding.
 
 | Check | Status |
 |-------|--------|
@@ -217,7 +235,8 @@ Per location:
 | Start–end interpolatability checked for all shots | ☐ |
 | Character consistency checked for all shots | ☐ |
 | Location consistency checked for all shots | ☐ |
-| Prop consistency checked for all shots | ☐ |
+| Prop consistency checked for all shots (vs primary prop ref) | ☐ |
+| **Cross-shot prop identity checked** (all frames containing each named prop viewed together; prop looks like the same physical object throughout) | ☐ |
 | Intra-shot lighting checked for all shots | ☐ |
 | Cross-shot continuity checked for continuous boundaries | ☐ |
 | All BLOCK issues resolved or downgraded | ☐ |
@@ -321,6 +340,8 @@ Per location:
 | No existence statements in transitions | State what persists throughout |
 | Camera motion mislabelled | Pan ≠ dolly; zoom ≠ dolly; verify terminology |
 | Shots without reference images | Never generate frames without refs |
+| Generating location images before prop references are locked | Classify required-before-Phase-12 props in Phase 6; generate all their refs before any location refs in Phase 11 |
+| Named prop looks like a different object across shots | Run cross-shot prop identity check in Phase 13; if failed, regenerate offending frames using the locked prop primary ref |
 | Skipping consistency verification | Always run Phase 13 before Phase 14 |
 | Treating continuity as downstream QA | Extract the continuity inventory before shot lists and prompts |
 | Missing mundane handled objects | Log every touched, carried, consumed, opened, closed, or moved item |

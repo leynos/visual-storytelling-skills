@@ -8,9 +8,9 @@
 
 ---
 
-### 1. Creative Pillars
+## 1. Creative Pillars
 
-#### 1.1 Visual Aesthetic
+### 1.1 Visual Aesthetic
 
 **Name:** {Evocative 2–4 word title}
 **Definition:** {One sentence capturing the look and feel}
@@ -46,7 +46,7 @@
   * {When warmth appears and how}
   * {Constraints on warmth}
 
-#### 1.2 Storytelling Style
+### 1.2 Storytelling Style
 
 **Name:** {Evocative 2–4 word title}
 **Definition:** {One sentence capturing narrative approach}
@@ -68,7 +68,7 @@
   * {Scale rule 1}
   * {Scale rule 2}
 
-#### 1.3 Cinematography Specification
+### 1.3 Cinematography Specification
 
 * **Format:** {Gauge / sensor equivalent}
 * **Stock / sensor:** {Named stock or sensor family}
@@ -117,7 +117,7 @@
 
 ---
 
-### 2. Narrative Spine
+## 2. Narrative Spine
 
 * **Timeframe:** {Duration and period}
 
@@ -140,9 +140,9 @@
 
 ---
 
-### 3. Character Bible
+## 3. Character Bible
 
-#### 3.1 {Primary Character Name} (primary)
+### 3.1 {Primary Character Name} (primary)
 
 * **Role in story:** {Function in narrative}
 * **Look:** {Age band, silhouette, facial/energy notes}
@@ -181,7 +181,7 @@
   |--------|-------------|----------|
   | {ID} | {Description} | refs/characters/{name}/{file}.png |
 
-#### 3.2 {Functional Character Name} (functional)
+### 3.2 {Functional Character Name} (functional)
 
 * **Role in story:** {Function}
 * **Look:** {Brief description}
@@ -204,9 +204,9 @@
 
 ---
 
-### 4. Locations Bible
+## 4. Locations Bible
 
-#### 4.1 {Location Name} ({brief descriptor})
+### 4.1 {Location Name} ({brief descriptor})
 
 * **Look:** {Materials, architecture, atmosphere}
 * **Sound:** {Beds + punctuations}
@@ -237,7 +237,7 @@
 
 ---
 
-### 5. Props Bible
+## 5. Props Bible
 
 * **{Prop Name}**
 
@@ -257,7 +257,7 @@
 
 ---
 
-### 6. Style Frames Audit
+## 6. Style Frames Audit
 
 | Frame ID | What it establishes | Continuity risks / anachronisms | Fix guidance |
 |----------|--------------------|---------------------------------|-------------|
@@ -265,9 +265,9 @@
 
 ---
 
-### 7. Scene Inventory
+## 7. Scene Inventory
 
-#### SC-01
+### SC-01
 
 * **Scene ID:** SC-01
 * **Location:** {Location name}
@@ -288,20 +288,20 @@
 
 ---
 
-### 8. Continuity Inventory
+## 8. Continuity Inventory
 
 Write a separate deliverable: `{project_name}_continuity_inventory.md`
 
 ---
 
-### 9. Storyboard Specification
+## 9. Storyboard Specification
 
-#### 9.1 Sequence Map
+### 9.1 Sequence Map
 
 * **S01 — "{Title}"**: {One-line description}
 * **S02 — "{Title}"**: {Description}
 
-#### 9.2 Shot List Tables
+### 9.2 Shot List Tables
 
 See `templates/shot-list-template.md` for the expanded column format including lens,
 camera motion, duration, pacing, clip boundary, start/end frame specifications, and
@@ -309,9 +309,9 @@ grain/grade overrides.
 
 ---
 
-### 10. Thematic Image Plan
+## 10. Thematic Image Plan
 
-#### IM-01: "{Title}"
+### IM-01: "{Title}"
 
 * **Sequence/Scene:** S{XX} / SC-{XX}
 * **Frame type:** {Frame code}
@@ -323,7 +323,7 @@ grain/grade overrides.
 
 ---
 
-### 11. Consistency Report
+## 11. Consistency Report
 
 *Generated in Phase 13. See `reports/consistency_report.md` for full details.*
 
@@ -334,7 +334,7 @@ grain/grade overrides.
 
 ---
 
-### 12. Video Prompt Manifest
+## 12. Video Prompt Manifest
 
 *Generated in Phase 14. See `prompts/manifest.md` for full details.*
 
@@ -344,7 +344,7 @@ grain/grade overrides.
 
 ---
 
-### 13. Continuity & Anachronism Log
+## 13. Continuity & Anachronism Log
 
 | Issue ID | Description | Location | Severity | Resolution |
 |----------|-------------|----------|----------|------------|
@@ -352,7 +352,7 @@ grain/grade overrides.
 
 ---
 
-### 14. Asset Manifest
+## 14. Asset Manifest
 
 | Category | Count | Directory |
 |----------|-------|-----------|

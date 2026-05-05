@@ -73,6 +73,7 @@ Execute checks in this order (each subsequent check assumes prior checks have pa
 **Input:** Start frame and end frame for a single shot.
 
 **Procedure:**
+
 1. Examine both frames side by side (or in sequence)
 2. Identify what has changed between them
 3. Classify the change type:
@@ -83,7 +84,8 @@ Execute checks in this order (each subsequent check assumes prior checks have pa
    - **No discernible change**: Frames are near-identical → FAIL (BLOCK)
 
 **Failure description format:**
-```
+
+```text
 BLOCK: S{XX}_SH{XXX} — Start–end interpolatability failure.
 Subject {description} is static between frames; only {what changed} differs.
 The video model will produce unnatural motion or a frozen subject.
@@ -95,6 +97,7 @@ Regenerate end frame with explicit {position/pose/state} change.
 **Input:** Shot frame (start or end) + character primary reference image.
 
 **Procedure:**
+
 1. Compare the character in the shot frame to the primary reference
 2. Check each attribute:
    - Face shape, features, skin tone
@@ -114,6 +117,7 @@ Wholesale face changes, wrong hair colour, or incorrect clothing are not.
 **Input:** Shot frame + location reference image (matching condition).
 
 **Procedure:**
+
 1. Compare the environment in the shot to the location reference
 2. Check:
    - Architecture and layout (walls, doors, windows in correct positions)
@@ -130,6 +134,7 @@ structural consistency, not identical framing.
 **Input:** Shot frame + prop reference image.
 
 **Procedure:**
+
 1. Identify the prop in the shot frame
 2. Compare against the prop reference:
    - Shape and silhouette
@@ -143,6 +148,7 @@ structural consistency, not identical framing.
 **Input:** Start frame, all key frames, and end frame for a single shot.
 
 **Procedure:**
+
 1. Examine the sequence in order
 2. Check for consistent:
    - Light direction (shadows should fall the same way unless the action explicitly involves a light-source change)
@@ -161,12 +167,14 @@ consistency.
 `continuous`).
 
 **Procedure:**
+
 1. These frames should be identical or nearly identical (since the start frame of N+1
    reuses the end frame of N)
 2. If they are the same file, this check is automatic — PASS
 3. If they are different files (error in the pipeline), flag as BLOCK
 
 **Also check for:**
+
 - Subject position/pose matches between end of N and start of N+1
 - Wardrobe is the same
 - Environment is the same
@@ -178,6 +186,7 @@ consistency.
 **Input:** Each thematic image (from Phase 9) + corresponding scene references.
 
 **Procedure:**
+
 1. Compare the thematic image against relevant character, location, and prop references
 2. Verify that the thematic image matches the established visual world
 3. Flags are WARN only (thematic images are editorial, not generation inputs)
@@ -191,6 +200,7 @@ When a BLOCK issue is found:
 ### Step 1: Diagnose
 
 Identify the root cause:
+
 - **Prompt insufficiency**: The generation prompt did not adequately describe the
   required element → Fix the prompt and regenerate
 - **Reference insufficiency**: The reference image did not adequately constrain the
@@ -217,6 +227,7 @@ after three regeneration attempts, escalate to WARN and log for human review.
 ### Regeneration Limit
 
 Maximum **3 regeneration attempts** per frame. After three failures:
+
 1. Log the issue as WARN with note "Regeneration limit reached"
 2. Proceed with the best available frame
 3. Include the issue in the consistency report with full details

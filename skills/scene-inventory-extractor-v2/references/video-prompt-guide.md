@@ -106,7 +106,7 @@ unpredictable or static video.
 
 ### Complex Multi-Event Shot
 
-```
+```text
 A man in a grey suit sits at a desk typing. He pauses after two seconds, looks up toward
 the doorway at the right edge of frame. A woman in a red dress enters through the doorway,
 walking three steps into the room and stopping beside the desk. The man pushes his chair
@@ -179,7 +179,7 @@ the action, or split into two shots.
 
 ### Audio in Prompt — Example
 
-```
+```text
 [AUDIO] Heavy rain on corrugated roof (constant bed). At 2 seconds, a phone buzzes
 twice on the metal desk (sharp, tinny). Character mutters "Not now" in English,
 irritated, under breath. No background music.
@@ -202,6 +202,7 @@ Shots must be **4, 6, or 8 seconds**. Each shot contains **one action in one sce
 ### Splitting Oversized Shots
 
 If a shot description requires more than 8 seconds:
+
 1. Identify the natural mid-point (action completion, beat change, breath)
 2. Split into two shots at that point
 3. Set the boundary between them to `continuous`
@@ -214,6 +215,7 @@ If a shot description requires more than 8 seconds:
 ### Continuous Boundary
 
 When `clip_boundary = continuous`:
+
 - The end frame of the current shot IS the start frame of the next shot
 - Do not regenerate — reuse the file
 - The visual style, lighting, and subject state must match perfectly
@@ -222,6 +224,7 @@ When `clip_boundary = continuous`:
 ### Scene Cut Boundary
 
 When `clip_boundary = scene_cut`:
+
 - The next shot begins fresh with its own start frame
 - No continuity constraint between end of current and start of next
 - Location, lighting, time, and subject state may all change

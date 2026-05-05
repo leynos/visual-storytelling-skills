@@ -46,7 +46,7 @@ that follows.
 
 ### Style Anchor Prompt Template
 
-```
+```text
 {Full visual style specification from Phase 2}
 {Full cinematography specification — filmstock, grain, colour process, timing, grading}
 {A representative scene from the story: describe environment, lighting, atmosphere}
@@ -57,6 +57,7 @@ Cinematic still frame. No text, no watermarks, no logos, no labels, no annotatio
 ### Purpose
 
 The style anchor:
+
 - Validates that the visual style specification produces the intended look
 - Provides a concrete reference for the agent to compare subsequent generations against
 - Anchors the grain, colour timing, and lighting rules in a generated image
@@ -122,7 +123,7 @@ For each location, enumerate:
 
 Then build the matrix:
 
-```
+```text
 Location: Control Room
 Angles: Establishing wide (door POV), Console CU, Overhead, Window detail
 Lighting: Day (fluorescent), Night (monitors only), Emergency (red warning)
@@ -193,7 +194,7 @@ weather / condition} has changed."
 
 **Primary references** (no input reference image):
 
-```
+```text
 {Full visual style specification}
 {Full cinematography specification (filmstock, grain, colour, grading) — as visual description}
 {Full subject description}
@@ -205,7 +206,7 @@ No text, no watermarks, no logos, no labels, no annotations.
 
 **Additional references** (primary ref as input):
 
-```
+```text
 {Abbreviated style spec — 1 sentence}
 {Subject description — focus on what's new or different}
 {New angle / condition / state description}
@@ -218,7 +219,7 @@ No text, no watermarks, no logos, no labels, no annotations.
 
 **Start frame:**
 
-```
+```text
 {Abbreviated visual style — 1 sentence}
 {Filmstock/grain/grading — 1 sentence visual description}
 {Scene environment — from scene inventory}
@@ -233,7 +234,7 @@ References to attach: character ref(s) + location ref (matching condition) + pro
 
 **End frame (edit mode):**
 
-```
+```text
 Edit this image: {describe only what changes — subject position, pose, expression,
 or composition shift}. Everything else remains identical.
 ```
@@ -242,7 +243,7 @@ References to attach: [start_frame, relevant Phase 10 refs]
 
 **End frame (generate mode):**
 
-```
+```text
 {Abbreviated visual style — 1 sentence}
 {End-frame framing + visible content — from shot list}
 {Subject appearance and end state}
@@ -291,6 +292,7 @@ For each shot in the shot list, execute in order:
 ### Step 1: Gather References
 
 Identify and collect:
+
 - Character reference(s) matching the character(s) in this shot (correct outfit variant)
 - Location reference matching this shot's lighting/weather/narrative condition
 - Prop reference(s) for any visible props
@@ -312,6 +314,7 @@ Identify and collect:
 ### Step 4: Generate Key Frames (if specified)
 
 For each key frame in order:
+
 - Tool: `generate_image`
 - Attach [start_frame + refs]
 - Prompt: intermediate state description
@@ -320,6 +323,7 @@ For each key frame in order:
 ### Step 5: Immediate Visual Check
 
 Using vision capabilities, compare start and end frames:
+
 - Is there clear, interpolatable change? (If not → regenerate end frame with stronger change description)
 - Are character features consistent? (If not → regenerate with stronger identity anchoring)
 - Is lighting direction consistent? (If not → regenerate with explicit lighting direction in prompt)
@@ -330,7 +334,7 @@ Log any issues for the full consistency pass in Phase 12.
 
 ## 9. File Organisation
 
-```
+```text
 {project_name}/
 ├── refs/
 │   ├── style/

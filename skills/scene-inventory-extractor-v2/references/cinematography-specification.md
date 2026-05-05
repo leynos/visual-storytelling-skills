@@ -120,7 +120,7 @@ scene-specific colour bias.
 
 Map timing overrides to narrative conditions:
 
-```
+```text
 * **Interior / artificial light:** Push warmth +15%; amber shadows
 * **Exterior / overcast:** Cool bias; blue-grey shadows; desaturate greens
 * **Night / streetlight:** Sodium-orange highlights; deep teal shadows
@@ -211,7 +211,7 @@ lens, not the lens itself:
 
 If using rack focus, specify the trigger and direction:
 
-```
+```text
 Rack focus from {subject A} to {subject B} when {narrative trigger}.
 ```
 
@@ -324,7 +324,7 @@ Use this template in the scene inventory document under Creative Pillars § 2.3:
 
 ### Example A: British Social Realism (Ken Loach register)
 
-```
+```text
 * Format: 16 mm (emulated)
 * Stock: Kodak Vision3 250D
 * Aspect ratio: 1.85:1
@@ -340,7 +340,7 @@ Use this template in the scene inventory document under Creative Pillars § 2.3:
 
 ### Example B: Neon Noir (Refn / Winding register)
 
-```
+```text
 * Format: 35 mm anamorphic (emulated)
 * Stock: CineStill 800T equivalent
 * Aspect ratio: 2.39:1
@@ -356,7 +356,7 @@ Use this template in the scene inventory document under Creative Pillars § 2.3:
 
 ### Example C: Digital Surveillance / Institutional
 
-```
+```text
 * Format: Digital (mixed; CCTV + body-cam + desktop capture)
 * Stock: Various low-quality sensors; CCTV is 1/3" CCD equivalent
 * Aspect ratio: Mixed (4:3 for CCTV; 16:9 for body-cam; variable for desktop)
