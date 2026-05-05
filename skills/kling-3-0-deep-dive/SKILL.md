@@ -14,7 +14,8 @@ description: >
 # Kling 3.0 Deep Dive
 
 Use this skill when `shot-specifier` routes a shot to `kling3_0` or when
-`video-generator` is about to submit Kling 3.0 jobs through the Higgsfield MCP.
+`video-generator` is about to submit Kling 3.0 jobs through the Higgsfield Model
+Context Protocol (MCP).
 
 Kling 3.0 is best treated as a **scene-directed cinematic video model**. It responds
 well to shot labels, camera behaviour, physical motion, clear timing, and simple

@@ -1,10 +1,10 @@
 # Media Upload and State Tracking
 
-Higgsfield MCP video generation cannot consume repo-relative paths directly unless the
-connected tool explicitly supports local file uploads. The prompt manifest uses local
-paths for reviewability, so generation must convert those paths into whatever media
-handle the connected Higgsfield MCP accepts: uploaded media UUID, CDN URL, generation
-history ID, or a tool-specific file input.
+Higgsfield Model Context Protocol (MCP) video generation cannot consume repo-relative
+paths directly unless the connected tool explicitly supports local file uploads. The
+prompt manifest uses local paths for reviewability, so generation must convert those
+paths into whatever media handle the connected Higgsfield MCP accepts: uploaded media
+UUID, CDN URL, generation history ID, or a tool-specific file input.
 
 Canonical shot-specifier frame paths are:
 

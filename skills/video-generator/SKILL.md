@@ -2,9 +2,9 @@
 name: video-generator
 description: >
   Execute production video generation from shot-specifier outputs through the Higgsfield
-  MCP. Use when prompts, storyboard frames, media roles, model routing, Higgsfield MCP
-  uploads, generate_video calls, status polling, retakes, resume behaviour, or final
-  assembly order are needed. Bridges
+  Model Context Protocol (MCP). Use when prompts, storyboard frames, media roles, model
+  routing, Higgsfield MCP uploads, generate_video calls, status polling, retakes, resume
+  behaviour, or final assembly order are needed. Bridges
   structured [TAG] prompt files to model-native plain text prompts, validates model
   duration/aspect constraints, decomposes key-frame shots into supported start/end image
   clips, tracks uploaded media and job IDs, and writes generation logs.
@@ -13,10 +13,11 @@ description: >
 # Video Generator
 
 Turns a completed shot-specifier handoff into generated video clips through the
-**Higgsfield MCP**. This skill begins only after `shot-specifier` Phase 8 has produced
-prompt files, storyboard frames, model routing, generation strategies, explicit
-audio-generation preferences, and `prompts/manifest.md`. `scene-inventory-extractor-v2`
-stops at its Phase 13 handoff and is not a direct input to production video generation.
+**Higgsfield Model Context Protocol (MCP)**. This skill begins only after
+`shot-specifier` Phase 8 has produced prompt files, storyboard frames, model routing,
+generation strategies, explicit audio-generation preferences, and
+`prompts/manifest.md`. `scene-inventory-extractor-v2` stops at its Phase 13 handoff and
+is not a direct input to production video generation.
 
 Do not use this skill for image generation; use `nanobanana` through
 `scene-inventory-extractor-v2` or `shot-specifier` for that. Do not backfill missing

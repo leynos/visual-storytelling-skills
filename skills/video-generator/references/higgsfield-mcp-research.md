@@ -1,4 +1,4 @@
-# Higgsfield MCP Research Notes
+# Higgsfield Model Context Protocol (MCP) Research Notes
 
 Firecrawl research performed on 2026-05-05.
 

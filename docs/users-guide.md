@@ -21,10 +21,10 @@ frames through `nanobanana`, runs and actions storyboard consistency
 checks, consults the model-specific deep-dive skills during per-shot
 routing, and writes prompt files plus `prompts/manifest.md`.
 `video-generator` owns the operational run from manifest to local clips:
-it inspects the Higgsfield MCP schema, resolves and uploads media,
-applies model overrides and explicit audio preferences, submits jobs,
-polls status, downloads clips, updates the generation log, and writes
-assembly order.
+it inspects the Higgsfield Model Context Protocol (MCP) schema, resolves
+and uploads media, applies model overrides and explicit audio
+preferences, submits jobs, polls status, downloads clips, updates the
+generation log, and writes assembly order.
 
 ```mermaid
 sequenceDiagram
