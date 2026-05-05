@@ -166,9 +166,9 @@ At the end of this research, produce:
 
 ---
 
-## Prioritisation
+## Prioritization
 
-If research time is limited, prioritise in this order:
+If research time is limited, prioritize in this order:
 
 1. Machine vision / drone POV shots — this is the highest-uncertainty routing question
    because it requires suppressing the model's default cinematic aesthetics
