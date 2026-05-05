@@ -56,12 +56,16 @@ later agent can continue without guessing.
 - `prompts/manifest.md` from `shot-specifier` with
   shot order, duration, model routing, prompt file, frame paths, aspect ratio,
   target resolution, resolution parameter, generation strategy, review-gate metadata,
-  and explicit audio-generation preferences.
+  model-overrides, count, required-reference audit, and explicit audio-generation
+  preferences.
 - One prompt file per shot containing both the structured `## Prompt` block and a
   `## Generation Prompt` block.
 - Start and end frames for every generation clip.
 - Key frames only when accompanied by a split plan; Higgsfield video generation accepts
   start and end anchors, not mid-clip key-frame anchors.
+- Continuity inventory or the shot-specifier reference audit when available. The
+  consistency pass is actionable input: any continuity-critical reference or prompt
+  constraint it names must be present in the job or explicitly blocked.
 
 ## Tool And Model Rules
 
@@ -111,6 +115,7 @@ observed contract in `generated/generation_log.md` or `generated/mcp_schema_note
 - supported media roles, especially `start_image`, `end_image`, and generic reference
   image roles;
 - duration, aspect-ratio, resolution, quality, motion, genre, and audio parameters;
+- `count` or equivalent multi-output parameter when exposed;
 - model-specific default parameters, especially `generate_audio`, `sound`, `cfg_scale`,
   `mode`, `quality`, `genre`, and guidance/reference-adherence controls;
 - upload/history tools and the handle type they return;
@@ -126,6 +131,8 @@ generate_video(
   duration={duration_seconds},
   resolution={resolution_parameter},
   audio={audio_generation_preferences},
+  count={count},
+  model_overrides={validated_override_map},
   media=[
     {value: start_media_handle, role: "start_image"},
     {value: end_media_handle, role: "end_image"},
@@ -141,48 +148,60 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
 
 1. **Audit manifest.** Confirm every shot has `recommended_model`, `aspect_ratio`,
    `target_resolution`, `resolution_parameter`, `duration`, `generation_strategy`,
-   `audio_generation_preferences`, `review_gate`, `prompt_file`, `start_image`, and
+   `audio_generation_preferences`, `model_overrides`, `count`, `review_gate`,
+   `required_refs` or `reference_audit`, `prompt_file`, `start_image`, and
    `end_image`. Halt if any required field is missing.
 2. **Inspect Higgsfield MCP.** Load the live MCP schema and confirm the selected model,
    media roles, upload/history path, polling path, and output path exist.
 3. **Validate constraints and defaults.** Check model duration, supported resolution,
    aspect ratio, media-role support, and model-specific defaults before upload. Override
-   unwanted defaults explicitly; do not discover invalid clips after submission.
+   unwanted defaults from `model_overrides` explicitly; do not discover invalid clips
+   after submission. If an override key is absent from the live schema, record it as
+   `unsupported` and stop when it affects audio, reference adherence, mode, quality, or
+   resolution.
 4. **Verify model-native prompts.** Use the existing `## Generation Prompt` when
    present. If absent, produce it using the model-specific algorithm in
    `references/prompt-flattening.md`, write it back to the prompt file, then continue.
-5. **Decompose key-frame shots.** For any shot with key frames, use
+5. **Verify continuity-critical refs.** Compare the manifest's required refs and the
+   prompt file's reference audit against the continuity inventory and Phase 6
+   storyboard consistency report when present. Add missing actioned constraints to the
+   prompt before continuing. Stop if a continuity-critical character, prop, recurring
+   element, location variant, or style anchor cannot be supplied to the chosen model.
+6. **Decompose key-frame shots.** For any shot with key frames, use
    `references/key-frame-decomposition.md` to create sub-clips with only `start_image`
    and `end_image` roles. Validate each sub-clip duration against the chosen model.
-6. **Prepare MCP media inputs.** Resolve relative paths from the project root and use
+7. **Prepare MCP media inputs.** Resolve relative paths from the project root and use
    the connected Higgsfield MCP's upload or history/input mechanism for each required
    media file. Cache the returned media handle, UUID, URL, or generation-history ID in
    `generated/media_manifest.md`.
-7. **Apply audio preferences.** Map each shot's audio-generation preferences to the live
+8. **Apply audio preferences.** Map each shot's audio-generation preferences to the live
    MCP audio parameters. Narration remains off because it is handled as a separate
    process. If the MCP cannot disable unwanted generated audio, stop rather than letting
    the model auto-select audio behaviour silently.
-8. **Plan submission order.** Interleave Seedance and Kling jobs when both are present,
-   or accept Seedance serial queueing explicitly in the generation log. Do not flood a
-   Seedance-heavy run without recording the queue strategy.
-9. **Submit generation jobs.** Call the connected Higgsfield MCP video-generation tool
+9. **Plan submission order.** Use the prescriptive batching rules in
+   `references/media-upload-and-state.md`: start long or serial-prone Seedance work
+   early, fill available plan-level concurrency with Kling or other non-Seedance work,
+   and record the queue strategy before a large run.
+10. **Submit generation jobs.** Call the connected Higgsfield MCP video-generation tool
    (`generate_video` or the current tool-surface equivalent) with the model-native
-   prompt string, validated model parameters, and media handles in their roles.
-10. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
+   prompt string, validated model parameters, `count` when exposed, and media handles in
+   their roles. If `count` is not exposed, submit explicit `v1`, `v2`, ... jobs only
+   when the manifest requests multiple takes.
+11. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
    returns a job ID. An unlogged job is a lost job.
-11. **Poll and download.** Poll with backoff until a terminal status. Download successful
+12. **Poll and download.** Poll with backoff until a terminal status. Download successful
    clips to `generated/{shot_id}/v{take}.mp4` or
    `generated/{shot_id}/{subclip_id}_v{take}.mp4`. Do not mark a job complete until this
    local file exists and is recorded in the log.
-12. **Verify output file.** Record local file size and actual pixel dimensions. If the
+13. **Verify output file.** Record local file size and actual pixel dimensions. If the
    file is missing, zero-length, unexpectedly tiny, or at the wrong dimensions for the
    model route, mark the take for review or retake.
-13. **Run review gate.** If the manifest marks the shot `review_gate=required`, stop
+14. **Run review gate.** If the manifest marks the shot `review_gate=required`, stop
    automatic progression after download until the take is reviewed against the shot spec
    and storyboard frames. Landscape or low-risk v1 shots may use `review_gate=optional`.
-14. **Resume safely.** On rerun, skip completed rows with a local output path unless the
+15. **Resume safely.** On rerun, skip completed rows with a local output path unless the
    user requests a retake.
-15. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
+16. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
     and sub-clip order for final editing.
 
 ## Reference Image Discipline
@@ -203,6 +222,12 @@ When a model has a reference-count limit, prioritise in this order: start/end an
 principal character, active hero prop, recurring visual element, location, style. Stop
 if the limit prevents a required identity or continuity reference from being supplied.
 
+Before upload, prove that the required-reference list is complete. The storyboard
+consistency report and continuity inventory are not just advisory notes: their outcomes
+must be actioned through regenerated frames, added references, prompt constraints, or a
+recorded blocker. Do not generate a shot whose manifest omits a continuity-critical
+reference named upstream.
+
 ## Stop Conditions
 
 Stop before generation when:
@@ -218,6 +243,8 @@ Stop before generation when:
   auto-generate unwanted audio;
 - model-specific defaults would alter audio, reference adherence, mode, or resolution and
   the live MCP schema does not expose an override;
+- the manifest requests `count > 1` but the live schema has no count parameter and the
+  operator has not approved equivalent explicit retake jobs;
 - a job cannot be logged or resumed.
 
 Do not silently fall back to another provider, another model family, text-only video, or

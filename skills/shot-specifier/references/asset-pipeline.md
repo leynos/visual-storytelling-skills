@@ -153,6 +153,22 @@ When assembling clips into a sequence:
 The manifest at `prompts/manifest.md` contains the full ordered list with clip
 boundaries. Use it as the assembly instruction.
 
+## Manifest Path Contract
+
+The manifest must name the exact files that `video-generator` should upload. Use the
+canonical shot-specifier frame paths unless a project has explicitly overridden them:
+
+```text
+shots/{shot_id}/start.png
+shots/{shot_id}/end.png
+shots/{shot_id}/key{NN}.png
+```
+
+Paths should be project-root-relative for reviewability. Add absolute paths in the media
+manifest during upload. Do not rely on `video-generator` to infer alternate
+scene-inventory paths from shot IDs; if a non-canonical file is required, put that exact
+path in `prompts/manifest.md` and the prompt file's `Reference Audit`.
+
 ---
 
 ## Archiving

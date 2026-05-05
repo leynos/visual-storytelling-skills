@@ -146,12 +146,17 @@ references/model-routing.md. This is the exact prompt for video-generator.}
 ```text
 **Recommended model:** {model ID}
 **Routing rationale:** {1 sentence}
+**Resolution parameter:** {720p / 1080p / 4K / model-specific equivalent}
+**Model overrides:** {key=value list; include audio, mode/quality, cfg/guidance, genre}
+**Count:** {1 by default; 2 only when review-gated and schema-supported}
+**Required refs:** {semicolon-delimited list of continuity-critical refs}
 ```
 
 ### Consistency Notes
 
 ```text
 {Any WARN items anticipated; cross-references to continuity inventory; prop positions}
+{Action taken: regenerated frame, added reference, injected prompt constraint, or blocker}
 ```
 
 ---

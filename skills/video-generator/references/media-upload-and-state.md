@@ -6,6 +6,19 @@ paths for reviewability, so generation must convert those paths into whatever me
 handle the connected Higgsfield MCP accepts: uploaded media UUID, CDN URL, generation
 history ID, or a tool-specific file input.
 
+Canonical shot-specifier frame paths are:
+
+```text
+shots/{shot_id}/start.png
+shots/{shot_id}/end.png
+shots/{shot_id}/key{NN}.png
+```
+
+Scene-inventory legacy paths such as `scene-pack/shots/shot_{shot_id}_start.png` are
+valid only when the manifest names them explicitly. Do not infer legacy paths. Manifest
+paths may be project-root-relative or absolute; resolve and verify the exact manifest
+value before upload.
+
 Use the Higgsfield MCP first. Higgsfield's public MCP page says agents can use previous
 generations as inputs, and the official CLI page says the CLI handles authentication,
 uploads, and polling for Codex-like agents. The official SDK documents `uploadImage()`
@@ -28,13 +41,17 @@ not changed, reuse the handle.
 
 1. Resolve each local path relative to the project root.
 2. Confirm the file exists and is readable.
-3. Inspect the live MCP schema for accepted media input forms: local file, upload
+3. Confirm every continuity-critical file named by `required_refs`, the prompt
+   `Reference Audit`, or the storyboard consistency report is either present in this
+   upload set or intentionally excluded with a blocker. Actioning the consistency pass
+   is mandatory; do not treat it as background information.
+4. Inspect the live MCP schema for accepted media input forms: local file, upload
    handle, CDN URL, generation-history ID, or previous-output selector.
-4. Upload or register start and end frames first.
-5. Upload character, location, prop, and recurring visual element refs only when the chosen
+5. Upload or register start and end frames first.
+6. Upload character, location, prop, and recurring visual element refs only when the chosen
    model accepts `image` role references for the job.
-6. Upload style references last.
-7. Record the handle immediately.
+7. Upload style references last.
+8. Record the handle immediately.
 
 If the live MCP route only accepts public image URLs, use the MCP's own upload/history
 tool or an approved Higgsfield upload helper to create those URLs. Stop if no approved
@@ -54,6 +71,22 @@ After download, fill in `File size` and `Actual resolution` from the local file.
 fields are capacity-planning data, not cosmetic metadata: large model-to-model bitrate
 variance can change storage and transfer costs across a full production.
 
+Use empirical baselines as review triggers:
+
+- compare each file against prior successful takes with the same model, duration, and
+  resolution parameter;
+- if no same-class baseline exists, record the new value as provisional;
+- if the file is below 50% of the lowest comparable baseline, or above 2x the current
+  median without a known reason, mark `Review=required` and inspect for truncation,
+  missing audio, unexpectedly low bitrate, or wrong resolution.
+
+Known provisional baselines from S01:
+
+| Model | Duration | Observed file size | Notes |
+|-------|----------|--------------------|-------|
+| `seedance_2_0` | 6 s | about 4.3 MB | Treat smaller files as suspicious until more samples exist |
+| `kling3_0` | 8 s | about 21 MB | One 16:9 landscape sample; bitrate variance may be high |
+
 ## Review Gates
 
 Each manifest row carries `review_gate`:
@@ -72,11 +105,32 @@ constraints, and audio preferences. Record `accepted`, `retake`, or `blocked` in
 Record the batching strategy in `generated/generation_log.md` or
 `generated/submission_plan.md` before submitting large runs.
 
-- Interleave Kling and Seedance jobs when both are present.
-- Expect Seedance jobs to queue serially on some surfaces; do not treat queue delay as a
-  failure by itself.
-- For Seedance-heavy batches, submit in bounded groups and leave enough state to resume
-  without duplicate jobs.
+- Mixed run: submit one Seedance job early if any Seedance shots exist, then fill the
+  remaining plan-level concurrency with Kling or other non-Seedance jobs. When the
+  Seedance job reaches a terminal state, submit the next Seedance job.
+- Seedance-heavy run: declare `queue_strategy=seedance_serial` and submit Seedance shots
+  in assembly order unless a later shot is a lower-risk atmosphere insert that can fill
+  idle time. Do not flood the queue with many Seedance jobs unless the live surface
+  proves parallel Seedance execution and the generation log records that evidence.
+- Kling-heavy run: submit up to the plan-level video concurrency limit observed in the
+  live account, but still log every returned job ID immediately.
+- Do not treat long `queued` status as failure by itself. Treat an unchanging
+  `in_progress` state beyond the provider's normal range as a manual review item.
+
+## Count and Multi-Take Handling
+
+`count` is schema-gated. The public Higgsfield pages confirm plan-level parallel video
+limits but do not publish a per-call MCP `count` contract.
+
+- Default `count=1`.
+- Use `count=2` for review-gated hero shots, difficult identity interpolation, or shots
+  with known model instability when credits and queue time allow.
+- Avoid `count>1` on Seedance-heavy runs unless the shot is critical; it multiplies
+  serial queue pressure.
+- If the live MCP schema exposes `count`, one returned job set must expand to distinct
+  take rows: `v1`, `v2`, etc.
+- If `count` is not exposed, submit separate take jobs only when the manifest requests
+  multiple takes and the operator accepts the added cost.
 
 ## Resume Rules
 

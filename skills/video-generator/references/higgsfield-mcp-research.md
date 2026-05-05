@@ -99,3 +99,34 @@ Source: `https://github.com/geopopos/higgsfield_ai_mcp`
 - Poll asynchronously until a terminal status.
 - Stop when a required role or parameter is absent instead of silently changing the
   production strategy.
+
+## Firecrawl Follow-Up: 2026-05-05
+
+Sources:
+
+- `https://higgsfield.ai/ai-video`
+- `https://higgsfield.ai/kling-3.0`
+- `https://higgsfield.ai/ai/video?model=kling3_0`
+
+Useful confirmations:
+
+- Higgsfield's public video surface lists Seedance 2.0, Kling 3.0, Veo, Sora, Wan, and
+  related models in one workspace.
+- It presents first and last image references as a video control surface.
+- It markets Seedance 2.0 in 1080p and Kling 3.0 in 4K.
+- The Kling 3.0 surface describes native audio, multi-shot storyboarding with up to 6
+  cuts, and up to 15-second generations.
+- The Kling 3.0 UI scrape exposed start frame and end frame controls, a 5 s default,
+  aspect ratios `16:9`, `9:16`, and `1:1`, and resolution choices `720p`, `1080p`, and
+  `4K`.
+- Higgsfield plan text advertises plan-level parallel video generation limits, such as
+  2, 6, 8, or 16 parallel videos depending on plan.
+
+Gaps still not confirmed by public pages:
+
+- No public page exposed the live MCP `generate_video` schema.
+- Firecrawl did not confirm per-call `count`; treat it as a live-schema-gated MCP field.
+- Firecrawl did not confirm `cfg_scale` semantics; treat S01 observations as empirical
+  working defaults that must be validated and logged per run.
+- Public `1080p` or `4K` labels do not prove exact output pixels. Always measure the
+  downloaded file.

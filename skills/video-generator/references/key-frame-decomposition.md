@@ -40,6 +40,43 @@ Because `seedance_2_0` has a 4 s minimum in this workflow, either extend A to 4 
 adjust B if the action still works, or mark the shot `merge_keyframe_motion` and encode
 the key-frame state in the generation prompt.
 
+## Worked Merge Example
+
+Use `merge_keyframe_motion` when the key frame is useful timing guidance but splitting
+would produce invalid or awkward sub-clips.
+
+Example shot:
+
+```text
+Shot: S05_SH003
+Duration: 8 s
+Start: shots/S05_SH003/start.png
+Key 01 at 3 s: shots/S05_SH003/key01.png
+End: shots/S05_SH003/end.png
+Reason to merge: the key frame is a lighting/action beat, not a required separate anchor.
+```
+
+Structured intent:
+
+- start frame: Maeve faces a dark monitoring console;
+- key frame at 3 s: red warning light reflects across the wall and her cheek;
+- end frame: Maeve turns partly away from the console, hand still on the switch.
+
+Prompt language for a single unsplit clip:
+
+```text
+From the start frame, Maeve holds her gaze on the dark monitoring console, hand already
+resting on the switch. Over the first third of the clip the console remains dim and her
+body stays still. Around the middle of the clip, a red warning pulse rises from the
+console and sweeps across the wall and her cheek, matching the advisory key-frame state.
+By the final seconds she turns partly away from the console while keeping her hand on the
+switch, resolving exactly into the supplied end frame. Preserve the console layout,
+switch position, wardrobe, and lighting direction throughout. No narration.
+```
+
+Upload only the start and end images for the generation job. Keep the key frame path in
+the manifest and notes as the advisory state that has been merged into the prompt.
+
 ## Manifest Requirement
 
 The manifest must record sub-clips:
@@ -48,3 +85,9 @@ The manifest must record sub-clips:
 |---------|----------|-------|-----|----------|----------|
 | S04_SH004 | A | start.png | key01.png | 4s | split_at_keyframe |
 | S04_SH004 | B | key01.png | end.png | 4s | split_at_keyframe |
+
+For `merge_keyframe_motion`, record the key frame without using it as an upload anchor:
+
+| Shot ID | Sub-clip | Start | End | Duration | Strategy | Advisory key |
+|---------|----------|-------|-----|----------|----------|--------------|
+| S05_SH003 | A | start.png | end.png | 8s | merge_keyframe_motion | key01.png |

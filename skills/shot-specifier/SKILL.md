@@ -391,6 +391,10 @@ Control references, and treat critical text/UI as baked-frame or post-production
 - **Aspect ratio:** {16:9 / 9:16 / 1:1 / 21:9}
 - **Target resolution:** {pixel dimensions from cinematography spec}
 - **Resolution parameter:** {720p / 1080p / model-specific equivalent}
+- **Model overrides:** {key=value list for live MCP defaults; include audio,
+  quality/mode, cfg/guidance, genre, or "none"}
+- **Count:** {1 by default; 2 only for review-gated hero/uncertain shots when
+  video-generator confirms the live schema supports it}
 - **Audio generation:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
   music=off; narration=off; source={generated/none/supplied}
 
@@ -404,6 +408,13 @@ Control references, and treat critical text/UI as baked-frame or post-production
 - **end_image:** {file path}
 - **image (subject):** {file path(s)}
 - **image (style):** refs/style/style_anchor_01.png
+
+## Reference Audit
+- **Required refs:** {character/location/prop/recurring/style refs that must be uploaded}
+- **Continuity-critical refs:** {refs named by continuity inventory or Phase 6 report}
+- **Reference priority:** start,end,principal_character,hero_prop,recurring_element,
+  location,style
+- **Missing or blocked refs:** {None or blocker}
 
 ## Prompt
 
@@ -435,6 +446,8 @@ This is the exact prompt `video-generator` submits to Higgsfield.}
 ## Consistency Notes
 - {Any WARN items from storyboard consistency check}
 - {Continuity flags from shot list}
+- {Action taken for each WARN/continuity item: regenerated frame, added reference,
+  injected prompt constraint, or blocker}
 ```
 
 ### Style Language Rule
@@ -450,7 +463,10 @@ Before finalising each prompt, check:
 - The continuity inventory for this scene
 - Any WARN items from Phase 6
 
-Inject all applicable constraints into `[SCENE]` or `[ACTION]`.
+Inject all applicable constraints into `[SCENE]` or `[ACTION]`. The consistency pass is
+not informational: action its output now. Fix clear WARN items by regenerating frames or
+adding references, and convert any remaining WARN/continuity item into an explicit
+prompt constraint, `Reference Audit` entry, or blocker.
 
 ### Manifest
 
@@ -463,9 +479,9 @@ prompts/manifest.md
 ```markdown
 # Shot Generation Manifest
 
-| Shot ID | Scene | Duration | Model | Strategy | Aspect | Target Resolution | Resolution Param | Audio | Review Gate | Start | End | Keys | Prompt File |
-|---------|-------|----------|-------|----------|--------|-------------------|------------------|-------|-------------|-------|-----|------|-------------|
-| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1920x1080 | 1080p | ambient=on;sfx=on;dialogue=off;music=off;narration=off;source=generated | required | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
+| Shot ID | Scene | Duration | Model | Strategy | Aspect | Target Resolution | Resolution Param | Overrides | Count | Audio | Required Refs | Review Gate | Start | End | Keys | Prompt File |
+|---------|-------|----------|-------|----------|--------|-------------------|------------------|-----------|-------|-------|---------------|-------------|-------|-----|------|-------------|
+| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1920x1080 | 1080p | generate_audio=true;quality=standard;genre=auto | 1 | ambient=on;sfx=on;dialogue=off;music=off;narration=off;source=generated | refs/characters/maeve/front.png;refs/props/gannet/primary.png | required | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
 ```
 
 ---
@@ -474,9 +490,10 @@ prompts/manifest.md
 
 > **Downstream handoff:** Once Phase 8 has produced `prompts/manifest.md`, prompt files,
 > storyboard frames, model routing, generation strategy, aspect ratio, target
-> resolution, resolution parameter, audio-generation preferences, review-gate metadata,
-> and clip-boundary metadata, hand off to `video-generator` for Higgsfield MCP media
-> upload, job submission, polling, resume handling, and assembly-order output.
+> resolution, resolution parameter, model overrides, count, required-reference audit,
+> audio-generation preferences, review-gate metadata, and clip-boundary metadata, hand
+> off to `video-generator` for Higgsfield MCP media upload, job submission, polling,
+> resume handling, and assembly-order output.
 > **Prerequisite:** Read `references/asset-pipeline.md`.
 
 Maintain a consistent asset pipeline so generated clips can be traced back to their

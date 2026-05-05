@@ -216,6 +216,32 @@ If the live MCP schema exposes model-specific parameters such as `mode`, `qualit
 manifest or stop for a production decision. Do not let the provider choose defaults for
 audio, reference adherence, mode, or resolution on continuity-critical shots.
 
+Manifest rows must include:
+
+- `model_overrides`: explicit `key=value` pairs for the live MCP defaults. Use
+  `generate_audio=false` or `sound=off` whenever narration/post audio is separate and
+  the shot should not generate audio. For Kling, include a `cfg_scale` or guidance value
+  when the live schema exposes it and identity/reference adherence matters.
+- `count`: default `1`. Use `2` only for review-gated hero shots or shots with known
+  instability, and only when `video-generator` confirms that the live MCP schema exposes
+  count or the operator approves equivalent separate take jobs.
+- `required_refs`: the continuity-critical character, prop, recurring-element,
+  location, and style refs that must reach the video-generation job.
+
+Suggested working overrides until the project gathers more direct evidence:
+
+| Model | Situation | Suggested manifest override |
+|-------|-----------|-----------------------------|
+| `seedance_2_0` | Silent or supplied-audio shot | `generate_audio=false;quality=standard;genre=auto` |
+| `seedance_2_0` | Generated ambient/sfx wanted | `generate_audio=true;quality=standard;genre=auto` |
+| `kling3_0` | Reference/identity-critical shot | `sound=off;cfg_scale=0.4` unless generated audio is explicitly wanted |
+| `kling3_0` | Balanced landscape/camera shot | `sound=off;cfg_scale=0.5` unless generated audio is explicitly wanted |
+| `kling3_0` | Prompt-led surreal/action shot | `sound=off;cfg_scale=0.6` unless generated audio is explicitly wanted |
+
+These are schema-gated working defaults, not provider guarantees. If the live MCP tool
+uses different names or ranges, `video-generator` must map or stop rather than silently
+dropping the intent.
+
 ### Fast vs. Standard Mode (Seedance 2.0)
 
 **Draft in fast, keepers in standard.** Fast roughly halves cost and latency; public
