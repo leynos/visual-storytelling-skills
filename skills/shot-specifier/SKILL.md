@@ -263,6 +263,13 @@ generated without a prop, recurring visual element, or location reference will i
 the object or set dressing independently, producing different monitor layouts, fixture
 arrangements, robots, cabinets, or prop designs across the sequence.
 
+For any shot likely to route to Kling 3.0, treat the start and end storyboard frames as
+the primary continuity carrier. The current Higgsfield MCP surface observed in S01 only
+accepted `start_image` and `end_image` for Kling jobs, with no generic `image` role for
+style, location, character, or prop references. Bake every continuity-critical
+character, prop, recurring element, location variant, and style constraint into the
+start/end frames now; do not assume `video-generator` can upload those refs later.
+
 ### Generation Order
 
 1. **Start frames** for all shots in the sequence.
@@ -373,6 +380,9 @@ If the recommended model is `kling3_0`, apply `kling-3-0-deep-dive` before writi
 prompt. Record why Kling is the right route, structure multi-beat work as labelled shots
 with durations, specify camera behaviour and endpoint, identify any Elements or Motion
 Control references, and treat critical text/UI as baked-frame or post-production work.
+When the live Kling route has not been proven to accept generic references, mark
+continuity refs in the `Reference Audit` as `baked into start/end frames` rather than as
+upload requirements.
 
 ### Prompt Template
 
@@ -390,7 +400,8 @@ Control references, and treat critical text/UI as baked-frame or post-production
 - **Generation strategy:** {image_to_video / start_end_image / multi_shot / motion_control}
 - **Aspect ratio:** {16:9 / 9:16 / 1:1 / 21:9}
 - **Target resolution:** {pixel dimensions from cinematography spec}
-- **Resolution parameter:** {720p / 1080p / model-specific equivalent}
+- **Resolution parameter:** {720p / 1080p / model-specific equivalent; provider hint
+  only until video-generator verifies actual pixels}
 - **Model overrides:** {key=value list for live MCP defaults; include audio,
   quality/mode, cfg/guidance, genre, or "none"}
 - **Count:** {1 by default; 2 only for review-gated hero/uncertain shots when
@@ -412,6 +423,8 @@ Control references, and treat critical text/UI as baked-frame or post-production
 ## Reference Audit
 - **Required refs:** {character/location/prop/recurring/style refs that must be uploaded}
 - **Continuity-critical refs:** {refs named by continuity inventory or Phase 6 report}
+- **Baked-frame refs:** {continuity-critical refs that cannot be uploaded to the chosen
+  video model and therefore must be present in the start/end frames}
 - **Reference priority:** start,end,principal_character,hero_prop,recurring_element,
   location,style
 - **Missing or blocked refs:** {None or blocker}

@@ -47,11 +47,17 @@ not changed, reuse the handle.
    is mandatory; do not treat it as background information.
 4. Inspect the live MCP schema for accepted media input forms: local file, upload
    handle, CDN URL, generation-history ID, or previous-output selector.
-5. Upload or register start and end frames first.
-6. Upload character, location, prop, and recurring visual element refs only when the chosen
-   model accepts `image` role references for the job.
-7. Upload style references last.
-8. Record the handle immediately.
+5. If the live upload tool accepts a batch shape such as `files[]`, prefer one batch
+   upload for all required start/end frames and supported references, then record each
+   returned handle against its local path. Fall back to per-file upload only when batch
+   upload is unavailable or fails for a specific file.
+6. Upload or register start and end frames first when using per-file upload.
+7. Upload character, location, prop, and recurring visual element refs only when the
+   chosen model accepts `image` role references for the job. The current S01 Kling 3.0
+   MCP surface accepted only `start_image` and `end_image`; for that route, continuity
+   refs must already be baked into those frames.
+8. Upload style references last.
+9. Record the handle immediately.
 
 If the live MCP route only accepts public image URLs, use the MCP's own upload/history
 tool or an approved Higgsfield upload helper to create those URLs. Stop if no approved
@@ -78,14 +84,17 @@ Use empirical baselines as review triggers:
 - if no same-class baseline exists, record the new value as provisional;
 - if the file is below 50% of the lowest comparable baseline, or above 2x the current
   median without a known reason, mark `Review=required` and inspect for truncation,
-  missing audio, unexpectedly low bitrate, or wrong resolution.
+  missing audio, unexpectedly low bitrate, or wrong resolution;
+- do not fail a take on file-size variance alone. S01 observed a 2.4x file-size change
+  for the same Kling shot without an intentional parameter change, so playback,
+  duration, and actual resolution are the deciding checks.
 
 Known provisional baselines from S01:
 
 | Model | Duration | Observed file size | Notes |
 |-------|----------|--------------------|-------|
 | `seedance_2_0` | 6 s | about 4.3 MB | Treat smaller files as suspicious until more samples exist |
-| `kling3_0` | 8 s | about 21 MB | One 16:9 landscape sample; bitrate variance may be high |
+| `kling3_0` | 8 s | about 8.8-21 MB | Same 16:9 shot varied across S01 sessions; use as review range, not a pass/fail threshold |
 
 ## Review Gates
 

@@ -13,7 +13,8 @@ description: >
 # Seedance 2.0 Deep Dive
 
 Use this skill when `shot-specifier` routes a shot to `seedance_2_0` or when
-`video-generator` is about to submit Seedance 2.0 jobs through the Higgsfield MCP.
+`video-generator` is about to submit Seedance 2.0 jobs through the Higgsfield Model
+Context Protocol (MCP).
 
 Seedance 2.0 is best treated as a **constraint-driven multimodal video model**, not a
 text-prompt toy. Text describes the new action. Images, video, and audio references
@@ -30,6 +31,12 @@ quality modes, file limits, duration ranges, and reference roles.
 Use the limits below as planning defaults only. If the live MCP schema is narrower,
 follow the live schema. If the required references cannot be supplied, stop and ask for
 a production decision.
+
+S01 session 2 observed that the current Higgsfield MCP accepted a Seedance
+`resolution=1080p` input while still downloading `1344x768` video, and auto-enabled
+generated audio without exposing a `generate_audio` input key. Treat resolution settings
+as schema-gated quality hints until the downloaded pixels prove otherwise. Treat audio
+toggles as intent records unless the live schema exposes them.
 
 ## When Seedance 2.0 Is The Right Route
 
@@ -59,7 +66,7 @@ when generated audio is the asset rather than an input constraint.
 | 16:9 | Add background control: simple layout, limited background motion, clear negative space | Wide frames invite extra set detail and artifacts |
 | 1:1 or 4:5 | Product, feed, and commercial detail when supported | Keeps product scale readable without excessive background |
 | Quality | Draft in fast/medium; final in high only after the shot is coherent | Higher quality sharpens both good detail and bad wobble |
-| Resolution | Use 1080p for finals when exposed; use lower-cost modes for layout tests | Retakes cost more than early drafts |
+| Resolution | Use the manifest's resolution hint for finals when exposed; verify actual pixels after download | S01 current MCP evidence emitted `1344x768` despite a `1080p` Seedance hint |
 | Batch strategy | Build a shot list and reference plan before spending credits | Random exploration burns budget and weakens continuity |
 
 ## Multimodal Input Rules
@@ -172,6 +179,12 @@ Use these patterns as starting points, not templates to paste blindly.
 | B-roll/hook | 3-6 s, one clean visual idea, immediate readable motion, strong first frame |
 | Animation/VFX | Timed segments; explicit VFX appearance inline; physics and particles described concretely |
 | Audio-synced | Use the audio reference for tempo and mood; mark visual events against seconds or beats |
+
+Narration is handled outside this video-generation workflow. Do not request generated
+narration from Seedance. If the live route forces generated audio on and cannot disable
+it, proceed only for ambience/sound-effect-friendly atmosphere shots where the audio
+will be accepted or muted downstream; stop for dialogue, lip-sync, supplied-audio,
+music-timed, or narration/post-audio shots.
 
 ## Settings Sweep
 

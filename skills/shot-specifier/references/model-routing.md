@@ -52,7 +52,9 @@ Three findings matter most for this production.
    reference video. Kling Motion Control, not plain text prompting, is the strongest
    public case for difficult human or physical action.
    When routing a shot to `kling3_0`, load `kling-3-0-deep-dive` before writing the
-   final prompt and manifest row.
+   final prompt and manifest row. Current S01 MCP evidence shows Kling may accept only
+   start/end frames; if so, continuity must be baked into those storyboard frames rather
+   than deferred to uploaded generic refs.
 
 3. **Neither model is trustworthy for generated UI or exact on-screen text**: bake
    critical screens into the reference frame and animate minimally instead.
@@ -77,7 +79,7 @@ Three surprises from the public evidence:
 |----------|---------|------|---------------------|
 | `seedance_2_0` | Bytedance | Video | Reference-driven; consistent subject identity; multimodal input (up to 12 assets, `@`-tagged roles); first-frame and first-plus-last-frame image-to-video; return-last-frame support; 2–15 s; 480p/720p/1080p; native audio/lip-sync |
 | `seedance_1_5` | Bytedance | Video | Accepts references but weights them less heavily than 2.0; explicit camera-move prompting; 4/8/12 s; secondary/legacy only |
-| `kling3_0` | Kling | Video | Multi-shot structure (2–6 scenes with per-scene duration); Motion Control (motion transfer from driving clip); Elements (cross-shot identity consistency); audio generation; 3–15 s; 720p/1080p |
+| `kling3_0` | Kling | Video | Multi-shot structure (2–6 scenes with per-scene duration); Motion Control (motion transfer from driving clip); Elements (cross-shot identity consistency) when exposed; audio generation; 3–15 s; 720p/1080p labels, with S01 MCP outputs observed at `1344x768` |
 | `marketing_studio_video` | Higgsfield | Video | Commercial/product/ads; URL-driven; see `show_marketing_studio` tool |
 
 **Available-but-unrouted:** Current Higgsfield/MCP surfaces also expose Veo 3.1, Sora 2,
@@ -203,6 +205,9 @@ identity elements**.
 - Kling Elements and Motion Control: 2–3 clean identity images for Elements; add a
   driving video clip for Motion Control when you need precise motion. Avoid overloading
   the model.
+- Current S01 Kling MCP surface: only `start_image` and `end_image` were accepted. When
+  this surface is active, mark character, prop, recurring-element, location, and style
+  refs as baked into the storyboard frames instead of as uploadable media roles.
 
 ### Duration
 
@@ -224,9 +229,9 @@ the intended value so `video-generator` can override undesirable provider defaul
 
 | Model | Observed/default behaviour | Manifest requirement |
 |-------|----------------------------|----------------------|
-| `seedance_2_0` | Higgsfield may auto-enable generated audio (`generate_audio: true`) | Emit explicit audio source: `generated`, `none`, or `supplied`; use `none` for silent shots and `supplied` when external audio drives the take |
-| `kling3_0` | Higgsfield may auto-set `sound: "on"` and `cfg_scale: 0.5` | Emit explicit sound preference and a reference-adherence note; for identity/reference-critical shots, request a stronger reference balance if the live schema exposes CFG or guidance |
-| All models | Actual pixel dimensions may differ from labels such as `1080p` | Emit both target pixel resolution and provider resolution parameter; `video-generator` must verify actual output dimensions after download |
+| `seedance_2_0` | Current S01 MCP surface auto-enabled generated audio (`generate_audio: true`) and did not expose an input key | Emit explicit audio source: `generated`, `none`, or `supplied`; use `none` for silent shots and `supplied` when external audio drives the take; `video-generator` decides whether unsupported forced audio is acceptable for the shot class |
+| `kling3_0` | Current S01 MCP surface auto-set `sound: "on"` and `cfg_scale: 0.5`, with no exposed override | Emit explicit sound preference and a reference-adherence note; for identity/reference-critical shots, request a stronger reference balance if the live schema exposes CFG or guidance; otherwise treat overrides as documented intent and bake continuity into frames |
+| All models | Actual pixel dimensions may differ from labels such as `1080p`; S01 session 2 observed `1344x768` from both Kling and Seedance | Emit both target pixel resolution and provider resolution hint; `video-generator` must verify actual output dimensions after download |
 
 If the live MCP schema exposes model-specific parameters such as `mode`, `quality`,
 `genre`, `sound`, `generate_audio`, `cfg_scale`, or guidance strength, set them from the
@@ -255,9 +260,10 @@ Suggested working overrides until the project gathers more direct evidence:
 | `kling3_0` | Balanced landscape/camera shot | `sound=off;cfg_scale=0.5` unless generated audio is explicitly wanted |
 | `kling3_0` | Prompt-led surreal/action shot | `sound=off;cfg_scale=0.6` unless generated audio is explicitly wanted |
 
-These are schema-gated working defaults, not provider guarantees. If the live MCP tool
-uses different names or ranges, `video-generator` must map or stop rather than silently
-dropping the intent.
+These are schema-gated working defaults and intent records, not provider guarantees. If
+the live MCP tool uses different names or ranges, `video-generator` must map, log the
+key as unsupported, or stop according to shot-criticality rather than silently dropping
+the intent.
 
 ### Fast vs. Standard Mode (Seedance 2.0)
 

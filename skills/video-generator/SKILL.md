@@ -159,10 +159,11 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    media roles, upload/history path, polling path, and output path exist.
 3. **Validate constraints and defaults.** Check model duration, supported resolution,
    aspect ratio, media-role support, and model-specific defaults before upload. Override
-   unwanted defaults from `model_overrides` explicitly; do not discover invalid clips
-   after submission. If an override key is absent from the live schema, record it as
-   `unsupported` and stop when it affects audio, reference adherence, mode, quality, or
-   resolution.
+   unwanted defaults from `model_overrides` explicitly when the live schema exposes the
+   key. If an override key is absent, record it as `unsupported` and classify the impact:
+   stop when the unsupported key would break dialogue, narration/post-audio sync,
+   identity, required references, or the planned shot contract; proceed with a logged
+   note only when the unsupported default is non-critical for this shot class.
 4. **Verify model-native prompts.** Use the existing `## Generation Prompt` when
    present. If absent, produce it using the model-specific algorithm in
    `references/prompt-flattening.md`, write it back to the prompt file, then continue.
@@ -170,7 +171,8 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    prompt file's reference audit against the continuity inventory and Phase 6
    storyboard consistency report when present. Add missing actioned constraints to the
    prompt before continuing. Stop if a continuity-critical character, prop, recurring
-   element, location variant, or style anchor cannot be supplied to the chosen model.
+   element, location variant, or style anchor cannot be supplied to the chosen model and
+   is not demonstrably baked into the start/end storyboard frames.
 6. **Decompose key-frame shots.** For any shot with key frames, use
    `references/key-frame-decomposition.md` to create sub-clips with only `start_image`
    and `end_image` roles. Validate each sub-clip duration against the chosen model.
@@ -180,8 +182,12 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    `generated/media_manifest.md`.
 8. **Apply audio preferences.** Map each shot's audio-generation preferences to the live
    MCP audio parameters. Narration remains off because it is handled as a separate
-   process. If the MCP cannot disable unwanted generated audio, stop rather than letting
-   the model auto-select audio behaviour silently.
+   process. If the MCP cannot disable generated audio, use severity-based handling: for
+   landscape, environment, atmosphere, or machine-vision shots where generated ambience
+   will be muted or is acceptable, proceed only with a log note that audio could not be
+   disabled; for dialogue, lip-sync, narration, music-timed, supplied-audio, or
+   externally mixed shots, stop because forced generated audio conflicts with the
+   production plan.
 9. **Plan submission order.** Use the prescriptive batching rules in
    `references/media-upload-and-state.md`: start long or serial-prone Seedance work
    early, fill available plan-level concurrency with Kling or other non-Seedance work,
@@ -198,8 +204,10 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    `generated/{shot_id}/{subclip_id}_v{take}.mp4`. Do not mark a job complete until this
    local file exists and is recorded in the log.
 13. **Verify output file.** Record local file size and actual pixel dimensions. If the
-   file is missing, zero-length, unexpectedly tiny, or at the wrong dimensions for the
-   model route, mark the take for review or retake.
+   file is missing, zero-length, unexpectedly tiny, or at dimensions that differ from
+   the model route's verified empirical output, mark the take for review or retake.
+   Mismatch from the aspirational `target_resolution` alone is review data, not an
+   automatic failure when the current live route is known to emit different pixels.
 14. **Run review gate.** If the manifest marks the shot `review_gate=required`, stop
    automatic progression after download until the take is reviewed against the shot spec
    and storyboard frames. Landscape or low-risk v1 shots may use `review_gate=optional`.
@@ -232,6 +240,13 @@ must be actioned through regenerated frames, added references, prompt constraint
 recorded blocker. Do not generate a shot whose manifest omits a continuity-critical
 reference named upstream.
 
+When the selected Kling 3.0 route exposes only `start_image` and `end_image`, do not try
+to upload generic character, prop, location, or style references. Verify instead that
+those continuity requirements were baked into the storyboard frames during
+`shot-specifier` Phase 5 and are named in the prompt constraints. Stop only if the
+storyboard frames fail to carry a continuity-critical item that no live Kling media role
+can supply.
+
 ## Stop Conditions
 
 Stop before generation when:
@@ -240,13 +255,18 @@ Stop before generation when:
 - the live MCP schema cannot be inspected;
 - the recommended model is unavailable;
 - required `start_image` or `end_image` roles are unavailable;
-- required reference images cannot be passed without exceeding model/tool limits;
+- required reference images cannot be passed without exceeding model/tool limits and
+  cannot be baked into the start/end storyboard frames;
 - duration, aspect ratio, or resolution is unsupported;
 - no upload/history mechanism can turn local files into accepted media inputs;
-- explicit audio-generation preferences cannot be honoured and the model would
-  auto-generate unwanted audio;
-- model-specific defaults would alter audio, reference adherence, mode, or resolution and
-  the live MCP schema does not expose an override;
+- explicit audio-generation preferences cannot be honoured for dialogue, lip-sync,
+  narration/post-audio, supplied-audio, or music-timed shots;
+- the model would force generated audio on a landscape, environment, atmosphere, or
+  machine-vision shot and the generation log does not record the forced-audio exception;
+- model-specific defaults would alter reference adherence, mode, or generation-critical
+  quality and the live MCP schema does not expose an override;
+- model-specific defaults would alter resolution labels, but actual pixels cannot be
+  verified after download;
 - the manifest requests `count > 1` but the live schema has no count parameter and the
   operator has not approved equivalent explicit retake jobs;
 - a job cannot be logged or resumed.

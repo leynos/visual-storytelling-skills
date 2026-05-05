@@ -35,6 +35,12 @@ follow the live schema. If the selected Kling route cannot accept the required a
 Elements, motion references, or audio parameters, stop and ask for a production
 decision.
 
+S01 session 2 observed a narrower Higgsfield MCP surface than public Kling guides
+describe: Kling accepted `start_image` and `end_image`, did not expose a generic
+reference-image role, did not expose `sound`, did not expose `cfg_scale`, and downloaded
+16:9 outputs at `1344x768`. Treat Elements, Motion Control, CFG, sound toggles, and
+labelled resolution choices as schema-gated features, not assumptions.
+
 ## When Kling 3.0 Is The Right Route
 
 Prefer Kling 3.0 when the shot needs:
@@ -66,7 +72,7 @@ text. Bake text into a frame or add it in post.
 | 16:9 | Cinematic exteriors, landscapes, horizontal movement, narrative coverage | Gives room for camera logic and environment |
 | 9:16 | One subject, product hero, or hook; reserve negative space for overlays | Tall frames punish busy backgrounds |
 | 1:1 or 4:5 | Product/feed variants when supported | Keeps products readable and avoids wasted side detail |
-| Resolution | 1080p finals when exposed; 720p or faster tier for prompt tests | Iterate cheaply before final renders |
+| Resolution | Request the manifest's resolution hint when exposed; verify actual pixels after download | S01 current MCP evidence emitted `1344x768` even for 16:9 production shots |
 | Quality | Draft in faster tiers; final in high quality after motion and framing are right | High quality is not a fix for bad direction |
 
 ## Prompt Structure
@@ -163,6 +169,10 @@ Use reference media for the job it is best at:
 
 For Elements, use 2-3 clean images per character/object when available: front, three-
 quarter, and detail or full-body. Do not overload Elements with many weak references.
+If the live route exposes only start/end images, do not list Elements or generic
+references as uploadable requirements. Bake the identity, prop, location, and style
+requirements into the storyboard start/end frames in `shot-specifier` Phase 5 and make
+the Kling prompt preserve what is already visible in those frames.
 
 For Motion Control, use a short driving clip that isolates the motion you actually want.
 Describe what to copy and what not to copy:
@@ -198,6 +208,11 @@ Rules:
 
 Do not rely on pronouns in multi-character dialogue. If lip-sync is critical and the
 live Kling route cannot bind voices to characters, stop or route elsewhere.
+
+Narration is handled outside this video-generation workflow. Do not request generated
+narration from Kling. If the live route forces generated audio on, proceed only for
+ambient/environment shots where the audio will be accepted or muted downstream; stop for
+dialogue, lip-sync, supplied-audio, music-timed, or narration/post-audio shots.
 
 ## Product And Commercial Prompting
 
