@@ -3,7 +3,7 @@
 *Agent skills for AI film production — from prose to picture.*
 
 Every story contains a film. These skills find it. This is a collection
-of Claude Code / Nori skills that walk a narrative from raw prose through
+of Claude Code skills that walk a narrative from raw prose through
 continuity extraction, reference-image generation, shot direction, and
 model-routed video-prompt assembly, with a TTS phoneticiser for good
 measure.
@@ -35,14 +35,11 @@ ______________________________________________________________________
 
 ## Quick start
 
-### Add to your Nori profile
+### Installation
 
 ```bash
 git clone https://github.com/df12-productions/visual-storytelling-skills
 ```
-
-Add the cloned directory to your Nori profile's skill paths. All four
-skills will be available as slash commands.
 
 ### Typical production run
 
