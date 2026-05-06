@@ -67,8 +67,8 @@ path exists from local frame files to accepted MCP media inputs.
 
 Write `generated/generation_log.md`:
 
-| Shot ID | Sub-clip | Take | Model | Job ID | Status | Output URL | Local file | File size | Actual resolution | Review | Prompt hash | Notes |
-|---------|----------|------|-------|--------|--------|------------|------------|-----------|-------------------|--------|-------------|-------|
+| Shot ID | Sub-clip | Take | Model | Job ID | Status | Output URL | Local file | File size | Actual resolution | Review | Prompt hash | Notes | Duration seconds | Transition type | Transition duration | Mute generated audio | Forced generated audio | Scene ID | Prompt file | Continuity flags |
+|---------|----------|------|-------|--------|--------|------------|------------|-----------|-------------------|--------|-------------|-------|------------------|-----------------|---------------------|----------------------|------------------------|----------|-------------|------------------|
 
 Append a row as soon as the Higgsfield MCP video tool returns a job ID, request ID, or
 job-set ID. Update the row while polling.
@@ -76,6 +76,13 @@ job-set ID. Update the row while polling.
 After download, fill in `File size` and `Actual resolution` from the local file. These
 fields are capacity-planning data, not cosmetic metadata: large model-to-model bitrate
 variance can change storage and transfer costs across a full production.
+
+Fill `Duration seconds` from the manifest duration or validated sub-clip duration, using
+a plain decimal number such as `3.25`. Fill `Transition type`, `Transition duration`,
+`Scene ID`, `Prompt file`, and `Continuity flags` from `prompts/manifest.md` and prompt
+metadata. `Mute generated audio` records downstream edit intent. `Forced generated
+audio` is `true` when the provider could not disable generated audio even though the
+final mix should handle sound separately.
 
 Use empirical baselines as review triggers:
 
@@ -108,6 +115,10 @@ For required gates, download the take, update the log, then pause automatic prog
 until the take is reviewed against the shot spec, storyboard frames, continuity
 constraints, and audio preferences. Record `accepted`, `retake`, or `blocked` in the
 `Review` column.
+
+Only `accepted`, `approved`, `final`, or `selected` review states may be handed to
+`media-project` for OpenShot packaging. Leave blocked or unreviewed shots out of the
+packaging step and report the blocker instead.
 
 ## Submission Strategy
 
@@ -149,3 +160,22 @@ limits but do not publish a per-call MCP `count` contract.
 - If a row is `completed` but `Review` is `retake`, create the next take after fixing the
   root cause.
 - Never overwrite an existing take; write `v2`, `v3`, etc.
+
+## Media-Project Handoff
+
+When all required takes are selected, run the OpenShot packager from
+`tools/media-project`:
+
+```bash
+uv run media-project package-openshot \
+  --project-root /path/to/story-project \
+  --assembly-order generated/assembly_order.md \
+  --generation-log generated/generation_log.md \
+  --manifest prompts/manifest.md \
+  --output generated/media-project/project.osp \
+  --sidecar generated/media-project/media-project.json
+```
+
+The selected clips must exist locally, and paths must be project-root-relative. The
+packager preserves transition and audio intent; it does not choose takes, invent
+transitions, or approve review-gated shots.

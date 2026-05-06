@@ -493,9 +493,9 @@ prompts/manifest.md
 ```markdown
 # Shot Generation Manifest
 
-| Shot ID | Scene | Duration | Model | Strategy | Aspect | Target Resolution | Resolution Param | Overrides | Count | Audio | Required Refs | Review Gate | Start | End | Keys | Prompt File |
-|---------|-------|----------|-------|----------|--------|-------------------|------------------|-----------|-------|-------|---------------|-------------|-------|-----|------|-------------|
-| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1920x1080 | 1080p | generate_audio=true;quality=standard;genre=auto | 1 | ambient=on;sfx=on;dialogue=off;music=off;narration=off;source=generated | refs/characters/maeve/front.png;refs/props/gannet/primary.png | required | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
+| Shot ID | Scene | Duration | Model | Strategy | Aspect | Target Resolution | Resolution Param | Overrides | Count | Audio | Required Refs | Review Gate | Clip Boundary | Transition Type | Transition Duration | Continuity Flags | Start | End | Keys | Prompt File |
+|---------|-------|----------|-------|----------|--------|-------------------|------------------|-----------|-------|-------|---------------|-------------|---------------|-----------------|---------------------|------------------|-------|-----|------|-------------|
+| S11_SH001 | SC-11 | 8s | seedance_2_0 | start_end_image | 16:9 | 1920x1080 | 1080p | generate_audio=true;quality=standard;genre=auto | 1 | ambient=on;sfx=on;dialogue=off;music=off;narration=off;source=generated | refs/characters/maeve/front.png;refs/props/gannet/primary.png | required | continuous | cut | 0 | eyeline;prop reset | shots/S11_SH001/start.png | shots/S11_SH001/end.png | None | prompts/S11_SH001_prompt.md |
 ```
 
 ---

@@ -198,7 +198,11 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
    their roles. If `count` is not exposed, submit explicit `v1`, `v2`, ... jobs only
    when the manifest requests multiple takes.
 11. **Log immediately.** Append a row to `generated/generation_log.md` as soon as the API
-   returns a job ID. An unlogged job is a lost job.
+   returns a job ID. Include the template columns needed by `media-project`: shot ID,
+   sub-clip, take, model, job ID, status, output URL, local file, file size, actual
+   resolution, review state, prompt hash, notes, duration seconds, transition type,
+   transition duration, generated-audio mute intent, forced generated-audio flag, scene
+   ID, prompt file, and continuity flags. An unlogged job is a lost job.
 12. **Poll and download.** Poll with backoff until a terminal status. Download successful
    clips to `generated/{shot_id}/v{take}.mp4` or
    `generated/{shot_id}/{subclip_id}_v{take}.mp4`. Do not mark a job complete until this
@@ -214,7 +218,13 @@ identity, frame anchors, duration, aspect ratio, output resolution, or recoverab
 15. **Resume safely.** On rerun, skip completed rows with a local output path unless the
    user requests a retake.
 16. **Write assembly order.** Update `generated/assembly_order.md` with selected takes
-    and sub-clip order for final editing.
+    and sub-clip order for final editing. Use project-root-relative selected clip paths,
+    never provider URLs. Keep `Boundary after` aligned with the manifest transition or
+    clip-boundary metadata.
+17. **Package editor handoff when requested.** After all required selected takes have
+    local files, completed statuses, accepted review states, and duration metadata, run
+    `tools/media-project` with `media-project package-openshot`. Do not run it for
+    blocked, missing, or unreviewed required shots.
 
 ## Reference Image Discipline
 

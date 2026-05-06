@@ -162,10 +162,12 @@ existing skill chain.
 - [x] (2026-05-06 01:18Z) Add the CLI, Markdown table parser, deterministic
   OpenShot project writer, sidecar writer, unit tests, pytest-bdd behavioural
   test, and syrupy snapshot test.
-- [ ] Add user-facing documentation for the CLI.
-- [ ] Update upstream skills so agents emit media-project creative metadata.
-- [ ] Validate the generated OpenShot project with deterministic tests and a
-  manual OpenShot smoke test where available.
+- [x] (2026-05-06 01:27Z) Add user-facing documentation for the CLI.
+- [x] (2026-05-06 01:27Z) Update upstream skills so agents emit media-project
+  creative metadata.
+- [x] (2026-05-06 01:27Z) Validate the generated OpenShot project with
+  deterministic tests.
+- [ ] Run or explicitly waive the manual OpenShot smoke test.
 
 ## Surprises & Discoveries
 
@@ -233,6 +235,13 @@ existing skill chain.
   Impact: `dissolve` remains metadata-only in this commit. Applying OpenShot
   effects should wait for a real OpenShot smoke test or known-good `.osp`
   transition fixture.
+
+- Observation: The implementation has unit, behavioural, and snapshot coverage
+  in the generated tool package.
+  Evidence: `make test` under `tools/media-project` ran seven tests, including
+  pytest-bdd and syrupy coverage, and passed.
+  Impact: Deterministic structure and validation behaviour are covered, but the
+  manual OpenShot GUI import check remains pending.
 
 ## Decision Log
 
@@ -306,12 +315,22 @@ existing skill chain.
 
 ## Outcomes & Retrospective
 
-No implementation has been performed yet. This plan is a draft awaiting user
-approval. The most important lesson from the research phase is that the
-installed native OpenShot development libraries are not sufficient evidence
-that Python libopenshot calls will work from this repository's tool. The first
-usable milestone should therefore package OpenShot project JSON directly and
-validate its shape carefully.
+The first usable milestone now exists under `tools/media-project`. It provides
+a Cyclopts CLI named `media-project package-openshot`, parses
+`generated/assembly_order.md` and `generated/generation_log.md`, validates
+selected local clips, review state, generation status, and duration metadata,
+and writes deterministic `.osp` and sidecar JSON files. The tool refuses to
+overwrite existing outputs unless `--force` is provided.
+
+The upstream `shot-specifier` and `video-generator` skill documents now name
+the metadata that the packager needs: ordered selected clip paths, duration
+seconds, transition type and duration, review state, generated-audio mute
+intent, forced-audio state, scene ID, prompt file, and continuity flags.
+
+The main remaining acceptance gap is manual OpenShot import. The implementation
+intentionally preserves `dissolve` as editable metadata instead of inventing an
+effect JSON structure before a known-good OpenShot fixture or smoke test proves
+that structure.
 
 ## Context and orientation
 
