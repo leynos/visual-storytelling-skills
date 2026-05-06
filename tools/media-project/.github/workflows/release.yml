@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 
 jobs:
@@ -32,6 +32,8 @@ jobs:
     # builds are unnecessary. Only the pure Python wheel is published.
     needs:
       - pure-wheel
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -44,6 +46,10 @@ jobs:
       - name: Upload wheels to release
         run: |
           set -eu
+          if ! find dist/wheels-* -type f -name "*.whl" | grep -q .; then
+            echo "No wheel files found"
+            exit 1
+          fi
           find dist/wheels-* -type f -name "*.whl" -print0 | \
             xargs -0 -r gh release upload "${{ github.ref_name }}"
         env:
