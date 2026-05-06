@@ -1,0 +1,4 @@
+interface:
+  display_name: "Media Project"
+  short_description: "Package video outputs for OpenShot"
+  default_prompt: "Use $media-project to package selected generated clips into a playable OpenShot handoff."
