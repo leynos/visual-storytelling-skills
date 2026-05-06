@@ -182,7 +182,7 @@ weather / condition} has changed."
 | **Recurring visual element** (object, fixture, interface, machinery, furniture layout, or set dressing that appears in more than two shots and would be noticed if it changed) | Locked primary reference, usually in-context; generate before any location or shot frame where it appears |
 | **Background** (visible but not foregrounded and not recurring) | None (location reference covers it) |
 
-Recurring visual elements are not optional background. If the audience recognizes a
+Recurring visual elements are not optional background. If the audience will recognize a
 monitor-bank layout, inspection robot, grow-light strip arrangement, cargo pod, cabinet,
 signage cluster, or workstation layout when it returns, give it its own locked reference
 and pass that reference whenever visible.
