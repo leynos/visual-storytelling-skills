@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/pure-python-wheel
         with:
-          python-version: '3.13'
+          python-version: '3.14'
           artifact-name: wheels-pure
 
   release:

@@ -171,6 +171,8 @@ existing skill chain.
   extension fallback, and related test affordances.
 - [x] (2026-05-06 07:06Z) Fix OpenShot asset paths so `.osp` file entries are
   relative to the saved project file directory.
+- [x] (2026-05-06 07:09Z) Align generated CI and release workflow Python
+  versions with the package's Python 3.14 minimum.
 - [ ] Run or explicitly waive the manual OpenShot smoke test.
 
 ## Surprises & Discoveries
@@ -265,6 +267,15 @@ existing skill chain.
   Impact: The writer now emits `.osp` asset paths relative to
   `request.output.parent`, such as `../clips/s01_sh001_take2.mp4`, while the
   sidecar keeps the original project-root-relative selected clip path.
+
+- Observation: The generated CI and release workflows still requested Python
+  3.13 even though the tool declares `requires-python = ">=3.14"`.
+  Evidence: `tools/media-project/.github/workflows/ci.yml` and
+  `tools/media-project/.github/workflows/release.yml` both passed
+  `python-version: '3.13'` before `uv sync --group dev` or the pure-wheel
+  build.
+  Impact: CI would fail before linting or tests. Both workflow call sites now
+  request Python 3.14.
 
 ## Decision Log
 
