@@ -346,8 +346,7 @@ tool tests rather than relying on real generated videos.
 
 ## Concrete steps
 
-From `/data/leynos/Projects/visual-storytelling-skills`, bootstrap after the
-plan is approved:
+From the repository root, bootstrap after the plan is approved:
 
 ```bash
 copier copy ../agent-template-python tools/media-project \
