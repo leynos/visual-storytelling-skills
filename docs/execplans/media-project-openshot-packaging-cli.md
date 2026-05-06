@@ -157,7 +157,8 @@ existing skill chain.
 - [x] (2026-05-06 00:46Z) Start approved implementation on branch
   `media-project-openshot-packaging-cli`.
 - [x] (2026-05-06 00:46Z) Bootstrap `tools/media-project` with Copier.
-- [ ] Resolve scaffold-size tolerance exception before further implementation.
+- [x] (2026-05-06 00:52Z) Resolve scaffold-size tolerance exception with
+  explicit user direction to continue in this branch.
 - [ ] Add the CLI, parser, project writer, tests, and docs.
 - [ ] Update upstream skills so agents emit media-project creative metadata.
 - [ ] Validate the generated OpenShot project with deterministic tests and a
@@ -255,6 +256,15 @@ existing skill chain.
   available options are to approve continuing with the full generated scaffold
   in one implementation branch, or to split the work into a scaffold-only commit
   followed by functional implementation commits.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Continue in this branch with the full generated scaffold already
+  committed, then implement the CLI, tests, and docs in subsequent gated
+  commits.
+  Rationale: The user explicitly selected this option after the scaffold-size
+  exception was reported. The scaffold remains isolated under
+  `tools/media-project`, and subsequent changes can still be kept atomic and
+  gated.
   Date/Author: 2026-05-06, Codex.
 
 ## Outcomes & Retrospective
