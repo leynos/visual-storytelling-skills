@@ -216,6 +216,9 @@ def test_openshot_project_uses_full_reader_and_keyframe_shapes(
     assert first_clip["scale"] == 1
     assert first_clip["layer"] == 1_000_000
     assert project["layers"][0]["number"] == 1_000_000
+    assert project["version"] == {"libopenshot": "0.4.0", "openshot-qt": "3.3.0"}
+    assert project["fps"] == {"den": 1, "num": 24}
+    assert project["profile"] == "HD 1080p 24 fps"
     assert first_clip["alpha"]["Points"][0]["co"] == {"X": 1.0, "Y": 1.0}
     assert first_clip["volume"]["Points"][0]["co"] == {"X": 1.0, "Y": 0.0}
     assert project["width"] == 1920

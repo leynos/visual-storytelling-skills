@@ -27,6 +27,8 @@ DEFAULT_CHANNEL_LAYOUT = 3
 DEFAULT_TRACK_LAYER = 1_000_000
 OPENSHOT_GRAVITY_CENTER = 4
 OPENSHOT_SCALE_BEST_FIT = 1
+OPENSHOT_QT_PROJECT_VERSION = "3.3.0"
+LIBOPENSHOT_PROJECT_VERSION = "0.4.0"
 PIXEL_FORMATS = {
     "yuv420p": 0,
 }
@@ -446,11 +448,21 @@ def _openshot_project(
         "channels": request.settings.channels,
         "channel_layout": request.settings.channel_layout,
         "clips": list(itertools.starmap(_openshot_clip, enumerate(clips, 1))),
+        "display_ratio": {"den": 9, "num": 16},
+        "duration": _json_number(
+            sum((clip.duration_seconds for clip in clips), decimal.Decimal(0))
+        ),
         "effects": [],
+        "export_settings": None,
         "exports": [],
         "files": list(itertools.starmap(_openshot_file, enumerate(clips, 1))),
+        "fps": {
+            "den": request.settings.fps_den,
+            "num": request.settings.fps_num,
+        },
         "fps_den": request.settings.fps_den,
         "fps_num": request.settings.fps_num,
+        "history": {"redo": [], "undo": []},
         "height": request.settings.height,
         "id": project_id,
         "layers": [_openshot_layer()],
@@ -462,13 +474,24 @@ def _openshot_project(
             "source_generation_log": request.generation_log.as_posix(),
             "source_manifest": _optional_path(request.source_manifest),
         },
+        "pixel_ratio": {"den": 1, "num": 1},
+        "playhead_position": 0,
+        "profile": _profile_name(request.settings),
+        "progress": [],
         "sample_rate": request.settings.sample_rate,
+        "scale": 15.0,
+        "settings": {},
+        "tick_pixels": 100,
         "version": {
-            "format": "openshot-json",
-            "media_project": "0.1.0",
+            "libopenshot": LIBOPENSHOT_PROJECT_VERSION,
+            "openshot-qt": OPENSHOT_QT_PROJECT_VERSION,
         },
         "width": request.settings.width,
     }
+
+
+def _profile_name(settings: ProjectSettings) -> str:
+    return f"HD {settings.height}p {settings.fps_num} fps"
 
 
 def _openshot_file(index: int, clip: TimelineClip) -> dict[str, JsonValue]:

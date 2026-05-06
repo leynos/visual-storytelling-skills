@@ -194,9 +194,14 @@ continue to hard stop.
 - [x] (2026-05-06T21:33Z) Updated `tools/media-project` user documentation for
   `ffprobe`, full reader metadata, probed durations, and `1920x1080` defaults.
 - [x] (2026-05-06T21:33Z) Ran focused and full tool gates with `tee` logs.
-- [x] (2026-05-06T21:33Z) Checked for a local OpenShot executable and recorded
-  that the manual smoke test could not be run because `openshot-qt` and
-  `openshot` are not installed in this environment.
+- [x] (2026-05-06T21:33Z) Initially checked for a local OpenShot executable and
+  recorded that the manual smoke test could not be run because `openshot-qt`
+  and `openshot` were not installed in this environment.
+- [x] (2026-05-06T22:41Z) Re-ran the OpenShot smoke test after `openshot-qt`
+  was installed, found and fixed the missing OpenShot version schema, verified
+  generated reader/clip JSON through libopenshot frame decode, and confirmed
+  `openshot-qt` loads the generated smoke `.osp` under Xvfb without a project
+  open exception.
 
 ## Surprises & Discoveries
 
@@ -257,10 +262,26 @@ continue to hard stop.
   Impact: Keep the broad snapshot focused on stable timeline and sidecar
   summaries, and cover full OpenShot property shape with targeted assertions.
 
-- Observation: No OpenShot executable is installed in this environment.
-  Evidence: `command -v openshot-qt || command -v openshot` returned no path.
-  Impact: The manual OpenShot smoke test remains unrun here; the final report
-  must state this clearly and include the automated evidence instead.
+- Observation: After `openshot-qt` was installed, OpenShot 3.3.0 rejected the
+  first generated smoke project because `version.openshot-qt` was missing.
+  Evidence: `openshot-qt --debug-console
+  /tmp/media-project-openshot-smoke/generated/media-project/smoke.osp` logged
+  `KeyError: 'openshot-qt'` in
+  `classes/project_data.py:upgrade_project_data_structures`.
+  Impact: The generated top-level project schema must include the OpenShot
+  version keys and adjacent default project fields that OpenShot expects when
+  loading v2/v3 project JSON.
+
+- Observation: With OpenShot version metadata added, the generated real-media
+  smoke project loads under `openshot-qt` in Xvfb.
+  Evidence: `/tmp/openshot-qt-smoke-media-project-skill.out` shows
+  `OpenShot (version 3.3.0)`, `libopenshot version: 0.4.0`, `Loading project
+  file: /tmp/media-project-openshot-smoke/generated/media-project/smoke.osp`,
+  `Project data: openshot 3.3.0, libopenshot 0.4.0`, and no `Couldn't open
+  project` error before the deliberate `timeout` ended the headless GUI launch.
+  Impact: The prior "not installed" limitation is resolved for load testing,
+  although there is still no interactive display in this shell for manually
+  pressing play.
 
 ## Decision Log
 
@@ -296,6 +317,14 @@ continue to hard stop.
   Rationale: The exact full `.osp` remains generated and tested, but storing
   every curve in a snapshot obscures behaviour changes and risks breaching the
   plan's change-size tolerance.
+
+- Decision: Include OpenShot project `version` fields and default top-level
+  project UI/profile fields in generated `.osp` files.
+  Rationale: OpenShot's loader indexes `version.openshot-qt` and
+  `version.libopenshot` during project upgrades, and the installed OpenShot
+  default project contains adjacent top-level fields such as `fps`,
+  `display_ratio`, `pixel_ratio`, `settings`, `profile`, `history`, and
+  `progress`.
 
 ## Implementation plan
 
@@ -389,6 +418,11 @@ each selected clip, writes full `FFmpegReader` metadata in `files[]` and
 `gravity: 4` and `scale: 1`, writes OpenShot keyframe curve objects for clip
 properties, and defaults new projects to `1920x1080`.
 
+The installed OpenShot smoke test found one additional schema requirement:
+OpenShot 3.3.0 expects `version.openshot-qt` and `version.libopenshot` during
+project upgrades. The generated `.osp` now includes those keys plus the
+OpenShot default top-level project fields needed for v2/v3 project loading.
+
 Validation completed on 2026-05-06:
 
 - `make check-fmt` passed with log
@@ -406,5 +440,19 @@ Validation completed on 2026-05-06:
   tools/media-project/docs/users-guide.md` passed with log
   `/tmp/nixie-media-project-visual-storytelling-skills-media-project-skill.out`.
 
-The manual OpenShot smoke test was not run because neither `openshot-qt` nor
-`openshot` is installed in this environment.
+Additional OpenShot smoke validation after `openshot-qt` installation:
+
+- Generated a scratch project at `/tmp/media-project-openshot-smoke` using real
+  strawberries-of-lewis media copied into the scratch project root.
+- `jq` verified the generated project contains `FFmpegReader` file and clip
+  reader entries, `gravity: 4`, `scale: 1`, layer `1000000`, version
+  `openshot-qt: 3.3.0`, and version `libopenshot: 0.4.0`.
+- `/tmp/libopenshot-json-smoke-media-project-skill.out` shows the generated
+  reader JSON and clip JSON opened through libopenshot and decoded frame 1 at
+  `1284x716`.
+- `/tmp/openshot-qt-smoke-media-project-skill.out` shows OpenShot 3.3.0 loading
+  `/tmp/media-project-openshot-smoke/generated/media-project/smoke.osp` under
+  Xvfb without the previous project-open exception. The command ended with
+  `openshot-qt-status=124` because `timeout 20s` deliberately stopped the
+  headless GUI process after load. There is still no interactive display in
+  this shell, so the play button was not manually pressed.
