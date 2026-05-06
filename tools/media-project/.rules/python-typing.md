@@ -114,12 +114,16 @@ Allow generic classes/functions to fall back to default types when no specific
 type is provided.
 
 ```python
+import typing
+
 T = typing.TypeVar("T", default=int)
 
 class Box[T]:
-    def __init__(self, value: T | None = None):
-        # Fallback to the TypeVar default (int in this example)
-        self.value: T = value if value is not None else int()  # type: ignore[arg-type]
+    def __init__(self, value: T):
+        self.value: T = value
+
+default_box = Box(0)  # inferred Box[int]
+text_box = Box[str]("hello")
 ```
 
 This makes APIs more ergonomic while retaining type safety.
@@ -154,7 +158,7 @@ support.
 type StrDict = dict[str, str]
 ```
 
-This replaces `StrDict = TypeAlias = ...` and is preferred in modern Python.
+This replaces `StrDict: TypeAlias = ...` and is preferred in modern Python.
 
 When compatibility with Python < 3.12 is required, keep the older
 `typing.TypeAlias` syntax and add `# noqa: UP040` so `ruff` does not flag it.

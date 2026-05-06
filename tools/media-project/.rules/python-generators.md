@@ -62,7 +62,7 @@ def top_active_emails(users):
 ## Use Generators When
 
 - Iterate and filter/map data.
-- You want to make early returns or short-circuit behaviour clearer.
+- Make early returns or short-circuit behaviour clearer.
 - The function logically produces a sequence over time.
 
 ## Avoid Overcomplicating

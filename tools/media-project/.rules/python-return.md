@@ -57,7 +57,8 @@ def func(x):
     return -1
 ```
 
-Don't rely on implicit `None`—always return something at the end.
+In functions that sometimes return a non-`None` value, avoid relying on an
+implicit `None`; ensure all branches return an explicit value.
 
 ______________________________________________________________________
 
