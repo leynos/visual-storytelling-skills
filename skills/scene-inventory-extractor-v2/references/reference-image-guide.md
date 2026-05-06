@@ -221,7 +221,7 @@ No text, no watermarks, no logos, no labels, no annotations.
 No text, no watermarks, no logos, no labels, no annotations.
 ```
 
-### Shot Frame Prompts (Phase 11)
+### Shot Frame Prompts (Phase 12)
 
 **Start frame:**
 
