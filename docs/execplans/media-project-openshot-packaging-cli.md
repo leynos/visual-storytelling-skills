@@ -173,6 +173,9 @@ existing skill chain.
   relative to the saved project file directory.
 - [x] (2026-05-06 07:09Z) Align generated CI and release workflow Python
   versions with the package's Python 3.14 minimum.
+- [x] (2026-05-06 07:14Z) Apply verified review follow-ups for pinned actions,
+  Dependabot placement, workflow integrity checks, documentation wording,
+  Makefile targets, package metadata, and OpenShot metadata validation.
 - [ ] Run or explicitly waive the manual OpenShot smoke test.
 
 ## Surprises & Discoveries
@@ -276,6 +279,18 @@ existing skill chain.
   build.
   Impact: CI would fail before linting or tests. Both workflow call sites now
   request Python 3.14.
+
+- Observation: Several generated-template affordances and workflow defaults did
+  not match this repository's hardening conventions.
+  Evidence: Follow-up verification found floating action tags in composite
+  actions and coverage upload, root-level Dependabot configuration under the
+  tool directory, a `curl | bash` CodeScene installer path, an unnecessary
+  release-job checkout, malformed generated documentation snippets, and
+  insufficient validation for duplicate generation log rows and selected clip
+  paths that escape the project root.
+  Impact: The still-valid findings were patched minimally. The `build-wheels`
+  action's `upload-artifact@v4` was left unchanged because that inline comment
+  only requested pinning `actions/checkout` and `actions/setup-python`.
 
 ## Decision Log
 

@@ -159,7 +159,7 @@ This replaces `StrDict = TypeAlias = ...` and is preferred in modern Python.
 When compatibility with Python < 3.12 is required, keep the older
 `typing.TypeAlias` syntax and add `# noqa: UP040` so `ruff` does not flag it.
 Place alias definitions after the import block and group shared aliases in
-`bournemouth.types` to avoid duplication.
+`media_project.types` to avoid duplication.
 
 ## `from __future__ import annotations`
 

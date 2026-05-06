@@ -19,7 +19,7 @@ build: uv .venv ## Build virtual-env and install deps
 	$(UV_ENV) uv sync --group dev
 
 build-release: ## Build artefacts (sdist & wheel)
-	python -m build --sdist --wheel
+	uv build
 
 clean: ## Remove build artifacts
 	rm -rf build dist *.egg-info \
@@ -80,5 +80,5 @@ test: build uv $(VENV_TOOLS) ## Run tests
 	$(UV_ENV) uv run pytest -v -n auto
 
 help: ## Show available targets
-	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS=":"; printf "Available targets:\n"} {printf "  %-20s %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9._-]+:.*##' $(MAKEFILE_LIST) | \
+	awk 'BEGIN {FS="##"; printf "Available targets:\n"} {sub(/:.*$$/, "", $$1); printf "  %-20s %s\n", $$1, $$2}'

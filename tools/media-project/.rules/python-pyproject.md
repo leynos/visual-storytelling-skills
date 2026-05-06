@@ -228,7 +228,7 @@ package = true
      Reddit[^5])
    - `description`, `readme`, `requires-python`: provide clarity about the
      project and help tools like PyPI. (Python Packaging[^4], Reddit[^5])
-   - `license`, `authors`, `keywords`, `classifiers`: standardised metadata,
+   - `license`, `authors`, `keywords`, `classifiers`: standardized metadata,
      which improves discoverability. (Python Packaging[^4], Reddit[^5])
    - `dependencies`: runtime requirements, expressed in PEP 508 syntax.
      (Astral Docs[^1], RidgeRun.ai[^2])

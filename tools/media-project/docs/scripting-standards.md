@@ -1,6 +1,6 @@
 # Scripting standards
 
-Project scripts must prioritise clarity, reproducibility, and testability. The
+Project scripts must prioritize clarity, reproducibility, and testability. The
 baseline tooling is Python and the [`uv`](https://github.com/astral-sh/uv)
 launcher so that scripts remain dependency‑self‑contained and easy to execute
 in Continuous Integration (CI) or locally.
@@ -166,7 +166,7 @@ Guidance:
 ### Basics: command calls, capturing output, handling failures
 
 ```python
-from __future__ annotations
+from __future__ import annotations
 from plumbum import local
 from plumbum.cmd import git, grep
 

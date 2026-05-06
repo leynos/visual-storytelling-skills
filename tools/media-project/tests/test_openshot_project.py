@@ -64,6 +64,40 @@ def test_unaccepted_review_state_fails(tmp_path: pathlib.Path) -> None:
         package_openshot_project(_request(tmp_path))
 
 
+def test_duplicate_generation_log_rows_fail(tmp_path: pathlib.Path) -> None:
+    """A selected clip must bind to exactly one generation log row."""
+    create_story_project(tmp_path)
+    log_path = tmp_path / "generated" / "generation_log.md"
+    lines = log_path.read_text(encoding="utf-8").splitlines()
+    lines.append(next(line for line in lines if line.startswith("| S01_SH001 |")))
+    log_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        InputValidationError,
+        match=(
+            r"Multiple generation log rows match shot S01_SH001 "
+            r"sub-clip A clip generated/clips/s01_sh001_take2.mp4\."
+        ),
+    ):
+        package_openshot_project(_request(tmp_path))
+
+
+def test_selected_clip_parent_traversal_fails(tmp_path: pathlib.Path) -> None:
+    """Selected clip metadata cannot point outside the project root."""
+    create_story_project(tmp_path)
+    _replace_in_generated_tables(
+        tmp_path,
+        "generated/clips/s01_sh001_take2.mp4",
+        "../outside.mp4",
+    )
+
+    with pytest.raises(
+        InputValidationError,
+        match=r"Selected clip path for shot S01_SH001 must stay inside the project",
+    ):
+        package_openshot_project(_request(tmp_path))
+
+
 def test_output_requires_force_to_overwrite(tmp_path: pathlib.Path) -> None:
     """The packaging command does not overwrite existing outputs by default."""
     create_story_project(tmp_path)
@@ -112,6 +146,21 @@ def test_openshot_asset_paths_are_relative_to_project_file(
         "../clips/s01_sh002_take1.mp4",
         "../clips/s01_sh003_take3.mp4",
     ]
+
+
+def _replace_in_generated_tables(
+    root: pathlib.Path,
+    old_value: str,
+    new_value: str,
+) -> None:
+    for path in (
+        root / "generated" / "assembly_order.md",
+        root / "generated" / "generation_log.md",
+    ):
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(old_value, new_value),
+            encoding="utf-8",
+        )
 
 
 def _request(root: pathlib.Path) -> PackageRequest:

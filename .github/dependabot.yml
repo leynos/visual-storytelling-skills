@@ -12,7 +12,7 @@ updates:
 
   # Enable version updates for Python (pip / requirements*.txt)
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/tools/media-project"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"

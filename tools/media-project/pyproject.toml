@@ -5,6 +5,9 @@ description = "media-project package"
 readme = "README.md"
 requires-python = ">=3.14"
 license = { text = "ISC" }
+authors = [
+    { name = "Payton McIntosh", email = "pmcintosh@df12.net" },
+]
 dependencies = [
     "cyclopts>=4.11.2",
     "markdown>=3.10.2",

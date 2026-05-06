@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import subprocess  # noqa: S404
+import subprocess  # noqa: S404 - test invokes a trusted local Python module.
 import sys
 import typing as typ
 
@@ -46,7 +46,7 @@ def run_packaging_command(completed_generated_media_project: pathlib.Path) -> No
         "--project-name",
         "bdd-story",
     ]
-    subprocess.run(command, check=True)  # noqa: S603
+    subprocess.run(command, check=True)  # noqa: S603 - command is fixed and test-controlled.
 
 
 @then("an OpenShot project and sidecar are written in timeline order")

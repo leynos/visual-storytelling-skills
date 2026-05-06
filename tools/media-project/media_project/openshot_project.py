@@ -161,6 +161,12 @@ def _matching_generation_row(
     if not matches:
         msg = f"No generation log row matches shot {shot_id} clip {selected_clip}."
         raise InputValidationError(msg)
+    if len(matches) > 1:
+        msg = (
+            f"Multiple generation log rows match shot {shot_id} "
+            f"sub-clip {subclip_id} clip {selected_clip}."
+        )
+        raise InputValidationError(msg)
     return matches[0]
 
 
@@ -172,7 +178,21 @@ def _timeline_clip(
 ) -> TimelineClip:
     shot_id = _required(assembly_row, "shot_id")
     selected_clip = pathlib.Path(_required(assembly_row, "selected_clip"))
-    source_clip_path = request.project_root / selected_clip
+    if selected_clip.is_absolute() or ".." in selected_clip.parts:
+        msg = (
+            f"Selected clip path for shot {shot_id} must stay inside the "
+            f"project: {selected_clip}"
+        )
+        raise InputValidationError(msg)
+
+    project_root_resolved = request.project_root.resolve()
+    source_clip_path = (request.project_root / selected_clip).resolve()
+    if project_root_resolved not in source_clip_path.parents:
+        msg = (
+            f"Selected clip path for shot {shot_id} escapes the project root: "
+            f"{selected_clip}"
+        )
+        raise InputValidationError(msg)
     if not source_clip_path.exists():
         msg = f"Missing media for shot {shot_id}: {selected_clip}"
         raise InputValidationError(msg)
@@ -427,10 +447,10 @@ def _bool_value(value: str) -> bool:
 
 
 def _split_values(value: str) -> list[str]:
-    return [item.strip() for item in re_split_commas(value) if item.strip()]
+    return [item.strip() for item in _split_commas(value) if item.strip()]
 
 
-def re_split_commas(value: str) -> list[str]:
+def _split_commas(value: str) -> list[str]:
     """Split comma and semicolon separated metadata values."""
     return value.replace(";", ",").split(",")
 
