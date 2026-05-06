@@ -6,6 +6,7 @@ import dataclasses as dc
 import decimal
 import hashlib
 import itertools
+import os
 import pathlib
 import typing as typ
 
@@ -72,6 +73,7 @@ class TimelineClip:
     subclip_id: str
     order_index: int
     source_clip_path: pathlib.Path
+    source_clip_project_path: pathlib.PurePosixPath
     project_clip_path: pathlib.PurePosixPath
     take_id: str
     duration_seconds: decimal.Decimal
@@ -192,7 +194,8 @@ def _timeline_clip(
         subclip_id=_required(assembly_row, "sub_clip"),
         order_index=_order_value(assembly_row),
         source_clip_path=source_clip_path,
-        project_clip_path=pathlib.PurePosixPath(selected_clip.as_posix()),
+        source_clip_project_path=pathlib.PurePosixPath(selected_clip.as_posix()),
+        project_clip_path=_path_relative_to_output(source_clip_path, request.output),
         take_id=log_row.get("take", ""),
         duration_seconds=duration_seconds,
         position_seconds=position,
@@ -324,7 +327,7 @@ def _sidecar_clip(clip: TimelineClip) -> dict[str, JsonValue]:
             "review_state": clip.review_state,
             "scene_id": clip.scene_id,
             "shot_id": clip.shot_id,
-            "source_clip_path": clip.project_clip_path.as_posix(),
+            "source_clip_path": clip.source_clip_project_path.as_posix(),
             "start_frame_path": "",
             "subclip_id": clip.subclip_id,
             "take_id": clip.take_id,
@@ -394,6 +397,14 @@ def _same_clip(log_clip: str, selected_clip: str) -> bool:
     )
 
 
+def _path_relative_to_output(
+    source_clip_path: pathlib.Path,
+    output_path: pathlib.Path,
+) -> pathlib.PurePosixPath:
+    relative_path = os.path.relpath(source_clip_path, output_path.parent)
+    return pathlib.PurePosixPath(pathlib.Path(relative_path).as_posix())
+
+
 def _normalise_state(value: str) -> str:
     return value.strip().lower().replace(" ", "_").replace("-", "_")
 
@@ -433,7 +444,7 @@ def _project_id(project_name: str, clips: list[TimelineClip]) -> str:
     digest.update(project_name.encode())
     for clip in clips:
         digest.update(clip.shot_id.encode())
-        digest.update(clip.project_clip_path.as_posix().encode())
+        digest.update(clip.source_clip_project_path.as_posix().encode())
     return digest.hexdigest()[:16]
 
 

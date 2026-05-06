@@ -92,6 +92,28 @@ def test_project_and_sidecar_json_match_snapshot(
     assert payload == snapshot
 
 
+def test_openshot_asset_paths_are_relative_to_project_file(
+    tmp_path: pathlib.Path,
+) -> None:
+    """OpenShot asset paths are relative to the saved .osp location."""
+    create_story_project(tmp_path)
+    request = _request(tmp_path)
+
+    package_openshot_project(request)
+
+    project = msjson.decode(request.output.read_bytes())
+    assert [file_entry["path"] for file_entry in project["files"]] == [
+        "../clips/s01_sh001_take2.mp4",
+        "../clips/s01_sh002_take1.mp4",
+        "../clips/s01_sh003_take3.mp4",
+    ]
+    assert [clip["filepath"] for clip in project["clips"]] == [
+        "../clips/s01_sh001_take2.mp4",
+        "../clips/s01_sh002_take1.mp4",
+        "../clips/s01_sh003_take3.mp4",
+    ]
+
+
 def _request(root: pathlib.Path) -> PackageRequest:
     return PackageRequest(
         project_root=root,

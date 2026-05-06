@@ -169,6 +169,8 @@ existing skill chain.
   deterministic tests.
 - [x] (2026-05-06 01:09Z) Remove Copier placeholder greeting, nonexistent Rust
   extension fallback, and related test affordances.
+- [x] (2026-05-06 07:06Z) Fix OpenShot asset paths so `.osp` file entries are
+  relative to the saved project file directory.
 - [ ] Run or explicitly waive the manual OpenShot smoke test.
 
 ## Surprises & Discoveries
@@ -253,6 +255,16 @@ existing skill chain.
   `media_project/pure.py`, and `tests/test_pure.py`.
   Impact: These placeholders served no application purpose and have been
   removed so the package surface reflects the actual OpenShot packaging tool.
+
+- Observation: The first writer stored project-root-relative clip paths in the
+  `.osp`, which is wrong when the default project file is saved under
+  `generated/media-project/`.
+  Evidence: The snapshot had file and clip paths such as
+  `generated/clips/s01_sh001_take2.mp4`, which OpenShot would resolve beneath
+  `generated/media-project/`.
+  Impact: The writer now emits `.osp` asset paths relative to
+  `request.output.parent`, such as `../clips/s01_sh001_take2.mp4`, while the
+  sidecar keeps the original project-root-relative selected clip path.
 
 ## Decision Log
 
