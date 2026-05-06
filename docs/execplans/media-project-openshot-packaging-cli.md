@@ -5,7 +5,7 @@ This ExecPlan (execution plan) is a living document. The sections
 `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work
 proceeds.
 
-Status: DRAFT
+Status: IN PROGRESS
 
 ## Purpose / big picture
 
@@ -154,11 +154,29 @@ existing skill chain.
 - [x] (2026-05-06 00:18Z) Draft this implementation plan.
 - [x] (2026-05-06 00:44Z) Update the plan with approved dependencies and
   Python 3.14 as the minimum runtime.
-- [ ] Bootstrap `tools/media-project` with Copier after user approval.
-- [ ] Add the CLI, parser, project writer, tests, and docs.
-- [ ] Update upstream skills so agents emit media-project creative metadata.
-- [ ] Validate the generated OpenShot project with deterministic tests and a
-  manual OpenShot smoke test where available.
+- [x] (2026-05-06 00:46Z) Start approved implementation on branch
+  `media-project-openshot-packaging-cli`.
+- [x] (2026-05-06 00:46Z) Bootstrap `tools/media-project` with Copier.
+- [x] (2026-05-06 00:52Z) Resolve scaffold-size tolerance exception with
+  explicit user direction to continue in this branch.
+- [x] (2026-05-06 01:18Z) Add the CLI, Markdown table parser, deterministic
+  OpenShot project writer, sidecar writer, unit tests, pytest-bdd behavioural
+  test, and syrupy snapshot test.
+- [x] (2026-05-06 01:27Z) Add user-facing documentation for the CLI.
+- [x] (2026-05-06 01:27Z) Update upstream skills so agents emit media-project
+  creative metadata.
+- [x] (2026-05-06 01:27Z) Validate the generated OpenShot project with
+  deterministic tests.
+- [x] (2026-05-06 01:09Z) Remove Copier placeholder greeting, nonexistent Rust
+  extension fallback, and related test affordances.
+- [x] (2026-05-06 07:06Z) Fix OpenShot asset paths so `.osp` file entries are
+  relative to the saved project file directory.
+- [x] (2026-05-06 07:09Z) Align generated CI and release workflow Python
+  versions with the package's Python 3.14 minimum.
+- [x] (2026-05-06 07:14Z) Apply verified review follow-ups for pinned actions,
+  Dependabot placement, workflow integrity checks, documentation wording,
+  Makefile targets, package metadata, and OpenShot metadata validation.
+- [ ] Run or explicitly waive the manual OpenShot smoke test.
 
 ## Surprises & Discoveries
 
@@ -183,7 +201,9 @@ existing skill chain.
   `{{ package_name }}/__init__.py.jinja` and `{{ package_name }}/pure.py` under
   the template package.
   Impact: The implementation must add `cli.py` manually after bootstrapping and
-  update the generated `pyproject.toml` with a console script entry point.
+  update the generated `pyproject.toml` with a console script entry point. The
+  template's `pure.py` greeting placeholder is not part of this application and
+  must not remain in the final tool.
 
 - Observation: OpenShot's user guide describes an "Add to Timeline" flow that
   supports ordering selected files, timeline position, fade options, zoom
@@ -193,6 +213,84 @@ existing skill chain.
   Impact: The CLI metadata should map to comparable concepts: ordered selected
   clips, start time, track/layer, transition type, transition duration, and
   fade/overlap policy.
+
+- Observation: GrepAI is available, but the `Projects` workspace does not list
+  this repository.
+  Evidence: `grepai workspace status Projects` lists other projects but not
+  `/data/leynos/Projects/visual-storytelling-skills`.
+  Impact: Implementation search in this repository must use `leta` for symbols
+  and tightly scoped exact-file inspection until the repository is indexed.
+
+- Observation: The required Copier bootstrap generated 26 files under
+  `tools/media-project`, while remaining confined to that directory.
+  Evidence: `find tools/media-project -type f | wc -l` returned `26`, and
+  `git status --short` showed only `?? tools/`.
+  Impact: This exceeds the plan's 12 tracked-file tolerance before functional
+  implementation begins, so the tolerance requires explicit direction before
+  continuing.
+
+- Observation: Python-Markdown with the `tables` extension can parse the
+  repository's existing Markdown table templates once the tables are emitted at
+  top level without code-block indentation.
+  Evidence: `UV_CACHE_DIR=.uv-cache UV_TOOL_DIR=.uv-tools uv run pytest -v
+  --snapshot-update` generated a syrupy snapshot after the fixture writer was
+  corrected to emit top-level Markdown tables.
+  Impact: The first CLI implementation uses `Markdown` as the single Markdown
+  runtime dependency and avoids a second Markdown parser.
+
+- Observation: The deterministic writer can preserve `dissolve` intent in clip
+  metadata and sidecar metadata, but there is not yet an OpenShot smoke test
+  proving a direct `.osp` dissolve effect shape.
+  Evidence: The snapshot covers `transition_after`, `transition_type`, and
+  `transition_duration`, but no OpenShot GUI import has been run in this turn.
+  Impact: `dissolve` remains metadata-only in this commit. Applying OpenShot
+  effects should wait for a real OpenShot smoke test or known-good `.osp`
+  transition fixture.
+
+- Observation: The implementation has unit, behavioural, and snapshot coverage
+  in the generated tool package.
+  Evidence: `make test` under `tools/media-project` ran seven tests, including
+  pytest-bdd and syrupy coverage, and passed.
+  Impact: Deterministic structure and validation behaviour are covered, but the
+  manual OpenShot GUI import check remains pending.
+
+- Observation: The Copier placeholder greeting and optional Rust-extension
+  fallback were still present after the real CLI implementation landed.
+  Evidence: `leta refs hello` found only `media_project/__init__.py`,
+  `media_project/pure.py`, and `tests/test_pure.py`.
+  Impact: These placeholders served no application purpose and have been
+  removed so the package surface reflects the actual OpenShot packaging tool.
+
+- Observation: The first writer stored project-root-relative clip paths in the
+  `.osp`, which is wrong when the default project file is saved under
+  `generated/media-project/`.
+  Evidence: The snapshot had file and clip paths such as
+  `generated/clips/s01_sh001_take2.mp4`, which OpenShot would resolve beneath
+  `generated/media-project/`.
+  Impact: The writer now emits `.osp` asset paths relative to
+  `request.output.parent`, such as `../clips/s01_sh001_take2.mp4`, while the
+  sidecar keeps the original project-root-relative selected clip path.
+
+- Observation: The generated CI and release workflows still requested Python
+  3.13 even though the tool declares `requires-python = ">=3.14"`.
+  Evidence: `tools/media-project/.github/workflows/ci.yml` and
+  `tools/media-project/.github/workflows/release.yml` both passed
+  `python-version: '3.13'` before `uv sync --group dev` or the pure-wheel
+  build.
+  Impact: CI would fail before linting or tests. Both workflow call sites now
+  request Python 3.14.
+
+- Observation: Several generated-template affordances and workflow defaults did
+  not match this repository's hardening conventions.
+  Evidence: Follow-up verification found floating action tags in composite
+  actions and coverage upload, root-level Dependabot configuration under the
+  tool directory, a `curl | bash` CodeScene installer path, an unnecessary
+  release-job checkout, malformed generated documentation snippets, and
+  insufficient validation for duplicate generation log rows and selected clip
+  paths that escape the project root.
+  Impact: The still-valid findings were patched minimally. The `build-wheels`
+  action's `upload-artifact@v4` was left unchanged because that inline comment
+  only requested pinning `actions/checkout` and `actions/setup-python`.
 
 ## Decision Log
 
@@ -230,14 +328,58 @@ existing skill chain.
   artefacts.
   Date/Author: 2026-05-06, Codex.
 
+- Decision: Stop after Copier bootstrap because the required scaffold exceeds
+  the plan's 12 tracked-file tolerance.
+  Rationale: The scaffold is correctly isolated under `tools/media-project`,
+  but the plan says that exceeding 12 tracked files requires escalation. The
+  available options are to approve continuing with the full generated scaffold
+  in one implementation branch, or to split the work into a scaffold-only commit
+  followed by functional implementation commits.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Continue in this branch with the full generated scaffold already
+  committed, then implement the CLI, tests, and docs in subsequent gated
+  commits.
+  Rationale: The user explicitly selected this option after the scaffold-size
+  exception was reported. The scaffold remains isolated under
+  `tools/media-project`, and subsequent changes can still be kept atomic and
+  gated.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Use Python-Markdown as the only Markdown parser and `msgspec` for
+  deterministic JSON output.
+  Rationale: The CLI consumes Markdown tables from the existing skill artefacts
+  and writes compact deterministic JSON. Python-Markdown covers the existing
+  table shape with its `tables` extension, while `msgspec.json.encode(...,
+  order="deterministic")` provides stable byte output without custom sorting
+  logic.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Preserve dissolve intent as editable OpenShot clip metadata and
+  sidecar metadata until direct OpenShot transition JSON is proven.
+  Rationale: The plan allows metadata-only transition preservation when the
+  direct `.osp` effect structure has not been verified. This avoids inventing
+  OpenShot effect JSON that might fail to load.
+  Date/Author: 2026-05-06, Codex.
+
 ## Outcomes & Retrospective
 
-No implementation has been performed yet. This plan is a draft awaiting user
-approval. The most important lesson from the research phase is that the
-installed native OpenShot development libraries are not sufficient evidence
-that Python libopenshot calls will work from this repository's tool. The first
-usable milestone should therefore package OpenShot project JSON directly and
-validate its shape carefully.
+The first usable milestone now exists under `tools/media-project`. It provides
+a Cyclopts CLI named `media-project package-openshot`, parses
+`generated/assembly_order.md` and `generated/generation_log.md`, validates
+selected local clips, review state, generation status, and duration metadata,
+and writes deterministic `.osp` and sidecar JSON files. The tool refuses to
+overwrite existing outputs unless `--force` is provided.
+
+The upstream `shot-specifier` and `video-generator` skill documents now name
+the metadata that the packager needs: ordered selected clip paths, duration
+seconds, transition type and duration, review state, generated-audio mute
+intent, forced-audio state, scene ID, prompt file, and continuity flags.
+
+The main remaining acceptance gap is manual OpenShot import. The implementation
+intentionally preserves `dissolve` as editable metadata instead of inventing an
+effect JSON structure before a known-good OpenShot fixture or smoke test proves
+that structure.
 
 ## Context and orientation
 
@@ -283,7 +425,9 @@ the expected JSON shape.
 The requested Python package should be bootstrapped from
 `../agent-template-python`. The template's Python-only output includes
 `pyproject.toml`, `Makefile`, docs, README, package `__init__.py`, and
-`pure.py`. It does not include `cli.py`; that file must be added manually.
+`pure.py`. It does not include `cli.py`; that file must be added manually, and
+the placeholder `pure.py` greeting module must be removed after real
+application code exists.
 
 ## Plan of work
 
@@ -368,7 +512,6 @@ Expected relevant files include:
 tools/media-project/pyproject.toml
 tools/media-project/Makefile
 tools/media-project/media_project/__init__.py
-tools/media-project/media_project/pure.py
 ```
 
 Add the CLI entry point and code:

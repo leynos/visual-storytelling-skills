@@ -1,0 +1,22 @@
+{
+  "config": {
+    "MD004": { "style": "dash" },
+    "MD010": { "code_blocks": false },
+    "MD013": {
+      "line_length": 80,
+      "code_block_line_length": 120,
+      "tables": false,
+      "headings": false
+    },
+    "MD029": { "style": "ordered" }
+  },
+  "ignores": [
+    "**/.venv/**",
+    ".node_modules/**",
+    "**/node_modules/**",
+    "**/target/**",
+    ".terraform/**",
+    ".uv-cache/**",
+    "CRUSH.md"
+  ]
+}

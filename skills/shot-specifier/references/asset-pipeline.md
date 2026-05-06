@@ -87,28 +87,30 @@ each video generation API call — before checking the result.
 ```markdown
 # Generation Log
 
-## {Project Name}
-
-| Shot ID | Date | Model | Job ID | Duration | Status | Take | File Size | Actual Resolution | Review | Routing Rationale | Notes |
-|---------|------|-------|--------|----------|--------|------|-----------|-------------------|--------|-------------------|-------|
-| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-32c6-48cb-821e-ccd260ff638b | 8s | completed | v1 | 21MB | 1920x1080 | accepted | Consistent subject identity; start/end anchor | |
-| S11_SH002 | 2026-05-04 | seedance_2_0 | — | 6s | pending | v1 | — | — | required | | |
+| Shot ID | Sub-clip | Take | Model | Job ID | Status | Output URL | Local file | File size | Actual resolution | Review | Prompt hash | Notes | Duration seconds | Transition type | Transition duration | Mute generated audio | Forced generated audio | Scene ID | Prompt file | Continuity flags |
+|---------|----------|------|-------|--------|--------|------------|------------|-----------|-------------------|--------|-------------|-------|------------------|-----------------|---------------------|----------------------|------------------------|----------|-------------|------------------|
+| S11_SH001 | A | v1 | seedance_2_0 | b767b7e1-32c6-48cb-821e-ccd260ff638b | completed | https://example.invalid/video.mp4 | generated/S11_SH001/selected.mp4 | 21MB | 1920x1080 | accepted | sha256:abc123 | Consistent subject identity; start/end anchor | 8 | cut | 0 | false | false | SC-11 | prompts/S11_SH001_prompt.md | eyeline;prop reset |
 ```
 
 ### Required Fields
 
 - **Shot ID:** From the shot spec
-- **Date:** ISO 8601 (YYYY-MM-DD)
+- **Sub-clip:** `A` for a single clip, or the decomposed sub-clip ID
+- **Take:** v1, v2, etc.
 - **Model:** Exact model ID used
 - **Job ID:** The UUID returned by the generation API — this is the only retrieval handle
-- **Duration:** Clip duration in seconds
 - **Status:** pending / in_progress / completed / failed
-- **Take:** v1, v2, etc.
+- **Output URL:** Provider URL returned by the generation API
+- **Local file:** Project-root-relative downloaded clip path
 - **File Size:** Size of the downloaded local clip, for capacity planning
 - **Actual Resolution:** Pixel dimensions measured from the downloaded clip
 - **Review:** required / optional / accepted / retake / blocked
-- **Routing Rationale:** One sentence explaining why this model was chosen for this shot
+- **Prompt hash:** Hash of the submitted generation prompt
 - **Notes:** Any anomalies, quality issues, or decisions made on review
+- **Duration seconds:** Decimal clip duration used for editor timeline placement
+- **Transition type / duration:** Manifest transition intent for the next boundary
+- **Mute / forced generated audio:** Audio state for downstream editor handoff
+- **Scene ID, Prompt file, Continuity flags:** Traceability metadata for review
 
 ### Why Job IDs Are Critical
 
@@ -145,13 +147,15 @@ an anonymous clip — you can watch it but you cannot manage it.
 
 When assembling clips into a sequence:
 
-- Use the `selected.mp4` files (not the vN originals)
-- Assemble in shot ID order (lexicographic = scene and shot order)
+- Use the `selected.mp4` files or explicitly selected local take paths, not provider URLs
+- Assemble in manifest order, not filesystem order
 - Check `clip_boundary` in the manifest: `continuous` means match the cut precisely;
   `scene_cut` allows a hard cut
+- Preserve transition type, transition duration, and transition notes for
+  `media-project`
 
 The manifest at `prompts/manifest.md` contains the full ordered list with clip
-boundaries. Use it as the assembly instruction.
+boundaries and transition intent. Use it as the assembly instruction.
 
 ## Manifest Path Contract
 
