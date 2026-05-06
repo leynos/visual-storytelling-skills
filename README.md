@@ -2,6 +2,8 @@
 
 *Agent skills for AI film production — from prose to picture.*
 
+[![Visual storytelling skills banner](https://raw.githubusercontent.com/leynos/visual-storytelling-skills/main/assets/skill-pack-banner.png)](https://raw.githubusercontent.com/leynos/visual-storytelling-skills/main/assets/skill-pack-banner.png)
+
 Every story contains a film. These skills find it. This is a collection
 of Claude Code skills that walk a narrative from raw prose through
 continuity extraction, reference-image generation, shot direction, and
