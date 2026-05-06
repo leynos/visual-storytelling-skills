@@ -5,7 +5,7 @@ This ExecPlan (execution plan) is a living document. The sections
 `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work
 proceeds.
 
-Status: IN PROGRESS
+Status: COMPLETE
 
 ## Purpose / big picture
 
@@ -179,14 +179,24 @@ continue to hard stop.
 - [x] (2026-05-06T21:14Z) Re-checked branch `media-project-skill`, confirmed
   the only unrelated working-tree item is untracked `remove.sh`, and resumed
   from this plan.
-- [ ] Add ffprobe discovery and hard-stop validation.
-- [ ] Add structured ffprobe JSON parsing and reader metadata mapping.
-- [ ] Replace minimal file and clip entries with OpenShot-compatible full
+- [x] (2026-05-06T21:33Z) Added ffprobe discovery and hard-stop validation.
+- [x] (2026-05-06T21:33Z) Added structured ffprobe JSON parsing and reader
+  metadata mapping.
+- [x] (2026-05-06T21:33Z) Replaced minimal file and clip entries with
+  OpenShot-compatible full
   reader, layer, enum, and keyframe-curve structures.
-- [ ] Align assembly-order input handling with `video-generator`.
-- [ ] Update `tools/media-project` user documentation.
-- [ ] Run focused and full tool gates with `tee` logs.
-- [ ] Run or explicitly record the result of a manual OpenShot smoke test.
+- [x] (2026-05-06T21:28Z) Added deterministic focused tests for ffprobe
+  hard-stop behaviour, full reader/keyframe output shape, and CLI packaging via
+  `cmd-mox` mocked `ffprobe`.
+- [x] (2026-05-06T21:33Z) Aligned assembly-order input handling with
+  `video-generator` and added compatibility coverage for `File` and
+  `Boundary (next)` aliases.
+- [x] (2026-05-06T21:33Z) Updated `tools/media-project` user documentation for
+  `ffprobe`, full reader metadata, probed durations, and `1920x1080` defaults.
+- [x] (2026-05-06T21:33Z) Ran focused and full tool gates with `tee` logs.
+- [x] (2026-05-06T21:33Z) Checked for a local OpenShot executable and recorded
+  that the manual smoke test could not be run because `openshot-qt` and
+  `openshot` are not installed in this environment.
 
 ## Surprises & Discoveries
 
@@ -229,6 +239,29 @@ continue to hard stop.
   Impact: Continue with scoped exact/file tooling for this checkout unless the
   workspace is indexed later.
 
+- Observation: `cmd-mox` was not installed on the ambient shell `PATH`, but it
+  is available as a Python package and the tool's scripting standards already
+  document the `cmd_mox.pytest_plugin` fixture pattern.
+  Evidence: `cmd-mox --help` failed with command not found; `uv add --dev
+  cmd-mox` resolved `cmd-mox==0.2.0`, and `uv run python` imported
+  `cmd_mox.pytest_plugin`.
+  Impact: Add `cmd-mox` as a dev dependency and use its pytest fixture for the
+  CLI `ffprobe` subprocess test instead of hand-writing mock binaries.
+
+- Observation: A full OpenShot snapshot became too large once clips carried
+  reader metadata and keyframe curves.
+  Evidence: The first snapshot update added roughly two thousand lines of
+  curve and reader JSON; replacing it with a deterministic summary kept the
+  total diff below the plan's 1,200-line tolerance while preserving explicit
+  reader/keyframe assertions in unit tests.
+  Impact: Keep the broad snapshot focused on stable timeline and sidecar
+  summaries, and cover full OpenShot property shape with targeted assertions.
+
+- Observation: No OpenShot executable is installed in this environment.
+  Evidence: `command -v openshot-qt || command -v openshot` returned no path.
+  Impact: The manual OpenShot smoke test remains unrun here; the final report
+  must state this clearly and include the automated evidence instead.
+
 ## Decision Log
 
 - Decision: Treat missing `ffprobe` as a command-level hard stop, not as a
@@ -251,6 +284,18 @@ continue to hard stop.
   duration fields.
   Rationale: OpenShot playback depends on the actual media stream, while the
   generation log duration is production metadata that may be stale or rounded.
+
+- Decision: Use `cmd-mox` for mocked `ffprobe` subprocess behaviour in
+  behavioural tests.
+  Rationale: The repository's scripting standards recommend `cmd-mox` for
+  external executable tests, and using the fixture keeps mock binaries
+  declarative and verified rather than hand-rolled in each test.
+
+- Decision: Use targeted OpenShot shape assertions plus a compact deterministic
+  snapshot rather than snapshotting every generated keyframe curve.
+  Rationale: The exact full `.osp` remains generated and tested, but storing
+  every curve in a snapshot obscures behaviour changes and risks breaching the
+  plan's change-size tolerance.
 
 ## Implementation plan
 
@@ -338,5 +383,28 @@ timeline playback or is recorded as unavailable with exact environment details.
 
 ## Outcomes & Retrospective
 
-Not started. This plan is drafted and awaits approval before the tool update is
-implemented.
+Implemented. `media-project package-openshot` now requires `ffprobe`, probes
+each selected clip, writes full `FFmpegReader` metadata in `files[]` and
+`clips[].reader`, emits OpenShot layer number `1000000`, uses integer
+`gravity: 4` and `scale: 1`, writes OpenShot keyframe curve objects for clip
+properties, and defaults new projects to `1920x1080`.
+
+Validation completed on 2026-05-06:
+
+- `make check-fmt` passed with log
+  `/tmp/check-fmt-media-project-visual-storytelling-skills-media-project-skill.out`.
+- `make lint` passed with log
+  `/tmp/lint-media-project-visual-storytelling-skills-media-project-skill.out`.
+- `make typecheck` passed with log
+  `/tmp/typecheck-media-project-visual-storytelling-skills-media-project-skill.out`.
+- `make test` passed 12 tests with log
+  `/tmp/test-media-project-visual-storytelling-skills-media-project-skill.out`.
+- `markdownlint-cli2 docs/execplans/media-project-skill.md
+  tools/media-project/docs/users-guide.md` passed with log
+  `/tmp/markdownlint-media-project-visual-storytelling-skills-media-project-skill.out`.
+- `nixie --no-sandbox docs/execplans/media-project-skill.md
+  tools/media-project/docs/users-guide.md` passed with log
+  `/tmp/nixie-media-project-visual-storytelling-skills-media-project-skill.out`.
+
+The manual OpenShot smoke test was not run because neither `openshot-qt` nor
+`openshot` is installed in this environment.
