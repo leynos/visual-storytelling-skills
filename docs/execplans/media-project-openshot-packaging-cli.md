@@ -156,7 +156,8 @@ existing skill chain.
   Python 3.14 as the minimum runtime.
 - [x] (2026-05-06 00:46Z) Start approved implementation on branch
   `media-project-openshot-packaging-cli`.
-- [ ] Bootstrap `tools/media-project` with Copier.
+- [x] (2026-05-06 00:46Z) Bootstrap `tools/media-project` with Copier.
+- [ ] Resolve scaffold-size tolerance exception before further implementation.
 - [ ] Add the CLI, parser, project writer, tests, and docs.
 - [ ] Update upstream skills so agents emit media-project creative metadata.
 - [ ] Validate the generated OpenShot project with deterministic tests and a
@@ -203,6 +204,14 @@ existing skill chain.
   Impact: Implementation search in this repository must use `leta` for symbols
   and tightly scoped exact-file inspection until the repository is indexed.
 
+- Observation: The required Copier bootstrap generated 26 files under
+  `tools/media-project`, while remaining confined to that directory.
+  Evidence: `find tools/media-project -type f | wc -l` returned `26`, and
+  `git status --short` showed only `?? tools/`.
+  Impact: This exceeds the plan's 12 tracked-file tolerance before functional
+  implementation begins, so the tolerance requires explicit direction before
+  continuing.
+
 ## Decision Log
 
 - Decision: Make direct `.osp` JSON generation the MVP backend, with
@@ -237,6 +246,15 @@ existing skill chain.
   dependency; and only one Markdown parser should be chosen unless evidence
   shows the selected parser cannot handle the table shapes in the skill
   artefacts.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Stop after Copier bootstrap because the required scaffold exceeds
+  the plan's 12 tracked-file tolerance.
+  Rationale: The scaffold is correctly isolated under `tools/media-project`,
+  but the plan says that exceeding 12 tracked files requires escalation. The
+  available options are to approve continuing with the full generated scaffold
+  in one implementation branch, or to split the work into a scaffold-only commit
+  followed by functional implementation commits.
   Date/Author: 2026-05-06, Codex.
 
 ## Outcomes & Retrospective

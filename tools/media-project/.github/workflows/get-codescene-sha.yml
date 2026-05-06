@@ -1,0 +1,31 @@
+name: Refresh CodeScene CLI SHA256
+
+on:
+  workflow_dispatch:
+
+jobs:
+  refresh-sha:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Fetch script & compute SHA256
+        id: compute
+        run: |
+          set -euo pipefail
+          url="https://downloads.codescene.io/enterprise/cli/install-cs-coverage-tool.sh"
+          curl -fsSL "$url" -o install-cs-coverage-tool.sh
+          echo "sha=$(sha256sum install-cs-coverage-tool.sh | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+      - name: Update repository variable
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = process.env.SHA
+            await github.rest.actions.updateRepoVariable({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'CODESCENE_CLI_SHA256',
+              value: sha,
+            })
+        env:
+          SHA: ${{ steps.compute.outputs.sha }}

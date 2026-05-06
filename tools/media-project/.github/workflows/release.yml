@@ -1,0 +1,52 @@
+name: Release Wheels
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+
+jobs:
+
+  pure-wheel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/pure-python-wheel
+        with:
+          python-version: '3.13'
+          artifact-name: wheels-pure
+
+  release:
+    # This project has no C or Rust extensions, so cross-platform
+    # builds are unnecessary. Only the pure Python wheel is published.
+    needs:
+      - pure-wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Upload wheels to release
+        run: |
+          set -eu
+          find dist/wheels-* -type f -name "*.whl" -print0 | \
+            xargs -0 -r gh release upload "${{ github.ref_name }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

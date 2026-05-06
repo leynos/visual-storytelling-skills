@@ -1,0 +1,130 @@
+[project]
+name = "media-project"
+version = "0.1.0"
+description = "media-project package"
+readme = "README.md"
+requires-python = ">=3.14"
+license = { text = "ISC" }
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "pyright",
+    "pytest-timeout",
+    "pytest-xdist",
+]
+
+[tool.ruff]
+line-length = 88
+preview = true
+
+[tool.ruff.lint]
+select = [
+    "F",        # Pyflakes rules
+    "W",        # PyCodeStyle warnings
+    "E",        # PyCodeStyle errors
+    "I",        # Sort imports properly
+    "UP",       # Warn if certain things can changed due to newer Python versions
+    "C4",       # Catch incorrect use of comprehensions, dict, list, etc
+    "FA",       # Enforce from __future__ import annotations
+    "ISC",      # Good use of string concatenation
+    "ICN",      # Use common import conventions
+    "RET",      # Good return practices
+    "SIM",      # Common simplification rules
+    "TID",      # Some good import practices
+    "TC",       # Enforce importing certain types in a TYPE_CHECKING block
+    "PTH",      # Use pathlib instead of os.path
+    "TD",       # Be diligent with TODO comments
+    "A",        # detect shadowed builtins
+    "BLE",      # disallow catch-all exceptions
+    "S",        # disallow things like "exec"; also restricts "assert" but I just NOQA it when I really need it
+    "DTZ",      # require strict timezone manipulation with datetime
+    "FBT",      # detect boolean traps
+    "N",        # enforce naming conventions, e.g. ClassName vs function_name
+    "EM",
+    "FURB",
+    "B",
+    "RUF",
+    "LOG",
+    "Q",
+    "PT",
+    "RSE",
+    "PERF",
+    "TRY",
+    "D",
+    "ANN",
+    "C90",
+    "PLR",
+    "PLE4703",
+    "PLR0202",
+    "PLR0203",
+    "PLR0914",
+    "PLR0916",
+    "PLR1702",
+    "PLR6104",
+    "PLR6201",
+    "PLR6301",
+    "PLW0108",
+    "RUF036",
+    "RUF053",
+    "RUF055",
+    "RUF064",
+    "RUF066",
+]
+extend-ignore = [
+    "D203",  # Conflicts with D211; prefer enforcing no blank line before class docstring.
+    "D213",  # Conflicts with D212; keep summary on the first line.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/test_*.py" = ["S101", "PLR0913", "PLR2004"]
+"tests/steps/*.py" = ["S101", "PLR0913", "PLR2004"]
+
+[tool.ruff.lint.flake8-import-conventions]
+# Declare the banned `from` imports.
+banned-from = [
+    "typing",
+    "datetime",
+    "collections.abc",
+    "dataclasses",
+    "enum",
+    "unittest.mock",
+    "msgspec",
+]
+
+[tool.ruff.lint.flake8-import-conventions.aliases]
+# Declare the default aliases.
+altair = "alt"
+"matplotlib.pyplot" = "plt"
+numpy = "np"
+pandas = "pd"
+seaborn = "sns"
+scipy = "sp"
+"collections.abc" = "cabc"
+datetime = "dt"
+"unittest.mock" = "mock"
+"msgspec.json" = "msjson"
+typing = "typ"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 8
+
+[tool.ruff.lint.pylint]
+max-args = 4
+max-bool-expr = 2
+max-locals = 10
+
+[tool.pytest.ini_options]
+# Tests automatically killed after seconds elapsed
+timeout = 30
+
+[tool.uv]
+package = true
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

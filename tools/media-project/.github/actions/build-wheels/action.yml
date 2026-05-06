@@ -1,0 +1,36 @@
+name: Build Wheels
+description: Builds Python wheels across specified architectures using cibuildwheel and uploads them.
+inputs:
+  python-version:
+    description: Python version to set up
+    required: true
+  cibw-arch:
+    description: Architecture to pass to cibuildwheel
+    required: true
+  artifact-name:
+    description: Name of the uploaded artifact
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install uv
+      uses: astral-sh/setup-uv@f0ec1fc3b38f5e7cd731bb6ce540c5af426746bb
+    - name: Build wheels
+      shell: bash
+      run: |
+        uvx --with 'cibuildwheel>=2.16.0,<4.0.0' cibuildwheel --output-dir wheelhouse
+      env:
+        CIBW_ARCHS: ${{ inputs.cibw-arch }}
+        CIBW_SKIP: 'pp*'
+    - name: Upload wheel artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: wheelhouse/*.whl
