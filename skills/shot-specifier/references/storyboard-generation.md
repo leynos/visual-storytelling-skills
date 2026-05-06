@@ -13,20 +13,19 @@ is documented in `skills/nanobanana/SKILL.md`. Read that skill before using the 
 
 ### Model Selection
 
-| When | Use |
-|------|-----|
-| Highest-fidelity storyboard frames; complex scene compositions; typography or text in frame | `gemini-3-pro-image-preview` |
-| Speed matters and top-end fidelity is not required; wide aspect ratios (4:1, 8:1) | `gemini-3.1-flash-image-preview` |
-| Fast iteration; simple scenes; checking composition before full-quality generation | `gemini-2.5-flash-image` |
-
-For production storyboards that will be used as start/end frames in video generation,
-prefer `gemini-3-pro-image-preview` for all character and complex location frames.
+- Use `gemini-3-pro-image-preview` for every storyboard image call.
+- Pass the model explicitly in the nanobanana MCP request.
+- If `gemini-3-pro-image-preview` is unavailable, rejected by the tool, or unable to
+  accept the required reference images, character-consistency image, or multi-image
+  fusion inputs, **STOP** and report the blocker. Do not fall back to another image
+  model for speed, aspect ratio, or iteration.
 
 ### Tool Selection by Operation
 
 | Operation | Tool |
 |-----------|------|
-| New storyboard frame (no prior frame to build from) | `generate_image` |
+| Character-centric storyboard frame | `character_consistency` |
+| Environment or prop-led storyboard frame | `generate_image` |
 | End frame that is a modified version of the start frame | `edit_image` |
 | Shot involving a recurring human character across multiple frames | `character_consistency` |
 | Frame that combines multiple reference subjects | `multi_image_fusion` |
@@ -35,18 +34,22 @@ prefer `gemini-3-pro-image-preview` for all character and complex location frame
 
 ## Reference Completeness Check
 
-Before generating any frame — start, end, or key — answer these three questions for the
+Before generating any frame — start, end, or key — answer these questions for the
 specific shot:
 
 1. Does a canonical reference image exist for **every named character** in this shot?
 2. Does a canonical reference image exist for **every named prop** visible in this shot?
-3. Does a canonical reference image exist for **the specific location variant** (angle ×
+3. Does a locked reference image exist for **every recurring visual element** visible
+   in this shot: fixture, interface, machinery, furniture layout, signage cluster, or
+   set dressing that appears in more than two shots and would be noticed if it changed?
+4. Does a canonical reference image exist for **the specific location variant** (angle ×
    lighting condition) this shot requires?
 
 If any answer is no, generate the missing reference first using the scene inventory's
-Phase 11 procedure. Do not proceed with storyboard generation until all three answers
-are yes. A missing prop reference is the most common root cause of cross-shot visual
-inconsistency: the model invents a different object each time.
+Phase 11 procedure. Do not proceed with storyboard generation until all answers are
+yes. A missing prop or recurring visual element reference is the most common root cause
+of cross-shot visual inconsistency: the model invents a different object, fixture
+layout, interface state, or set-dressing arrangement each time.
 
 ---
 
@@ -75,6 +78,9 @@ Pass reference images with explicit roles. Assign each a job:
 - **Style:** style anchor — enforces filmstock and colour treatment
 - **Environment:** location ref matching the shot's lighting condition
 - **Prop:** prop primary ref — ensures prop appearance consistency
+- **Recurring visual element:** locked element ref — preserves monitor layouts, screen
+  colours, robots, cabinets, cargo pods, signage clusters, fixture arrays, or workstation
+  layouts that recur across shots
 
 Do not pass more references than necessary. Too many references can produce averaging
 artefacts. The standard set per frame is:
@@ -83,10 +89,25 @@ artefacts. The standard set per frame is:
 - 1 location ref matching the shot's lighting condition (always)
 - 1 character ref per named character in frame
 - 1 prop ref per named, story-critical prop in frame
+- 1 recurring visual element ref per visible reference-required fixture, interface,
+  machinery item, furniture layout, or set-dressing element
 
 The prop ref is mandatory whenever a named prop appears in frame — omitting it gives the
 model licence to invent the prop's appearance independently per shot, producing a
 different-looking object every time it appears on screen.
+
+Pass these paths through `referenceImagePaths`; do not provide references as an
+unclassified general pool. Choose the smallest complete set for the operation:
+
+- **Character-centric frame:** use `character_consistency`; set `referenceImagePaths`
+  to [character identity ref, location ref, required prop refs, recurring visual element
+  refs, style anchor when available].
+- **Environment or prop-led frame:** use `generate_image`; set `referenceImagePaths`
+  to [location ref, required prop refs, recurring visual element refs, style anchor when
+  available]. Add character refs only when a visible named character needs identity
+  anchoring.
+- **Frame derived from an existing start frame:** use `edit_image`; set
+  `referenceImagePaths` to [start_frame, only refs needed for the described change].
 
 ---
 
@@ -109,6 +130,9 @@ Change only: {exact description of what changes}.
 
 State the preserved elements first. This is critical — the model defaults to changing
 things when not explicitly told to preserve them.
+Use `edit_image` for end frames derived from start frames. The start frame should carry
+character identity, location layout, prop appearance, and style treatment forward
+naturally; the prompt should only describe the delta.
 
 ### Use `generate_image` (generate new) when
 
@@ -135,6 +159,9 @@ When a character appears across multiple shots in the same sequence, use
 This maintains face and identity consistency more reliably than passing the primary ref
 repeatedly, because the first storyboard frame captures the character as they appear in
 this production's style (rather than the neutral white-bg reference).
+This rule also applies to scene key frames: if the frame is character-centric, use
+`character_consistency` rather than `generate_image` with the character reference mixed
+into a larger reference pool.
 
 ---
 
@@ -147,6 +174,7 @@ After generating each storyboard frame, verify before moving on:
 | Subject identity matches reference | Face, clothing, distinguishing marks consistent | Regenerate with higher-weight identity reference |
 | Location matches location ref | Architecture, layout, materials correct | Regenerate with explicit negative constraints for common errors |
 | Lighting matches direction spec | Colour temperature, shadow direction, practical sources correct | Edit to correct lighting; or regenerate with more explicit lighting prompt |
+| Recurring visual elements match locked refs | Monitor layouts, robots, fixture arrays, cabinets, cargo pods, signage, and workstation layouts remain stable | Regenerate with the missing/stronger recurring visual element refs |
 | Interpolatable change (start vs end) | Subject or composition has measurably changed | If start and end are too similar, edit end frame to amplify the difference |
 | Negative constraints respected | No trees, no forbidden elements, correct traffic direction, etc. | Regenerate with stronger negative constraint prompt |
 
@@ -158,6 +186,7 @@ After generating each storyboard frame, verify before moving on:
 |---------|-------------|-----|
 | Face changes between shots | Character ref weight too low | Use `character_consistency` tool; increase reference weight |
 | Location architecture wrong | Location ref not passed or weighted too low | Ensure location ref is always included; add architectural specifics to prompt |
+| Recurring set dressing drifts | Element treated as background location dressing | Generate a locked recurring visual element ref and pass it in `referenceImagePaths` for every shot where visible |
 | Grain/filmstock wrong for POV shot | Global style phrase applied to machine-vision shot | Use POV override from keyword library; remove grain terms |
 | Unwanted elements in frame | Negative constraints not in prompt | Add explicit negative constraints; repeat the key ones twice |
 | Start and end frames look identical | Change too subtle for model | Increase magnitude of described change; or explicitly state the delta in the edit prompt |

@@ -89,10 +89,10 @@ each video generation API call — before checking the result.
 
 ## {Project Name}
 
-| Shot ID | Date | Model | Job ID | Duration | Status | Take | Routing Rationale | Notes |
-|---------|------|-------|--------|----------|--------|------|-------------------|-------|
-| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-32c6-48cb-821e-ccd260ff638b | 8s | completed | v1 | Consistent subject identity; start/end anchor | |
-| S11_SH002 | 2026-05-04 | seedance_2_0 | — | 6s | pending | v1 | | |
+| Shot ID | Date | Model | Job ID | Duration | Status | Take | File Size | Actual Resolution | Review | Routing Rationale | Notes |
+|---------|------|-------|--------|----------|--------|------|-----------|-------------------|--------|-------------------|-------|
+| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-32c6-48cb-821e-ccd260ff638b | 8s | completed | v1 | 21MB | 1920x1080 | accepted | Consistent subject identity; start/end anchor | |
+| S11_SH002 | 2026-05-04 | seedance_2_0 | — | 6s | pending | v1 | — | — | required | | |
 ```
 
 ### Required Fields
@@ -104,6 +104,9 @@ each video generation API call — before checking the result.
 - **Duration:** Clip duration in seconds
 - **Status:** pending / in_progress / completed / failed
 - **Take:** v1, v2, etc.
+- **File Size:** Size of the downloaded local clip, for capacity planning
+- **Actual Resolution:** Pixel dimensions measured from the downloaded clip
+- **Review:** required / optional / accepted / retake / blocked
 - **Routing Rationale:** One sentence explaining why this model was chosen for this shot
 - **Notes:** Any anomalies, quality issues, or decisions made on review
 
@@ -149,6 +152,22 @@ When assembling clips into a sequence:
 
 The manifest at `prompts/manifest.md` contains the full ordered list with clip
 boundaries. Use it as the assembly instruction.
+
+## Manifest Path Contract
+
+The manifest must name the exact files that `video-generator` should upload. Use the
+canonical shot-specifier frame paths unless a project has explicitly overridden them:
+
+```text
+shots/{shot_id}/start.png
+shots/{shot_id}/end.png
+shots/{shot_id}/key{NN}.png
+```
+
+Paths should be project-root-relative for reviewability. Add absolute paths in the media
+manifest during upload. Do not rely on `video-generator` to infer alternate
+scene-inventory paths from shot IDs; if a non-canonical file is required, put that exact
+path in `prompts/manifest.md` and the prompt file's `Reference Audit`.
 
 ---
 

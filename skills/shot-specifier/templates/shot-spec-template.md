@@ -104,6 +104,8 @@ Complete once per scene before writing individual shot specs.
 **Punctuations:** {Specific sounds at specific moments; format: "[Ns] {sound}"}
 **Dialogue:** {Exact words if on-screen; "off-screen" or "none" otherwise}
 **Music:** {Diegetic source / "none" / "non-diegetic — handle in post"}
+**Audio generation preferences:** ambient={on/off}; sfx={on/off}; dialogue={on/off};
+music=off; narration=off; source={generated/none/supplied}; preserve_silence={true/false}
 ```
 
 ### Video Prompt (assembled in Phase 7)
@@ -120,17 +122,41 @@ Complete once per scene before writing individual shot specs.
 [DURATION] {4 / 6 / 8 seconds}
 ```
 
+### Audio Generation Preferences
+
+```text
+**Ambient audio:** {on/off}
+**Sound effects:** {on/off}
+**On-screen dialogue/lip-sync:** {on/off}
+**Music:** off
+**Narration:** off
+**Audio source:** {generated / none / supplied}
+**Preserve silence:** {true/false}
+```
+
+### Generation Prompt
+
+```text
+{Model-native prompt flattened from the structured tags using
+references/model-routing.md. This is the exact prompt for video-generator.}
+```
+
 ### Model Routing
 
 ```text
 **Recommended model:** {model ID}
 **Routing rationale:** {1 sentence}
+**Resolution parameter:** {720p / 1080p / 4K / model-specific equivalent}
+**Model overrides:** {key=value list; include audio, mode/quality, cfg/guidance, genre}
+**Count:** {1 by default; 2 only when review-gated and schema-supported}
+**Required refs:** {semicolon-delimited list of continuity-critical refs}
 ```
 
 ### Consistency Notes
 
 ```text
 {Any WARN items anticipated; cross-references to continuity inventory; prop positions}
+{Action taken: regenerated frame, added reference, injected prompt constraint, or blocker}
 ```
 
 ---

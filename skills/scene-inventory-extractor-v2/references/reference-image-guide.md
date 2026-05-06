@@ -1,6 +1,6 @@
 # Reference Image Generation Guide
 
-Read this file before beginning Phase 10 (Reference Image Generation). It defines
+Read this file before beginning Phase 11 (Reference Image Generation). It defines
 generation order, prompting rules, the location scouting matrix, and the
 edit-vs-generate decision table for shot frames.
 
@@ -179,7 +179,13 @@ weather / condition} has changed."
 |-------------|-------------------|
 | **Story-critical** (carries narrative, appears in multiple scenes) | Primary (¾ angle, white bg) · Detail insert (any specific detail seen in ECU) · In-context (in its typical environment) · State variants (if it changes) |
 | **Supporting** (defines character or location) | Primary (¾ angle, white bg) |
-| **Background** (visible but not foregrounded) | None (location reference covers it) |
+| **Recurring visual element** (object, fixture, interface, machinery, furniture layout, or set dressing that appears in more than two shots and would be noticed if it changed) | Locked primary reference, usually in-context; generate before any location or shot frame where it appears |
+| **Background** (visible but not foregrounded and not recurring) | None (location reference covers it) |
+
+Recurring visual elements are not optional background. If the audience will recognize a
+monitor-bank layout, inspection robot, grow-light strip arrangement, cargo pod, cabinet,
+signage cluster, or workstation layout when it returns, give it its own locked reference
+and pass that reference whenever visible.
 
 ### Generation Order
 
@@ -190,7 +196,7 @@ weather / condition} has changed."
 
 ## 6. Prompt Construction Rules
 
-### Reference Image Prompts (Phase 10)
+### Reference Image Prompts (Phase 11)
 
 **Primary references** (no input reference image):
 
@@ -215,7 +221,7 @@ No text, no watermarks, no logos, no labels, no annotations.
 No text, no watermarks, no logos, no labels, no annotations.
 ```
 
-### Shot Frame Prompts (Phase 11)
+### Shot Frame Prompts (Phase 12)
 
 **Start frame:**
 
@@ -239,7 +245,7 @@ Edit this image: {describe only what changes — subject position, pose, express
 or composition shift}. Everything else remains identical.
 ```
 
-References to attach: [start_frame, relevant Phase 10 refs]
+References to attach: [start_frame, relevant Phase 11 refs]
 
 **End frame (generate mode):**
 
@@ -253,7 +259,7 @@ temperature, and depth of field.
 No text, no watermarks, no logos, no annotations.
 ```
 
-References to attach: [start_frame (as scene ref), relevant Phase 10 refs]
+References to attach: [start_frame (as scene ref), relevant Phase 11 refs]
 
 **Key frames:**
 
@@ -296,27 +302,68 @@ Identify and collect:
 - Character reference(s) matching the character(s) in this shot (correct outfit variant)
 - Location reference matching this shot's lighting/weather/narrative condition
 - Prop reference(s) for any visible props
+- Recurring visual element reference(s) for any visible fixtures, layouts, interfaces,
+  machinery, or set-dressing elements that appear in more than two shots
+
+Hard stop before any frame generation: if `gemini-3-pro-image-preview` is unavailable
+through nanobanana MCP, or if any continuity-critical `referenceImagePaths` are missing,
+abort immediately. Continuity-critical references include character identity refs,
+location refs, required prop refs, recurring visual element refs, and style anchors
+when the shot depends on them. Do not fall back to another model or relax reference
+constraints. `scene-inventory-extractor-v2` must produce the scene pack, continuity
+inventory, prompt keyword library, recurring visual element definitions, and reference
+images before handing off to `shot-specifier`.
 
 ### Step 2: Generate Start Frame
 
-- Tool: `generate_image`
-- Attach gathered references
+- Tool:
+  - `character_consistency` for character-centric shots
+  - `generate_image` for environment or prop-led shots
+- Model: `gemini-3-pro-image-preview`
+- `referenceImagePaths`:
+  - Character-centric: [character identity ref, location ref, required prop refs, style
+    anchor when available, recurring visual element refs when visible]
+  - Environment or prop-led: [location ref, required prop refs, recurring visual element
+    refs, style anchor when available], adding character refs only for visible named
+    characters whose identity must be constrained
+- Before calling nanobanana MCP, verify `gemini-3-pro-image-preview` availability and
+  validate every listed continuity-critical `referenceImagePaths` entry exists.
 - Prompt: see §6 Shot Frame Prompts — Start frame
 - Save as `shot_{shot_id}_start.png`
 
 ### Step 3: Generate End Frame
 
 - Determine edit or generate from §7 decision table
-- If **edit**: Tool `generate_image_variation`; attach [start_frame + refs]
-- If **generate**: Tool `generate_image`; attach [start_frame + refs]
+- If **edit**: Tool nanobanana MCP `edit_image`; model
+  `gemini-3-pro-image-preview`; `referenceImagePaths` [start_frame + only refs needed
+  for the described change]
+- If **generate**: Tool nanobanana MCP `generate_image`; model
+  `gemini-3-pro-image-preview`; `referenceImagePaths` [start_frame + location ref +
+  required prop refs + recurring visual element refs + style anchor when available]
+- Before calling nanobanana MCP, verify `gemini-3-pro-image-preview` availability and
+  validate every listed continuity-critical `referenceImagePaths` entry exists.
+- End frames derived from start frames should use `edit_image` so character, location,
+  prop, and style consistency inherit from the start frame naturally.
 - Save as `shot_{shot_id}_end.png`
 
 ### Step 4: Generate Key Frames (if specified)
 
 For each key frame in order:
 
-- Tool: `generate_image`
-- Attach [start_frame + refs]
+- Tool:
+  - `character_consistency` for character-centric key frames
+  - `generate_image` for environment or prop-led key frames
+  - `edit_image` when the key frame is derived from the start frame by a limited pose,
+    expression, object-state, or camera-position change
+- Model: `gemini-3-pro-image-preview`
+- `referenceImagePaths`:
+  - Character-centric: [character identity ref, start_frame, matching location ref,
+    required prop refs, recurring visual element refs, style anchor when available]
+  - Environment or prop-led: [start_frame, matching location ref, required prop refs,
+    recurring visual element refs, style anchor when available]
+  - Edit-derived: [start_frame, only refs needed for the described change]
+- Before calling nanobanana MCP, verify `gemini-3-pro-image-preview` availability and
+  validate every listed continuity-critical `referenceImagePaths` entry exists.
 - Prompt: intermediate state description
 - Save as `shot_{shot_id}_key{NN}.png`
 
@@ -328,7 +375,7 @@ Using vision capabilities, compare start and end frames:
 - Are character features consistent? (If not → regenerate with stronger identity anchoring)
 - Is lighting direction consistent? (If not → regenerate with explicit lighting direction in prompt)
 
-Log any issues for the full consistency pass in Phase 12.
+Log any issues for the full consistency pass in Phase 13.
 
 ---
 
@@ -351,8 +398,13 @@ Log any issues for the full consistency pass in Phase 12.
 │   │       ├── establishing_{condition}.png
 │   │       ├── {angle}_{condition}.png
 │   │       └── ...
-│   └── props/
-│       └── {prop_name}/
+│   ├── props/
+│   │   └── {prop_name}/
+│   │       ├── primary.png
+│   │       ├── detail.png
+│   │       └── state_{variant}.png
+│   └── recurring-elements/
+│       └── {element_name}/
 │           ├── primary.png
 │           ├── detail.png
 │           └── state_{variant}.png
@@ -365,3 +417,6 @@ Log any issues for the full consistency pass in Phase 12.
 ```
 
 Use lowercase, hyphen-separated names throughout. No spaces in filenames.
+Recurring visual element assets are canonical locked references reused across
+characters, locations, props, and every shot where the element appears; do not mix them
+into `refs/props/`.

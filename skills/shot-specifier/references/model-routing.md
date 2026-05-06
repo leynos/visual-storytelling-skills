@@ -3,6 +3,23 @@
 Read this before Phase 7 (Video Prompt Assembly). Covers how to route individual shots
 to the appropriate video generation model.
 
+## Source Of Truth Boundary
+
+This file is the single source of truth for creative model routing and prompt shaping:
+
+- shot-type to model routing;
+- routing rationale;
+- model-native `## Generation Prompt` flattening order;
+- reference-priority intent;
+- manifest intent fields emitted by `shot-specifier`.
+
+`skills/video-generator/references/model-routing.md` is the execution-facing companion.
+It owns live Higgsfield MCP schema validation, exact provider model IDs, runtime default
+overrides, empirical output constraints, file-size checks, and actual-resolution checks.
+If routing guidance changes, update this file first; update the `video-generator`
+reference in the same commit only when executable constraints or parameter mappings also
+change.
+
 > **Scope and confidence note**
 > This routing guidance synthesises current official documentation, creator tests,
 > comparison write-ups, and recurring user reports as at early May 2026. The evidence
@@ -26,12 +43,18 @@ Three findings matter most for this production.
    look, lighting, and asset continuity. It is multimodal, anchor-heavy, and performs
    best in single-character action, dialogue-adjacent close-ups, product/prop
    image-to-video, and shots where audio sync matters.
+   When routing a shot to `seedance_2_0`, load `seedance-2-deep-dive` before writing the
+   final prompt and manifest row.
 
 2. **Kling 3.0 appears strongest when the shot needs explicit scene structure, camera
    logic, or motion transfer**: multi-shot sequences, aerials with clean geometric
    anchors, photorealistic exteriors, and any shot where you can drive motion from a
    reference video. Kling Motion Control, not plain text prompting, is the strongest
    public case for difficult human or physical action.
+   When routing a shot to `kling3_0`, load `kling-3-0-deep-dive` before writing the
+   final prompt and manifest row. Current S01 MCP evidence shows Kling may accept only
+   start/end frames; if so, continuity must be baked into those storyboard frames rather
+   than deferred to uploaded generic refs.
 
 3. **Neither model is trustworthy for generated UI or exact on-screen text**: bake
    critical screens into the reference frame and animate minimally instead.
@@ -56,7 +79,7 @@ Three surprises from the public evidence:
 |----------|---------|------|---------------------|
 | `seedance_2_0` | Bytedance | Video | Reference-driven; consistent subject identity; multimodal input (up to 12 assets, `@`-tagged roles); first-frame and first-plus-last-frame image-to-video; return-last-frame support; 2–15 s; 480p/720p/1080p; native audio/lip-sync |
 | `seedance_1_5` | Bytedance | Video | Accepts references but weights them less heavily than 2.0; explicit camera-move prompting; 4/8/12 s; secondary/legacy only |
-| `kling3_0` | Kling | Video | Multi-shot structure (2–6 scenes with per-scene duration); Motion Control (motion transfer from driving clip); Elements (cross-shot identity consistency); audio generation; 3–15 s; 720p/1080p |
+| `kling3_0` | Kling | Video | Multi-shot structure (2–6 scenes with per-scene duration); Motion Control (motion transfer from driving clip); Elements (cross-shot identity consistency) when exposed; audio generation; 3–15 s; 720p/1080p labels, with S01 MCP outputs observed at `1344x768` |
 | `marketing_studio_video` | Higgsfield | Video | Commercial/product/ads; URL-driven; see `show_marketing_studio` tool |
 
 **Available-but-unrouted:** Current Higgsfield/MCP surfaces also expose Veo 3.1, Sora 2,
@@ -108,6 +131,69 @@ Assume **camera language and action structure matter more than decorative cine-j
   reliably suppress cinematic bias by themselves; that is an inference from what
   successful public prompts actually contain, not a confirmed rule.
 
+### Model-Native Prompt Flattening
+
+Phase 7 prompt files keep structured `[TAG]` blocks for review, but each file must also
+include a plain `## Generation Prompt` for `video-generator`. Build that plain prompt
+with the model-specific order below. Do not use one generic ordering across models.
+
+**Common inputs:** `[STYLE]`, `[FILMSTOCK]`, `[SCENE]`, `[FRAMING]`, `[PACING]`,
+`[ACTION]`, `[SUBJECT]`, `[AUDIO]`, `[DURATION]`, reference roles, duration, aspect
+ratio, resolution, and audio-generation preferences.
+
+#### Seedance 2.0 Flattening
+
+Use when `Recommended model` is `seedance_2_0`.
+
+1. Start with `[ACTION]`: the physical transition, movement trajectory, state changes,
+   and what persists from start to end.
+2. Add `[SUBJECT]` only for identity-critical traits not fully carried by references.
+3. Add reference-purpose sentences: which uploaded image/audio/video is responsible for
+   subject identity, location, style, motion, or rhythm.
+4. Add `[SCENE]` constraints, keeping location negatives and continuity rules concrete.
+5. Add `[FRAMING]`, `[PACING]`, and `[DURATION]`.
+6. Add `[AUDIO]` as generation preferences, always including `No narration.`
+7. Add `[STYLE]` and `[FILMSTOCK]` last and keep them concise; references should carry
+   most style weight.
+8. Append anchor statements: `The start image is the first frame. The end image is the
+   final frame. Preserve all supplied reference-image identities and layouts throughout.`
+
+If the prompt must be shortened, trim `[FILMSTOCK]`, then decorative `[STYLE]`, then
+non-critical `[PACING]`. Never trim `[ACTION]`, `[SUBJECT]`, reference-purpose
+sentences, frame anchors, or audio prohibitions.
+
+#### Kling 3.0 Flattening
+
+Use when `Recommended model` is `kling3_0`.
+
+1. Start with scene context and shot structure. For multi-shot work, use labelled blocks:
+   `Shot 1 (0-5s): ...`, `Shot 2 (5-10s): ...`.
+2. Put `[FRAMING]` and camera behaviour early, including camera endpoint or where the
+   camera settles.
+3. Add `[ACTION]` with physically plausible motion, timing markers, and subject-camera
+   relationship.
+4. Add `[SUBJECT]` and any Elements or Motion Control reference plan.
+5. Add `[SCENE]` constraints and baked-frame/text/UI notes.
+6. Add `[AUDIO]` with speaker labels only when on-screen lip-sync is required; otherwise
+   state ambient/sfx preferences and `No narration.`
+7. Add one compact `[STYLE]` / `[FILMSTOCK]` line last.
+8. Append anchor statements for start/end frames and reference preservation.
+
+If the prompt must be shortened, trim decorative style first, then extra texture, then
+non-critical atmosphere. Never trim shot labels, camera movement, action physics, frame
+anchors, speaker attribution, or audio prohibitions.
+
+#### DoP / Cinema Route Flattening
+
+Use only when the manifest explicitly approves a Higgsfield DoP/Cinema route and the live
+MCP schema exposes it. Start with how the image evolves from the start frame, then camera
+treatment, endpoint, environment motion, and style. Keep action simple and do not add
+new identity details unsupported by references.
+
+#### Unapproved / Unknown Routes
+
+Stop. Do not invent a generic flattened prompt for an unrouted model.
+
 ### References
 
 Assume **Seedance 2.0 weights references heavily** and **Kling 3.0 wants fewer, cleaner
@@ -119,6 +205,9 @@ identity elements**.
 - Kling Elements and Motion Control: 2–3 clean identity images for Elements; add a
   driving video clip for Motion Control when you need precise motion. Avoid overloading
   the model.
+- Current S01 Kling MCP surface: only `start_image` and `end_image` were accepted. When
+  this surface is active, mark character, prop, recurring-element, location, and style
+  refs as baked into the storyboard frames instead of as uploadable media roles.
 
 ### Duration
 
@@ -132,6 +221,49 @@ multiple subjects.
 | Simple continuous movement | 6–8 s |
 | Landscape, one-vector camera moves | 8–10 s |
 | Hero-shot experiments, structured multi-shot | up to 15 s |
+
+### Parameters and API Defaults
+
+Do not leave generation-critical parameters implicit. The prompt manifest must carry
+the intended value so `video-generator` can override undesirable provider defaults.
+
+| Model | Observed/default behaviour | Manifest requirement |
+|-------|----------------------------|----------------------|
+| `seedance_2_0` | Current S01 MCP surface auto-enabled generated audio (`generate_audio: true`) and did not expose an input key | Emit explicit audio source: `generated`, `none`, or `supplied`; use `none` for silent shots and `supplied` when external audio drives the take; `video-generator` decides whether unsupported forced audio is acceptable for the shot class |
+| `kling3_0` | Current S01 MCP surface auto-set `sound: "on"` and `cfg_scale: 0.5`, with no exposed override | Emit explicit sound preference and a reference-adherence note; for identity/reference-critical shots, request a stronger reference balance if the live schema exposes CFG or guidance; otherwise treat overrides as documented intent and bake continuity into frames |
+| All models | Actual pixel dimensions may differ from labels such as `1080p`; S01 session 2 observed `1344x768` from both Kling and Seedance | Emit both target pixel resolution and provider resolution hint; `video-generator` must verify actual output dimensions after download |
+
+If the live MCP schema exposes model-specific parameters such as `mode`, `quality`,
+`genre`, `sound`, `generate_audio`, `cfg_scale`, or guidance strength, set them from the
+manifest or stop for a production decision. Do not let the provider choose defaults for
+audio, reference adherence, mode, or resolution on continuity-critical shots.
+
+Manifest rows must include:
+
+- `model_overrides`: explicit `key=value` pairs for the live MCP defaults. Use
+  `generate_audio=false` or `sound=off` whenever narration/post audio is separate and
+  the shot should not generate audio. For Kling, include a `cfg_scale` or guidance value
+  when the live schema exposes it and identity/reference adherence matters.
+- `count`: default `1`. Use `2` only for review-gated hero shots or shots with known
+  instability, and only when `video-generator` confirms that the live MCP schema exposes
+  count or the operator approves equivalent separate take jobs.
+- `required_refs`: the continuity-critical character, prop, recurring-element,
+  location, and style refs that must reach the video-generation job.
+
+Suggested working overrides until the project gathers more direct evidence:
+
+| Model | Situation | Suggested manifest override |
+|-------|-----------|-----------------------------|
+| `seedance_2_0` | Silent or supplied-audio shot | `generate_audio=false;quality=standard;genre=auto` |
+| `seedance_2_0` | Generated ambient/sfx wanted | `generate_audio=true;quality=standard;genre=auto` |
+| `kling3_0` | Reference/identity-critical shot | `sound=off;cfg_scale=0.4` unless generated audio is explicitly wanted |
+| `kling3_0` | Balanced landscape/camera shot | `sound=off;cfg_scale=0.5` unless generated audio is explicitly wanted |
+| `kling3_0` | Prompt-led surreal/action shot | `sound=off;cfg_scale=0.6` unless generated audio is explicitly wanted |
+
+These are schema-gated working defaults and intent records, not provider guarantees. If
+the live MCP tool uses different names or ranges, `video-generator` must map, log the
+key as unsupported, or stop according to shot-criticality rather than silently dropping
+the intent.
 
 ### Fast vs. Standard Mode (Seedance 2.0)
 
@@ -174,6 +306,9 @@ over 10 s.
 
 **Prompting:** Keep prompts clear and structured; let references do identity work; use
 explicit negatives for camera logic; prefer short, controlled clip durations.
+For detailed Seedance-native multimodal prompt structure, reference-file prioritization,
+duration/aspect defaults, settings sweeps, and troubleshooting, use the
+`seedance-2-deep-dive` skill.
 
 **References:** Front-facing close-up + full-body + one extra angle for humans; hero prop
 or environment plate + optional motion reference for non-human shots.
@@ -219,6 +354,9 @@ drift with larger casts or longer sequences; weak text/UI generation.
 **Prompting:** Think in shots, timing, scene boundaries, and camera moves. For difficult
 physical action, prefer Motion Control over plain prompting — the public case for Motion
 Control is materially stronger than for text-only generation in action categories.
+For detailed Kling-native scene structure, camera language, Elements and Motion Control
+planning, native audio/dialogue syntax, product prompt anatomy, and troubleshooting, use
+the `kling-3-0-deep-dive` skill.
 
 **References:** 2–3 clean identity images for Elements; driving clip for Motion Control;
 avoid overloading the model.

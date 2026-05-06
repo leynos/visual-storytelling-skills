@@ -45,7 +45,8 @@ source material to video-ready assets.
 | Format / gauge | ☐ | Film gauge or digital sensor equivalent |
 | Stock / sensor | ☐ | Named stock or sensor family |
 | Native aspect ratio | ☐ | Width:height |
-| Generation resolution | ☐ | 16:9 or 9:16 |
+| Target resolution | ☐ | Pixel dimensions or delivery target |
+| Generation resolution parameter | ☐ | Model parameter such as 720p or 1080p |
 | Grain structure | ☐ | Size, distribution, character, exposure response |
 | Colour process | ☐ | Named process or described appearance |
 | Colour timing (global) | ☐ | Bias, shadow/midtone/highlight colours, saturation |
@@ -111,6 +112,8 @@ Per location:
 | Scene exit status logged | ☐ |
 | **Reference image requirements specified** | ☐ |
 | **Reference priority classified for each prop (required-before-Phase-12 / incidental)** | ☐ |
+| **Recurring visual elements identified** (objects, fixtures, interfaces, machinery, furniture layouts, or set dressing appearing in more than two shots) | ☐ |
+| **Locked reference requirement recorded for each recurring visual element** | ☐ |
 
 ### 6. Scene Inventory
 
@@ -182,8 +185,9 @@ Per location:
 
 ## Reference Image Generation (Phase 11)
 
-Generation order: style → characters → **required-before-Phase-12 props** → locations → incidental props.
-Do not advance to locations until all required-before-Phase-12 prop primary refs are locked.
+Generation order: style → characters → **required-before-Phase-12 props** → recurring visual elements → locations → incidental props.
+Do not advance to locations until all required-before-Phase-12 prop primary refs and any
+recurring visual element refs visible in those locations are locked.
 
 | Check | Status |
 |-------|--------|
@@ -193,6 +197,7 @@ Do not advance to locations until all required-before-Phase-12 prop primary refs
 | All additional character refs generated (using primary as input) | ☐ |
 | All **required-before-Phase-12** prop primary refs generated | ☐ |
 | All required-before-Phase-12 prop variants generated | ☐ |
+| All recurring visual element refs generated | ☐ |
 | All primary location refs generated | ☐ |
 | All location scouting-matrix variants generated | ☐ |
 | All **incidental** prop primary refs generated | ☐ |
@@ -210,6 +215,7 @@ Do not advance to locations until all required-before-Phase-12 prop primary refs
 |----------------|--------|
 | Named character refs verified present for this shot | ☐ per shot |
 | Reference-required prop refs verified present for this shot | ☐ per shot |
+| Recurring visual element refs verified present for this shot | ☐ per shot |
 | Location ref (correct angle + lighting condition) verified present for this shot | ☐ per shot |
 
 If any answer is no: generate the missing reference using Phase 11 procedure before proceeding.
@@ -236,6 +242,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | Character consistency checked for all shots | ☐ |
 | Location consistency checked for all shots | ☐ |
 | Prop consistency checked for all shots (vs primary prop ref) | ☐ |
+| Recurring visual element consistency checked for all shots (vs locked element ref and across every frame where visible) | ☐ |
 | **Cross-shot prop identity checked** (all frames containing each named prop viewed together; prop looks like the same physical object throughout) | ☐ |
 | Intra-shot lighting checked for all shots | ☐ |
 | Cross-shot continuity checked for continuous boundaries | ☐ |
@@ -244,29 +251,29 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 
 ---
 
-## Video Prompt Assembly (Phase 14)
+## Handoff Package (Phase 13)
 
 | Check | Status |
 |-------|--------|
-| `references/video-prompt-guide.md` read | ☐ |
-| No unresolved BLOCK issues from Phase 13 | ☐ |
-| Every shot has a video prompt file | ☐ |
-| All transition descriptions ≥ 2 sentences | ☐ |
-| All transition descriptions include: subject appearance, movement trajectory, state changes, existence statements | ☐ |
-| Physical consistency verified for all prompts | ☐ |
-| Audio handling correct for all prompts | ☐ |
-| Prompt manifest generated | ☐ |
+| No unresolved BLOCK issues from consistency verification | ☐ |
+| Fixable WARN issues resolved | ☐ |
+| Remaining WARN issues converted into explicit `shot-specifier` constraints | ☐ |
+| Final scene inventory compiled from `templates/scene-inventory-template.md` | ☐ |
+| Shot-frame asset manifest included | ☐ |
+| Handoff notes for `shot-specifier` included | ☐ |
+| No video prompts assembled by extractor | ☐ |
+| No final video model routing performed by extractor | ☐ |
 
 ---
 
-## Output Assembly (Phase 15)
+## Output Assembly (Phase 13 Handoff)
 
 | Step | Status |
 |------|--------|
-| All 15 sections compiled into inventory document | ☐ |
+| All required sections compiled into inventory document | ☐ |
 | Header information complete (title, version, date, logline, scope) | ☐ |
 | Consistency report included | ☐ |
-| Video prompt manifest included | ☐ |
+| Handoff notes included | ☐ |
 | Asset manifest included (all generated images) | ☐ |
 | File structure follows template | ☐ |
 
@@ -297,7 +304,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | All narrative beats have shots | ☐ |
 | All shots have reference images | ☐ |
 | All shots have start + end frames | ☐ |
-| All shots have video prompts | ☐ |
+| All shots have start and end frame assets | ☐ |
 
 ### Consistency
 
@@ -310,7 +317,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | Scene IDs sequential | ☐ |
 | Scouting matrix keys match scene inventory keys | ☐ |
 | Continuity inventory aligns with scene inventory and shot lists | ☐ |
-| Consistency report cross-referenced with prompts | ☐ |
+| Consistency report cross-referenced with handoff notes | ☐ |
 
 ### Continuity
 
@@ -342,7 +349,7 @@ If any answer is no: generate the missing reference using Phase 11 procedure bef
 | Shots without reference images | Never generate frames without refs |
 | Generating location images before prop references are locked | Classify required-before-Phase-12 props in Phase 6; generate all their refs before any location refs in Phase 11 |
 | Named prop looks like a different object across shots | Run cross-shot prop identity check in Phase 13; if failed, regenerate offending frames using the locked prop primary ref |
-| Skipping consistency verification | Always run Phase 13 before Phase 14 |
+| Skipping consistency verification | Always run and action Phase 13 before handoff |
 | Treating continuity as downstream QA | Extract the continuity inventory before shot lists and prompts |
 | Missing mundane handled objects | Log every touched, carried, consumed, opened, closed, or moved item |
 | Weak reset notes | Ask whether another crew could restore the scene days later from this file alone |

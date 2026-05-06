@@ -19,9 +19,10 @@ temperatures even though the underlying spec is identical. Over a 20-shot produc
 accumulation of small vocabulary variations produces visible tonal incoherence.
 
 The prompt keyword library solves this by establishing canonical phrases during Phase 2,
-immediately after the cinematography spec is finalized. Every prompt written in Phase 14
-copies from the library rather than inventing language. The library is the mechanism that
-makes the cinematography spec reproducible across independently generated clips.
+immediately after the cinematography spec is finalized. Every model-routed prompt later
+written by `shot-specifier` copies from the library rather than inventing language. The
+library is the mechanism that makes the cinematography spec reproducible across
+independently generated clips.
 
 ---
 
@@ -131,14 +132,14 @@ Write the library as:
    under Creative Pillars
 2. A standalone file: `{project_name}_prompt_keywords.md`
 
-The standalone file is what Phase 14 should reference when writing prompts. It should
-be short enough to read in under two minutes.
+The standalone file is what `shot-specifier` should reference during video prompt
+assembly. It should be short enough to read in under two minutes.
 
 ---
 
-## How to Use During Phase 14
+## How to Use During Shot-Specifier Prompt Assembly
 
-For every video prompt in Phase 14:
+For every video prompt assembled by `shot-specifier`:
 
 1. **Open `{project_name}_prompt_keywords.md`** before writing.
 2. **Copy the global style phrase** verbatim into `[STYLE]` and `[FILMSTOCK]`.
@@ -172,7 +173,7 @@ generated prompts, because it signals that those prompts may need regeneration.
 
 | Failure | Cause | Fix |
 |---------|-------|-----|
-| Tonal drift across shots | Style vocabulary invented per-shot rather than drawn from library | Build library in Phase 2.4; use it in Phase 14 |
+| Tonal drift across shots | Style vocabulary invented per-shot rather than drawn from library | Build library in Phase 2.4; use it during `shot-specifier` prompt assembly |
 | Grain appearing in drone POV | POV override not applied | Add machine-vision override to all POV shots |
 | Forbidden elements appearing | Negative constraints not injected into prompts | Add global negative constraints to every prompt `[SCENE]` field |
 | Colour exemptions ignored | Selective saturation rule not stated in prompt | Explicitly name exempt objects in `[ACTION]` or `[SUBJECT]` |

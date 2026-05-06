@@ -2,6 +2,8 @@
 
 *Agent skills for AI film production — from prose to picture.*
 
+[![Visual storytelling skills banner](https://raw.githubusercontent.com/leynos/visual-storytelling-skills/main/assets/skill-pack-banner.png)](https://raw.githubusercontent.com/leynos/visual-storytelling-skills/main/assets/skill-pack-banner.png)
+
 Every story contains a film. These skills find it. This is a collection
 of Claude Code skills that walk a narrative from raw prose through
 continuity extraction, reference-image generation, shot direction, and
@@ -45,7 +47,10 @@ git clone https://github.com/df12-productions/visual-storytelling-skills
 
 Start with a script or prose fragment. The scene-inventory-extractor
 parses it, extracts characters, locations, and props, and generates your
-full reference-image library:
+full reference-image library. Its final consistency pass must be acted on
+before handoff: fix BLOCK findings, resolve fixable WARN findings, and
+turn any remaining WARN findings into explicit shot-specifier
+constraints.
 
 ```text
 /scene-inventory-extractor-v2
@@ -57,6 +62,14 @@ storyboard keyframes, and generation-ready video prompts:
 
 ```text
 /shot-specifier
+```
+
+When the prompt manifest and storyboard frames are ready, use the
+video-generator to submit clips through the Higgsfield MCP, poll jobs,
+download takes, resume interrupted runs, and write assembly order:
+
+```text
+/video-generator
 ```
 
 When the narration script is ready, phoneticize it before sending it to
@@ -74,6 +87,47 @@ invoke it directly for standalone image work:
 /nanobanana
 ```
 
+### Overall flow
+
+```mermaid
+flowchart TD
+    prose["Script or prose fragment"]
+    extractor["scene-inventory-extractor-v2"]
+    inventory["Continuity inventory\nCharacters, locations, props, recurring visual elements"]
+    refs["Reference image library\nCharacters, locations, props, visual elements"]
+    shotSpec["shot-specifier"]
+    shotPack["Shot specs\nCamera, blocking, lighting, timing"]
+    frames["Storyboard frames\nStart, end, and key frames"]
+    prompts["Prompt manifest\nGeneration prompts, model routing, media roles"]
+    videoGen["video-generator"]
+    higgsfield["Higgsfield MCP\nSeedance 2.0, Kling 3.0, DoP/Cinema, Veo when approved"]
+    clips["Generated takes\nDownloaded clips and job log"]
+    assembly["Assembly order\nSelected takes and sub-clips"]
+    nano["nanobanana\nGemini 3 Pro Image Preview"]
+
+    prose --> extractor
+    extractor --> inventory
+    extractor --> refs
+    extractor -. "image prompts and consistency refs" .-> nano
+    nano -. "locked reference assets" .-> refs
+
+    inventory --> shotSpec
+    refs --> shotSpec
+    shotSpec --> shotPack
+    shotSpec --> frames
+    shotSpec --> prompts
+    shotSpec -. "storyboard frame generation and edits" .-> nano
+    nano -. "start, end, and key frames" .-> frames
+
+    shotPack --> videoGen
+    frames --> videoGen
+    prompts --> videoGen
+    refs --> videoGen
+    videoGen --> higgsfield
+    higgsfield --> clips
+    clips --> assembly
+```
+
 ______________________________________________________________________
 
 ## Skills
@@ -82,8 +136,16 @@ ______________________________________________________________________
 |-------|--------------|
 | `scene-inventory-extractor-v2` | Reads a script or prose fragment; extracts characters, locations, props, and story state; generates the full reference-image library; produces a continuity inventory for reset-critical scenes. |
 | `shot-specifier` | Takes a scene inventory and produces numbered shot specs: actor position and movement, camera mount and motion, lens, lighting, effects, timing, storyboard keyframes, video prompts, and model routing. |
+| `video-generator` | Takes the prompt manifest and storyboard frames from the upstream skills; uses the Higgsfield MCP to prepare media, call video generation, poll jobs, download takes, resume interrupted runs, and write assembly order. |
+| `seedance-2-deep-dive` | Distils Seedance 2.0 operating guidance: multimodal input planning, reference prioritization, duration and aspect defaults, prompt structure, quality/speed tradeoffs, settings sweeps, and failure triage. |
+| `kling-3-0-deep-dive` | Distils Kling 3.0 operating guidance: scene structure, camera language, Elements, Motion Control, image-to-video anchors, native audio/dialogue, product prompting, settings sweeps, and failure triage. |
 | `nanobanana` | Crafts structured prompts for the Nano Banana image MCP — generation, editing, character consistency, and multi-image fusion. |
 | `phoneticize` | Detects pronunciation hazards in TTS scripts; suggests phonetic respellings; previews via Eleven v3 fragments; emits a phoneticized script and an archived pronunciation table. |
+
+Image-generation skills must use the nanobanana MCP with
+`model: gemini-3-pro-image-preview`. If that model is unavailable or cannot accept the
+required reference or character-consistency images, the workflow stops instead of
+falling back to another image model.
 
 ______________________________________________________________________
 

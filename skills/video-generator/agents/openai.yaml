@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Generator"
+  short_description: "Run shot-specifier video generation jobs"
+  default_prompt: "Use $video-generator to validate prompts, honour audio preferences, handle media uploads, generate clips, track jobs, download takes, and produce assembly order. Before marking any shot complete, verify all required references and media IDs are present and valid, validate model override parameters against allowed values, and create or update resumable job logging and state persistence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kling 3.0 Deep Dive"
+  short_description: "Plan Kling 3.0 video prompts and references"
+  default_prompt: "Use $kling-3-0-deep-dive to route, prompt, constrain, and troubleshoot Kling 3.0 video generation."
