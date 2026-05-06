@@ -66,6 +66,11 @@ returns the same instance.
 import typing
 
 class Builder:
+    values: list[int]
+
+    def __init__(self):
+        self.values = []
+
     def add(self, value: int) -> typing.Self:
         self.values.append(value)
         return self
