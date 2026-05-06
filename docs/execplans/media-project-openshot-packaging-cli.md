@@ -5,7 +5,7 @@ This ExecPlan (execution plan) is a living document. The sections
 `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work
 proceeds.
 
-Status: DRAFT
+Status: IN PROGRESS
 
 ## Purpose / big picture
 
@@ -154,7 +154,9 @@ existing skill chain.
 - [x] (2026-05-06 00:18Z) Draft this implementation plan.
 - [x] (2026-05-06 00:44Z) Update the plan with approved dependencies and
   Python 3.14 as the minimum runtime.
-- [ ] Bootstrap `tools/media-project` with Copier after user approval.
+- [x] (2026-05-06 00:46Z) Start approved implementation on branch
+  `media-project-openshot-packaging-cli`.
+- [ ] Bootstrap `tools/media-project` with Copier.
 - [ ] Add the CLI, parser, project writer, tests, and docs.
 - [ ] Update upstream skills so agents emit media-project creative metadata.
 - [ ] Validate the generated OpenShot project with deterministic tests and a
@@ -193,6 +195,13 @@ existing skill chain.
   Impact: The CLI metadata should map to comparable concepts: ordered selected
   clips, start time, track/layer, transition type, transition duration, and
   fade/overlap policy.
+
+- Observation: GrepAI is available, but the `Projects` workspace does not list
+  this repository.
+  Evidence: `grepai workspace status Projects` lists other projects but not
+  `/data/leynos/Projects/visual-storytelling-skills`.
+  Impact: Implementation search in this repository must use `leta` for symbols
+  and tightly scoped exact-file inspection until the repository is indexed.
 
 ## Decision Log
 
