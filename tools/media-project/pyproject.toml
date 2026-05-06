@@ -5,7 +5,14 @@ description = "media-project package"
 readme = "README.md"
 requires-python = ">=3.14"
 license = { text = "ISC" }
-dependencies = []
+dependencies = [
+    "cyclopts>=4.11.2",
+    "markdown>=3.10.2",
+    "msgspec>=0.21.1",
+]
+
+[project.scripts]
+media-project = "media_project.cli:main"
 
 [dependency-groups]
 dev = [
@@ -14,6 +21,8 @@ dev = [
     "pyright",
     "pytest-timeout",
     "pytest-xdist",
+    "pytest-bdd>=8.1.0",
+    "syrupy>=5.1.0",
 ]
 
 [tool.ruff]
@@ -79,6 +88,7 @@ extend-ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"media_project/cli.py" = ["PLR0913"]
 "**/test_*.py" = ["S101", "PLR0913", "PLR2004"]
 "tests/steps/*.py" = ["S101", "PLR0913", "PLR2004"]
 
@@ -127,4 +137,3 @@ package = true
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-

@@ -159,7 +159,10 @@ existing skill chain.
 - [x] (2026-05-06 00:46Z) Bootstrap `tools/media-project` with Copier.
 - [x] (2026-05-06 00:52Z) Resolve scaffold-size tolerance exception with
   explicit user direction to continue in this branch.
-- [ ] Add the CLI, parser, project writer, tests, and docs.
+- [x] (2026-05-06 01:18Z) Add the CLI, Markdown table parser, deterministic
+  OpenShot project writer, sidecar writer, unit tests, pytest-bdd behavioural
+  test, and syrupy snapshot test.
+- [ ] Add user-facing documentation for the CLI.
 - [ ] Update upstream skills so agents emit media-project creative metadata.
 - [ ] Validate the generated OpenShot project with deterministic tests and a
   manual OpenShot smoke test where available.
@@ -213,6 +216,24 @@ existing skill chain.
   implementation begins, so the tolerance requires explicit direction before
   continuing.
 
+- Observation: Python-Markdown with the `tables` extension can parse the
+  repository's existing Markdown table templates once the tables are emitted at
+  top level without code-block indentation.
+  Evidence: `UV_CACHE_DIR=.uv-cache UV_TOOL_DIR=.uv-tools uv run pytest -v
+  --snapshot-update` generated a syrupy snapshot after the fixture writer was
+  corrected to emit top-level Markdown tables.
+  Impact: The first CLI implementation uses `Markdown` as the single Markdown
+  runtime dependency and avoids a second Markdown parser.
+
+- Observation: The deterministic writer can preserve `dissolve` intent in clip
+  metadata and sidecar metadata, but there is not yet an OpenShot smoke test
+  proving a direct `.osp` dissolve effect shape.
+  Evidence: The snapshot covers `transition_after`, `transition_type`, and
+  `transition_duration`, but no OpenShot GUI import has been run in this turn.
+  Impact: `dissolve` remains metadata-only in this commit. Applying OpenShot
+  effects should wait for a real OpenShot smoke test or known-good `.osp`
+  transition fixture.
+
 ## Decision Log
 
 - Decision: Make direct `.osp` JSON generation the MVP backend, with
@@ -265,6 +286,22 @@ existing skill chain.
   exception was reported. The scaffold remains isolated under
   `tools/media-project`, and subsequent changes can still be kept atomic and
   gated.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Use Python-Markdown as the only Markdown parser and `msgspec` for
+  deterministic JSON output.
+  Rationale: The CLI consumes Markdown tables from the existing skill artefacts
+  and writes compact deterministic JSON. Python-Markdown covers the existing
+  table shape with its `tables` extension, while `msgspec.json.encode(...,
+  order="deterministic")` provides stable byte output without custom sorting
+  logic.
+  Date/Author: 2026-05-06, Codex.
+
+- Decision: Preserve dissolve intent as editable OpenShot clip metadata and
+  sidecar metadata until direct OpenShot transition JSON is proven.
+  Rationale: The plan allows metadata-only transition preservation when the
+  direct `.osp` effect structure has not been verified. This avoids inventing
+  OpenShot effect JSON that might fail to load.
   Date/Author: 2026-05-06, Codex.
 
 ## Outcomes & Retrospective
