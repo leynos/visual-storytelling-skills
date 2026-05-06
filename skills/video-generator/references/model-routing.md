@@ -36,7 +36,7 @@ Every row must include:
 | `aspect_ratio` | Machine parameter, e.g. `16:9` |
 | `target_resolution` | Intended output dimensions, e.g. `1920x1080` |
 | `resolution_parameter` | Machine resolution hint, e.g. `1080p`; verify actual pixels after download |
-| `generation_strategy` | `single_clip`, `split_at_keyframe`, or `merge_keyframe_motion` |
+| `generation_strategy` | Shot-specifier strategy: `image_to_video`, `start_end_image`, `multi_shot`, or `motion_control` |
 | `audio_generation_preferences` | `generated`, `none`, or `supplied` plus ambient/sfx/dialogue flags |
 | `model_overrides` | Explicit key/value overrides for live MCP defaults |
 | `count` | Requested take count; default `1`, schema-gated maximum from live MCP |
@@ -52,7 +52,8 @@ duration, audio preferences, and overrides from `shot-specifier`.
 Use this file to validate whether that manifest can run:
 
 1. Translate the manifest model alias to the exact live Higgsfield model ID.
-2. Validate media roles, duration, aspect ratio, resolution parameter, audio controls,
+2. Validate `generation_strategy` against the shot-specifier strategy identifiers, then
+   validate media roles, duration, aspect ratio, resolution parameter, audio controls,
    count, and default overrides against the live schema.
 3. Stop if the model cannot carry required anchors or continuity refs.
 4. If rerouting is required, return to `shot-specifier/references/model-routing.md`,
@@ -144,5 +145,16 @@ resolution requirements.
 ## Key-Frame Rule
 
 No current Higgsfield route in this workflow accepts mid-clip key-frame anchors. Any shot
-with key frames must be routed through `split_at_keyframe` or explicitly marked
-`merge_keyframe_motion` with a rationale.
+with key frames must use a shot-specifier strategy that can be submitted: split into
+separate `start_end_image` sub-clips, or use `motion_control` only when the key-frame
+motion has been merged into prompt text or a motion reference with a written rationale.
+
+Legacy planning names map as follows for old manifests only:
+
+| Legacy strategy | Shot-specifier strategy |
+|-----------------|-------------------------|
+| `single_clip` | `image_to_video` when only one source frame is supplied; `start_end_image` when both anchors are supplied |
+| `split_at_keyframe` | `start_end_image` sub-clips |
+| `merge_keyframe_motion` | `motion_control` only with a motion reference or explicit prompt-merge rationale |
+
+New manifests should emit only the shot-specifier strategy identifiers.

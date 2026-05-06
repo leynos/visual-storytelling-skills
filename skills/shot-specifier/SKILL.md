@@ -508,6 +508,10 @@ prompts/manifest.md
 > audio-generation preferences, review-gate metadata, and clip-boundary metadata, hand
 > off to `video-generator` for Higgsfield MCP media upload, job submission, polling,
 > resume handling, and assembly-order output.
+> `video-generator` is the sole owner of runtime generation logging and Higgsfield job
+> interactions. It must verify required references, apply audio and model overrides,
+> handle resumable job logging, submit and poll jobs, and write assembly order before
+> marking a shot complete.
 > **Prerequisite:** Read `references/asset-pipeline.md`.
 
 Maintain a consistent asset pipeline so generated clips can be traced back to their
@@ -524,26 +528,13 @@ generated/{shot_id}/v{N}.mp4       — generated video clip (v1 = first take, v2
 generated/{shot_id}/selected.mp4   — symlink or copy of the selected take
 ```
 
-### Generation Log
+### Runtime Generation Log
 
-After each video generation call, log:
-
-```markdown
-## Generation Log
-
-| Shot ID | Date | Model | Job ID | Duration | Status | Take | File Size | Actual Resolution | Review | Notes |
-|---------|------|-------|--------|----------|--------|------|-----------|-------------------|--------|-------|
-| S11_SH001 | 2026-05-04 | seedance_2_0 | b767b7e1-... | 8s | completed | v1 | 21MB | 1920x1080 | accepted | |
-```
-
-Write to: `generated/generation_log.md`
-
-This log is essential for:
-
-- Tracing which job ID corresponds to which shot (for retrieval and retakes)
-- Identifying shots that need to be regenerated
-- Tracking cost across the production
-- Recording verification data needed by `video-generator` review gates
+Do not write runtime generation logs in this skill. `shot-specifier` prepares
+`prompts/manifest.md`, prompt files, storyboard frames, model routing, aspect ratio,
+resolution parameters, model overrides, count, required-reference audit,
+audio-generation preferences, review-gate metadata, and clip-boundary metadata.
+`video-generator` owns runtime logging after generation begins.
 
 ---
 

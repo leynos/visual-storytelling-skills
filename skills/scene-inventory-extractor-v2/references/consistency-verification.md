@@ -27,6 +27,9 @@ This pass is mandatory remediation work, not an informational report. The agent 
 action the findings before handoff: regenerate or correct BLOCK issues, resolve WARN
 issues when the fix is clear, and convert any remaining WARN issue into a concrete
 constraint for `shot-specifier`.
+BLOCK findings are terminal until fixed. Do not downgrade BLOCK to WARN after retry
+exhaustion; either remediate the frame or stop the workflow with the unresolved BLOCK
+listed in the consistency report.
 
 Every finding is an action item requiring remediation before handoff. Phase 13 must
 enforce per-shot prop consistency against the primary prop reference, cross-shot prop
@@ -122,7 +125,7 @@ Regenerate end frame with explicit {position/pose/state} change.
 3. Score as PASS / WARN / BLOCK
 
 **Tolerance:** AI image generation produces inherent variation. The standard is: would a
-viewer recognise this as the same character? Minor variations in facial angle, slight
+viewer recognize this as the same character? Minor variations in facial angle, slight
 colour shifts due to scene lighting, and natural expression changes are acceptable.
 Wholesale face changes, wrong hair colour, or incorrect clothing are not.
 
@@ -242,8 +245,8 @@ Identify the root cause:
 - **Reference insufficiency**: The reference image did not adequately constrain the
   generation → Consider generating a better reference first, then regenerate
 - **Model limitation**: The generation model cannot achieve the required result with
-  current references and prompting → Simplify the shot or accept a WARN-level
-  compromise (document the decision)
+  current references and prompting → Stop with a terminal error; do not hand off until
+  the shot, references, or frame plan is changed and the BLOCK clears
 
 ### Step 2: Regenerate
 
@@ -258,15 +261,20 @@ Identify the root cause:
 ### Step 3: Re-verify
 
 After regeneration, re-run the relevant checks on the new frame. If the issue persists
-after three regeneration attempts, escalate to WARN and log for human review.
+after three regeneration attempts, stop with an unresolved BLOCK and report the exact
+frame, reference, and check that failed.
 
 ### Regeneration Limit
 
 Maximum **3 regeneration attempts** per frame. After three failures:
 
-1. Log the issue as WARN with note "Regeneration limit reached"
-2. Proceed with the best available frame
-3. Include the issue in the consistency report with full details
+1. Log the issue as BLOCK with note "Regeneration limit reached"
+2. Stop the workflow; do not proceed with the best available frame
+3. Include the terminal issue in the consistency report with full details
+
+WARN findings that cannot be fixed locally must remain WARN only when they can be
+carried as concrete `shot-specifier` constraints. If a WARN finding blocks handoff, mark
+it BLOCK and stop until it is remediated.
 
 ---
 
@@ -292,12 +300,12 @@ Output the consistency report as:
 ### {Issue ID}: {Shot ID} — {Check Name}
 
 * **Severity:** BLOCK
-* **Status:** {Resolved / Unresolved / Downgraded to WARN}
+* **Status:** {Resolved / Unresolved terminal stop}
 * **Description:** {What is wrong}
 * **Frame(s) affected:** {filename(s)}
 * **Reference compared:** {filename}
 * **Regeneration attempts:** {N}
-* **Resolution:** {What was done to fix it, or why it was downgraded}
+* **Resolution:** {What was done to fix it, or why the workflow stopped}
 
 ---
 

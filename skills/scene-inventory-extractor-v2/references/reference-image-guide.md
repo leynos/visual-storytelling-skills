@@ -182,7 +182,7 @@ weather / condition} has changed."
 | **Recurring visual element** (object, fixture, interface, machinery, furniture layout, or set dressing that appears in more than two shots and would be noticed if it changed) | Locked primary reference, usually in-context; generate before any location or shot frame where it appears |
 | **Background** (visible but not foregrounded and not recurring) | None (location reference covers it) |
 
-Recurring visual elements are not optional background. If the audience will recognise a
+Recurring visual elements are not optional background. If the audience will recognize a
 monitor-bank layout, inspection robot, grow-light strip arrangement, cargo pod, cabinet,
 signage cluster, or workstation layout when it returns, give it its own locked reference
 and pass that reference whenever visible.
@@ -305,6 +305,15 @@ Identify and collect:
 - Recurring visual element reference(s) for any visible fixtures, layouts, interfaces,
   machinery, or set-dressing elements that appear in more than two shots
 
+Hard stop before any frame generation: if `gemini-3-pro-image-preview` is unavailable
+through nanobanana MCP, or if any continuity-critical `referenceImagePaths` are missing,
+abort immediately. Continuity-critical references include character identity refs,
+location refs, required prop refs, recurring visual element refs, and style anchors
+when the shot depends on them. Do not fall back to another model or relax reference
+constraints. `scene-inventory-extractor-v2` must produce the scene pack, continuity
+inventory, prompt keyword library, recurring visual element definitions, and reference
+images before handing off to `shot-specifier`.
+
 ### Step 2: Generate Start Frame
 
 - Tool:
@@ -317,6 +326,8 @@ Identify and collect:
   - Environment or prop-led: [location ref, required prop refs, recurring visual element
     refs, style anchor when available], adding character refs only for visible named
     characters whose identity must be constrained
+- Before calling nanobanana MCP, verify `gemini-3-pro-image-preview` availability and
+  validate every listed continuity-critical `referenceImagePaths` entry exists.
 - Prompt: see §6 Shot Frame Prompts — Start frame
 - Save as `shot_{shot_id}_start.png`
 
@@ -329,6 +340,8 @@ Identify and collect:
 - If **generate**: Tool nanobanana MCP `generate_image`; model
   `gemini-3-pro-image-preview`; `referenceImagePaths` [start_frame + location ref +
   required prop refs + recurring visual element refs + style anchor when available]
+- Before calling nanobanana MCP, verify `gemini-3-pro-image-preview` availability and
+  validate every listed continuity-critical `referenceImagePaths` entry exists.
 - End frames derived from start frames should use `edit_image` so character, location,
   prop, and style consistency inherit from the start frame naturally.
 - Save as `shot_{shot_id}_end.png`
@@ -349,6 +362,8 @@ For each key frame in order:
   - Environment or prop-led: [start_frame, matching location ref, required prop refs,
     recurring visual element refs, style anchor when available]
   - Edit-derived: [start_frame, only refs needed for the described change]
+- Before calling nanobanana MCP, verify `gemini-3-pro-image-preview` availability and
+  validate every listed continuity-critical `referenceImagePaths` entry exists.
 - Prompt: intermediate state description
 - Save as `shot_{shot_id}_key{NN}.png`
 
