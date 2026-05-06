@@ -167,6 +167,8 @@ existing skill chain.
   creative metadata.
 - [x] (2026-05-06 01:27Z) Validate the generated OpenShot project with
   deterministic tests.
+- [x] (2026-05-06 01:09Z) Remove Copier placeholder greeting, nonexistent Rust
+  extension fallback, and related test affordances.
 - [ ] Run or explicitly waive the manual OpenShot smoke test.
 
 ## Surprises & Discoveries
@@ -192,7 +194,9 @@ existing skill chain.
   `{{ package_name }}/__init__.py.jinja` and `{{ package_name }}/pure.py` under
   the template package.
   Impact: The implementation must add `cli.py` manually after bootstrapping and
-  update the generated `pyproject.toml` with a console script entry point.
+  update the generated `pyproject.toml` with a console script entry point. The
+  template's `pure.py` greeting placeholder is not part of this application and
+  must not remain in the final tool.
 
 - Observation: OpenShot's user guide describes an "Add to Timeline" flow that
   supports ordering selected files, timeline position, fade options, zoom
@@ -242,6 +246,13 @@ existing skill chain.
   pytest-bdd and syrupy coverage, and passed.
   Impact: Deterministic structure and validation behaviour are covered, but the
   manual OpenShot GUI import check remains pending.
+
+- Observation: The Copier placeholder greeting and optional Rust-extension
+  fallback were still present after the real CLI implementation landed.
+  Evidence: `leta refs hello` found only `media_project/__init__.py`,
+  `media_project/pure.py`, and `tests/test_pure.py`.
+  Impact: These placeholders served no application purpose and have been
+  removed so the package surface reflects the actual OpenShot packaging tool.
 
 ## Decision Log
 
@@ -376,7 +387,9 @@ the expected JSON shape.
 The requested Python package should be bootstrapped from
 `../agent-template-python`. The template's Python-only output includes
 `pyproject.toml`, `Makefile`, docs, README, package `__init__.py`, and
-`pure.py`. It does not include `cli.py`; that file must be added manually.
+`pure.py`. It does not include `cli.py`; that file must be added manually, and
+the placeholder `pure.py` greeting module must be removed after real
+application code exists.
 
 ## Plan of work
 
@@ -461,7 +474,6 @@ Expected relevant files include:
 tools/media-project/pyproject.toml
 tools/media-project/Makefile
 tools/media-project/media_project/__init__.py
-tools/media-project/media_project/pure.py
 ```
 
 Add the CLI entry point and code:
