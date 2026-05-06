@@ -5,7 +5,7 @@ This ExecPlan (execution plan) is a living document. The sections
 `Decision Log`, and `Outcomes & Retrospective` must be kept up to date as work
 proceeds.
 
-Status: DRAFT
+Status: IN PROGRESS
 
 ## Purpose / big picture
 
@@ -174,7 +174,11 @@ continue to hard stop.
 - [x] (2026-05-06T21:06Z) Compared the supplied OpenShot-built and hand-built
   `.osp` files for layer, reader, file, and clip property shapes.
 - [x] (2026-05-06T21:06Z) Drafted this implementation plan.
-- [ ] Await explicit approval before implementing the tool update.
+- [x] (2026-05-06T21:14Z) Received explicit approval to implement the planned
+  tool update.
+- [x] (2026-05-06T21:14Z) Re-checked branch `media-project-skill`, confirmed
+  the only unrelated working-tree item is untracked `remove.sh`, and resumed
+  from this plan.
 - [ ] Add ffprobe discovery and hard-stop validation.
 - [ ] Add structured ffprobe JSON parsing and reader metadata mapping.
 - [ ] Replace minimal file and clip entries with OpenShot-compatible full
@@ -216,6 +220,14 @@ continue to hard stop.
   Evidence: `jq` inspection of top-level `width` and `height`.
   Impact: The default should move to `1920x1080` as requested, while keeping
   command-line overrides for smaller projects.
+
+- Observation: On implementation resume, GrepAI was still available but still
+  did not list this checkout in the `Projects` workspace.
+  Evidence: `grepai version` reported `0.35.0`; `grepai workspace status
+  Projects` listed 22 other projects and omitted
+  `/data/leynos/Projects/visual-storytelling-skills`.
+  Impact: Continue with scoped exact/file tooling for this checkout unless the
+  workspace is indexed later.
 
 ## Decision Log
 
