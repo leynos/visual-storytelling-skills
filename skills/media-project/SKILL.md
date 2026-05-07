@@ -1,20 +1,32 @@
 ---
 name: media-project
-description: Package completed visual storytelling video outputs into OpenShot editor projects with media-project. Use when an agent needs to run or verify tools/media-project, produce a playable .osp handoff, preserve production sidecar metadata, or decide whether a project is ready for OpenShot packaging.
+description: Package completed visual storytelling video outputs into OpenShot editor projects with the system-installed media-project command. Use when an agent needs to run or verify a playable .osp handoff, preserve production sidecar metadata, or decide whether a project is ready for OpenShot packaging.
 ---
 
 # Media-project OpenShot handoff
 
 Use this skill when packaging selected generated clips into an OpenShot project
-with `tools/media-project`.
+with the `media-project` command. The command is expected to be installed at
+the system tool level before this skill is used, normally with `uv tool
+install`.
+
+Do not assume the story project contains the `media-project` source tree. The
+story project normally contains only generated media, metadata, prompts, and
+editor handoff outputs.
 
 ## Hard stop
 
-Before running `media-project package-openshot`, verify `ffprobe` exists:
+Before running `media-project package-openshot`, verify both commands exist:
 
 ```bash
+command -v media-project
 command -v ffprobe
 ```
+
+If `media-project` is absent, stop immediately and report that the command must
+be installed system-wide with `uv tool install` before packaging can proceed.
+Do not look for repository-local source directories or try to run the command
+through a project checkout.
 
 If `ffprobe` is absent, stop immediately. Do not run the packager, do not write
 a minimal `.osp`, and do not tell the user the project is packaged. Report that
@@ -53,12 +65,11 @@ clips.
 
 ## Command
 
-Run the tool from its own Python project so its virtual environment and gates
-are local to `tools/media-project`:
+Run the already installed command from the story project repository or from any
+working directory where project-root paths are clear:
 
 ```bash
-cd tools/media-project
-uv run media-project package-openshot \
+media-project package-openshot \
   --project-root /path/to/story-project \
   --assembly-order generated/assembly_order.md \
   --generation-log generated/generation_log.md \
