@@ -57,6 +57,13 @@ Some older assembly files may use `File` instead of `Selected clip` or
 `Boundary (next)` instead of `Boundary after`. Treat those as compatibility
 aliases only when the installed tool version documents support for them.
 
+`Sub-clip` is mandatory even when a shot was not decomposed into separate
+sub-clips. The packager matches assembly rows to generation-log rows using
+`Shot ID`, `Sub-clip`, and the selected local file path, so the same non-empty
+`Sub-clip` value must appear in both tables. For non-decomposed shots, use `-`
+as the placeholder in both `generated/assembly_order.md` and
+`generated/generation_log.md`; do not leave the cell blank or omit the column.
+
 `generated/generation_log.md` must identify the same selected files and include
 completed statuses, accepted review states, duration metadata, model/job
 metadata, actual file size, actual resolution, prompt hash, and audio mute
