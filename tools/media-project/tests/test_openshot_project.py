@@ -10,6 +10,7 @@ import typing as typ
 import msgspec.json as msjson
 import pytest
 
+from media_project import openshot_project
 from media_project.openshot_project import (
     InputValidationError,
     MediaProbe,
@@ -45,13 +46,65 @@ def test_missing_ffprobe_hard_stops_before_reading_inputs(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Packaging refuses to run without ffprobe reader metadata support."""
-    monkeypatch.setattr("shutil.which", lambda _name: None)
+    monkeypatch.setattr(openshot_project.shutil, "which", lambda _name: None)
 
     with pytest.raises(
         InputValidationError,
         match="ffprobe is required to populate OpenShot FFmpegReader metadata",
     ):
         package_openshot_project(_request(tmp_path))
+
+
+def test_generation_log_duration_is_not_required_when_media_has_duration(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Media probe metadata is the source of clip duration."""
+    create_story_project(tmp_path)
+    _stub_probe(monkeypatch)
+    log_path = tmp_path / "generated" / "generation_log.md"
+    log_path.write_text(
+        log_path.read_text(encoding="utf-8").replace("2.5", ""),
+        encoding="utf-8",
+    )
+    request = _request(tmp_path)
+
+    package_openshot_project(request)
+
+    project = msjson.decode(request.output.read_bytes())
+    assert project["clips"][0]["duration"] == pytest.approx(2.5)
+
+
+def test_common_ffmpeg_pixel_formats_are_supported() -> None:
+    """Common ffprobe pixel formats map to libopenshot FFmpeg constants."""
+    assert {
+        name: openshot_project._pixel_format(name)
+        for name in (
+            "yuv420p",
+            "yuv422p",
+            "yuv444p",
+            "nv12",
+            "nv21",
+            "rgb24",
+            "rgba",
+            "bgra",
+            "gray",
+            "yuvj420p",
+            "yuvj422p",
+        )
+    } == {
+        "yuv420p": 0,
+        "rgb24": 2,
+        "yuv422p": 4,
+        "yuv444p": 5,
+        "gray": 8,
+        "yuvj420p": 12,
+        "yuvj422p": 13,
+        "nv12": 23,
+        "nv21": 24,
+        "rgba": 26,
+        "bgra": 28,
+    }
 
 
 def test_missing_media_fails_with_shot_and_path(

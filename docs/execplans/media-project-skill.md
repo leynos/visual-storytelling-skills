@@ -11,7 +11,7 @@ Status: COMPLETE
 
 The `tools/media-project` command currently writes an `.osp` file that OpenShot
 can show on the timeline, but the generated clips do not have enough FFmpeg
-reader metadata for libopenshot to initialise playback reliably. After this
+reader metadata for libopenshot to initialize playback reliably. After this
 change, an agent can package completed `video-generator` output into an
 OpenShot project that opens and plays in OpenShot because every selected media
 file is probed with `ffprobe` and written as a full `FFmpegReader` object in

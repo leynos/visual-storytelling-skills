@@ -31,6 +31,16 @@ OPENSHOT_QT_PROJECT_VERSION = "3.3.0"
 LIBOPENSHOT_PROJECT_VERSION = "0.4.0"
 PIXEL_FORMATS = {
     "yuv420p": 0,
+    "rgb24": 2,
+    "yuv422p": 4,
+    "yuv444p": 5,
+    "gray": 8,
+    "yuvj420p": 12,
+    "yuvj422p": 13,
+    "nv12": 23,
+    "nv21": 24,
+    "rgba": 26,
+    "bgra": 28,
 }
 
 
@@ -309,7 +319,6 @@ def _timeline_clip(
         msg = f"Shot {shot_id} has incomplete generation status: {status or '<empty>'}"
         raise InputValidationError(msg)
 
-    _required_decimal(log_row, "duration_seconds", shot_id)
     media = _probe_media(
         context.ffprobe_path,
         source_clip_path,

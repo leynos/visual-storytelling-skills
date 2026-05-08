@@ -71,7 +71,7 @@ The `.osp` file contains ordered file entries, timeline clip entries, relative
 file paths, clip positions, probed media durations, volume curves, full
 `FFmpegReader` metadata for playback, and editable metadata for review and
 transition intent. File entries and clip reader entries both contain the probed
-reader metadata so libopenshot can initialise the selected videos for playback.
+reader metadata, so libopenshot can initialize the selected videos for playback.
 
 The sidecar JSON preserves production metadata for downstream review:
 

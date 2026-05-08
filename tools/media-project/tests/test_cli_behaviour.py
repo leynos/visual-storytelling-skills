@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pathlib
 import subprocess  # noqa: S404 - test invokes a trusted local Python module.
 import sys
 import typing as typ
@@ -13,8 +14,6 @@ from pytest_bdd import given, scenario, then, when
 from tests.fixtures import create_story_project
 
 if typ.TYPE_CHECKING:
-    import pathlib
-
     from cmd_mox.command_runner import Invocation
     from cmd_mox.controller import CmdMox
 
@@ -51,8 +50,11 @@ def run_packaging_command(
         _equals("-show_format"),
         _equals("-show_streams"),
         Predicate(
-            lambda value: value.startswith(
-                completed_generated_media_project.as_posix(),
+            lambda value: (
+                pathlib
+                .Path(value)
+                .resolve()
+                .is_relative_to(completed_generated_media_project.resolve())
             ),
         ),
     ).times(3).runs(_ffprobe_response)
