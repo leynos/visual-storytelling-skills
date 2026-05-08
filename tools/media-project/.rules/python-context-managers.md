@@ -23,6 +23,7 @@ Use this for straightforward procedural setup/teardown:
 ```python
 from contextlib import contextmanager
 
+
 @contextmanager
 def managed_file(path: str, mode: str):
     f = open(path, mode)
@@ -30,6 +31,7 @@ def managed_file(path: str, mode: str):
         yield f
     finally:
         f.close()
+
 
 # Usage:
 with managed_file("/tmp/data.txt", "w") as f:
@@ -52,6 +54,7 @@ class Resource:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.conn.close()
+
 
 # Usage:
 with Resource() as conn:

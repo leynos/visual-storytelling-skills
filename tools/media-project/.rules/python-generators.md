@@ -34,6 +34,7 @@ def iter_user_names(users):
         if user.active and user.name:
             yield user.name.upper()
 
+
 def get_names(users):
     return list(iter_user_names(users))
 ```
@@ -50,11 +51,10 @@ def get_names(users):
 ```python
 from itertools import islice
 
+
 def top_active_emails(users):
     emails = (
-        user.email.lower()
-        for user in users
-        if user.active and user.email is not None
+        user.email.lower() for user in users if user.active and user.email is not None
     )
     return list(islice(emails, 10))
 ```

@@ -20,14 +20,14 @@ stops before writing outputs.
 
 `generated/assembly_order.md` must contain these columns:
 
-| Column           | Purpose                                                      |
-| ---------------- | ------------------------------------------------------------ |
-| `Order`          | Final timeline order. The tool never uses filesystem order.  |
-| `Shot ID`        | Stable shot identifier.                                      |
-| `Sub-clip`       | Sub-clip identifier for decomposed shots.                    |
-| `Selected clip`  | Project-root-relative path to the selected local video file. |
-| `Boundary after` | Cut or transition intent after the clip.                     |
-| `Notes`          | Editable transition or review notes.                         |
+| Column           | Purpose                                                |
+| ---------------- | ------------------------------------------------------ |
+| `Order`          | Final timeline order. Never uses filesystem order.     |
+| `Shot ID`        | Stable shot identifier.                                |
+| `Sub-clip`       | Sub-clip identifier for decomposed shots.              |
+| `Selected clip`  | Project-root-relative path to the selected video file. |
+| `Boundary after` | Cut or transition intent after the clip.               |
+| `Notes`          | Editable transition or review notes.                   |
 
 `generated/generation_log.md` must contain the current video-generator columns
 plus `Duration seconds`. The OpenShot packager also preserves optional columns
@@ -50,8 +50,8 @@ uv run media-project package-openshot \
   --sidecar generated/media-project/media-project.json
 ```
 
-By default, the command refuses to overwrite an existing `.osp` or sidecar. Pass
- `--force` only when replacing those generated files is intentional.
+By default, the command refuses to overwrite an existing `.osp` or sidecar.
+Pass `--force` only when replacing those generated files is intentional.
 
 The default timeline settings are explicit and can be overridden:
 

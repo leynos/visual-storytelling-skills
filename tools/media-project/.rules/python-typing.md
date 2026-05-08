@@ -13,13 +13,16 @@ with integers or strings is required (e.g. for database or JSON serialisation).
 ```python
 import enum
 
+
 class Status(enum.Enum):
     PENDING = enum.auto()
     COMPLETE = enum.auto()
 
+
 class ErrorCode(enum.IntEnum):
     OK = 0
     NOT_FOUND = 404
+
 
 class Role(enum.StrEnum):
     ADMIN = enum.auto()
@@ -65,6 +68,7 @@ returns the same instance.
 ```python
 import typing
 
+
 class Builder:
     values: list[int]
 
@@ -86,9 +90,10 @@ enables static analysis tools to detect typos and signature mismatches.
 ```python
 import typing
 
+
 class Base:
-    def run(self) -> None:
-        ...
+    def run(self) -> None: ...
+
 
 class Child(Base):
     @typing.override
@@ -105,6 +110,7 @@ checkers.
 
 ```python
 import typing
+
 
 def is_str_list(val: list[object]) -> typing.TypeIs[list[str]]:
     return all(isinstance(x, str) for x in val)
@@ -123,9 +129,11 @@ import typing
 
 T = typing.TypeVar("T", default=int)
 
+
 class Box[T]:
     def __init__(self, value: T):
         self.value: T = value
+
 
 default_box = Box(0)  # inferred Box[int]
 text_box = Box[str]("hello")

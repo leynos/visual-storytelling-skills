@@ -32,8 +32,9 @@ as a default.
   integration constraints require them, and any exception must be documented
   inline.
 - Each script starts with an `uv` script block so runtime and dependency
-  expectations travel with the file. Prefer the shebang `#!/usr/bin/env -S uv
-  run python` followed by the metadata block shown in the example below.
+  expectations travel with the file. Prefer the shebang
+  `#!/usr/bin/env -S uv run python` followed by the metadata block shown in the
+  example below.
 - External processes are invoked via [`plumbum`](https://plumbum.readthedocs.io)
   to provide structured command execution rather than ad‑hoc shell strings.
 - File‑system interactions use `pathlib.Path`. Higher‑level operations (for
@@ -99,16 +100,16 @@ def main(
     # Required parameters
     bin_name: Annotated[str, Parameter(required=True)],
     version: Annotated[str, Parameter(required=True)],
-
     # Optional scalars
     package_name: Optional[str] = None,
     target: Optional[str] = None,
     outdir: Optional[Path] = None,
     dry_run: bool = False,
-
     # Lists (whitespace/newline separated by default)
     formats: list[str] | None = None,
-    man_paths: Annotated[list[Path] | None, Parameter(env_var="INPUT_MAN_PATHS")] = None,
+    man_paths: Annotated[
+        list[Path] | None, Parameter(env_var="INPUT_MAN_PATHS")
+    ] = None,
     deb_depends: list[str] | None = None,
     rpm_depends: list[str] | None = None,
 ):
@@ -158,7 +159,10 @@ Guidance:
 - Per‑parameter environment names can be pinned for backwards compatibility:
 
   ```python
-  config_out: Annotated[Optional[Path], Parameter(env_var="INPUT_CONFIG_PATH")] = None
+  config_out: Annotated[
+      Optional[Path],
+      Parameter(env_var="INPUT_CONFIG_PATH"),
+  ] = None
   ```
 
 ## plumbum: command calling and pipelines
@@ -256,7 +260,9 @@ f.write_text("1.2.3\n", encoding="utf-8")
 version = f.read_text(encoding="utf-8").strip()
 
 # Atomic write pattern (tmp → replace)
-with tempfile.NamedTemporaryFile("w", delete=False, dir=f.parent, encoding="utf-8") as tmp:
+with tempfile.NamedTemporaryFile(
+    "w", delete=False, dir=f.parent, encoding="utf-8"
+) as tmp:
     tmp.write("new-contents\n")
     tmp_path = Path(tmp.name)
 
@@ -301,6 +307,7 @@ from plumbum.cmd import git
 
 app = App(config=cyclopts.config.Env("INPUT_", command=False))
 
+
 @app.default
 def main(
     *,
@@ -324,6 +331,7 @@ def main(
         "formats": formats or [],
         "dist": str(dist),
     })
+
 
 if __name__ == "__main__":
     app()

@@ -444,11 +444,12 @@ def _openshot_project(
     request: PackageRequest,
     clips: list[TimelineClip],
 ) -> dict[str, JsonValue]:
+    display_ratio = _aspect_ratio(request.settings.width, request.settings.height)
     return {
         "channels": request.settings.channels,
         "channel_layout": request.settings.channel_layout,
         "clips": list(itertools.starmap(_openshot_clip, enumerate(clips, 1))),
-        "display_ratio": {"den": 9, "num": 16},
+        "display_ratio": _ratio(display_ratio),
         "duration": _json_number(
             sum((clip.duration_seconds for clip in clips), decimal.Decimal(0))
         ),

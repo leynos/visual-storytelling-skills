@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses as dc
 import decimal
 import pathlib
 import typing as typ
@@ -223,6 +224,26 @@ def test_openshot_project_uses_full_reader_and_keyframe_shapes(
     assert first_clip["volume"]["Points"][0]["co"] == {"X": 1.0, "Y": 0.0}
     assert project["width"] == 1920
     assert project["height"] == 1080
+
+
+def test_openshot_project_display_ratio_matches_requested_canvas(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Timeline display ratio is derived from requested output dimensions."""
+    create_story_project(tmp_path)
+    _stub_probe(monkeypatch)
+    request = dc.replace(
+        _request(tmp_path),
+        settings=ProjectSettings(width=1080, height=1920),
+    )
+
+    package_openshot_project(request)
+
+    project = msjson.decode(request.output.read_bytes())
+    assert project["width"] == 1080
+    assert project["height"] == 1920
+    assert project["display_ratio"] == {"den": 16, "num": 9}
 
 
 def test_assembly_order_alias_columns_are_supported(

@@ -116,9 +116,11 @@ def login_user(username: str, password: str) -> bool:
     """Return True if the user is authenticated."""
     ...
 
+
 # login_flow_test.py
 def test_login_success():
     assert login_user("alice", "correct-password") is True
+
 
 def test_login_failure():
     assert not login_user("alice", "wrong-password")
