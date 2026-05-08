@@ -29,14 +29,17 @@ OPENSHOT_GRAVITY_CENTER = 4
 OPENSHOT_SCALE_BEST_FIT = 1
 OPENSHOT_QT_PROJECT_VERSION = "3.3.0"
 LIBOPENSHOT_PROJECT_VERSION = "0.4.0"
+# Values are FFmpeg AVPixelFormat ordinals as consumed by libopenshot.
 PIXEL_FORMATS = {
     "yuv420p": 0,
     "rgb24": 2,
+    "bgr24": 3,
     "yuv422p": 4,
     "yuv444p": 5,
     "gray": 8,
     "yuvj420p": 12,
     "yuvj422p": 13,
+    "yuvj444p": 14,
     "nv12": 23,
     "nv21": 24,
     "rgba": 26,
@@ -127,7 +130,7 @@ class Ratio:
 
 @dc.dataclass(frozen=True)
 class MediaProbe:
-    """Media metadata required to initialise OpenShot's FFmpegReader."""
+    """Media metadata required to initialize OpenShot's FFmpegReader."""
 
     path: pathlib.PurePosixPath
     duration: decimal.Decimal
@@ -209,6 +212,7 @@ def build_timeline_clips(
 
 
 def _require_ffprobe() -> pathlib.Path:
+    """Return the ffprobe executable path or reject packaging."""
     executable = shutil.which("ffprobe")
     if executable is None:
         msg = (
@@ -220,6 +224,7 @@ def _require_ffprobe() -> pathlib.Path:
 
 
 def _read_table(path: pathlib.Path) -> list[dict[str, str]]:
+    """Read the first Markdown table from a required metadata file."""
     if not path.exists():
         msg = f"Required metadata file does not exist: {path}"
         raise InputValidationError(msg)
@@ -227,10 +232,12 @@ def _read_table(path: pathlib.Path) -> list[dict[str, str]]:
 
 
 def _selected_clip_value(row: dict[str, str]) -> str:
+    """Return the selected clip path from current or legacy columns."""
     return _required_alias(row, ("selected_clip", "file"), "selected_clip")
 
 
 def _boundary_after_value(row: dict[str, str]) -> str:
+    """Return the transition boundary from current or legacy columns."""
     return row.get("boundary_after", "") or row.get("boundary_next", "")
 
 
@@ -239,6 +246,7 @@ def _required_alias(
     names: tuple[str, ...],
     preferred_name: str,
 ) -> str:
+    """Return the first populated value among accepted metadata aliases."""
     for name in names:
         value = row.get(name, "").strip()
         if value:
@@ -248,6 +256,7 @@ def _required_alias(
 
 
 def _order_value(row: dict[str, str]) -> int:
+    """Return the numeric timeline order for an assembly row."""
     value = row.get("order", "")
     try:
         return int(value)
@@ -260,6 +269,7 @@ def _matching_generation_row(
     assembly_row: dict[str, str],
     generation_rows: list[dict[str, str]],
 ) -> dict[str, str]:
+    """Return the single generation row matching an assembly selection."""
     shot_id = _required(assembly_row, "shot_id")
     subclip_id = _required(assembly_row, "sub_clip")
     selected_clip = _selected_clip_value(assembly_row)
@@ -288,6 +298,7 @@ def _timeline_clip(
     log_row: dict[str, str],
     context: TimelineBuildContext,
 ) -> TimelineClip:
+    """Build a validated timeline clip from assembly and generation rows."""
     shot_id = _required(assembly_row, "shot_id")
     selected_clip = pathlib.Path(_selected_clip_value(assembly_row))
     if selected_clip.is_absolute() or ".." in selected_clip.parts:
@@ -363,6 +374,7 @@ def _probe_media(
     project_clip_path: pathlib.PurePosixPath,
     shot_id: str,
 ) -> MediaProbe:
+    """Probe a source clip and return OpenShot reader metadata."""
     command = [
         str(ffprobe_path),
         "-v",
@@ -402,6 +414,7 @@ def _media_probe_from_payload(
     source_clip_path: pathlib.Path,
     shot_id: str,
 ) -> MediaProbe:
+    """Convert ffprobe JSON payload into media metadata."""
     streams = _list_of_dicts(payload.get("streams"))
     format_data = _dict_value(payload.get("format"))
     video_stream = _first_stream(streams, "video", shot_id)
@@ -453,6 +466,7 @@ def _openshot_project(
     request: PackageRequest,
     clips: list[TimelineClip],
 ) -> dict[str, JsonValue]:
+    """Build the OpenShot project document for selected timeline clips."""
     display_ratio = _aspect_ratio(request.settings.width, request.settings.height)
     return {
         "channels": request.settings.channels,
@@ -501,14 +515,17 @@ def _openshot_project(
 
 
 def _profile_name(settings: ProjectSettings) -> str:
+    """Return the OpenShot profile label for project settings."""
     return f"HD {settings.height}p {settings.fps_num} fps"
 
 
 def _openshot_file(index: int, clip: TimelineClip) -> dict[str, JsonValue]:
+    """Build a project-level OpenShot file reader entry."""
     return _openshot_reader(_stable_id("file", index), clip.media, image="")
 
 
 def _openshot_clip(index: int, clip: TimelineClip) -> dict[str, JsonValue]:
+    """Build an OpenShot timeline clip entry."""
     duration = _json_number(clip.duration_seconds)
     file_id = _stable_id("file", index)
     volume = 0.0 if clip.mute_generated_audio else 1.0
@@ -569,6 +586,7 @@ def _openshot_clip(index: int, clip: TimelineClip) -> dict[str, JsonValue]:
 
 
 def _openshot_layer() -> dict[str, JsonValue]:
+    """Build the default generated-video OpenShot layer."""
     return {
         "id": "L1",
         "label": "Generated Video",
@@ -584,6 +602,7 @@ def _openshot_reader(
     *,
     image: str | None = None,
 ) -> dict[str, JsonValue]:
+    """Build an OpenShot FFmpegReader dictionary for probed media."""
     reader = {
         "acodec": media.acodec,
         "audio_bit_rate": media.audio_bit_rate,
@@ -623,6 +642,7 @@ def _openshot_reader(
 
 
 def _keyframe(value: float) -> dict[str, JsonValue]:
+    """Build a static OpenShot keyframe curve for one value."""
     return {
         "Points": [
             {
@@ -637,6 +657,7 @@ def _keyframe(value: float) -> dict[str, JsonValue]:
 
 
 def _wave_color() -> dict[str, JsonValue]:
+    """Build the default OpenShot waveform colour curve."""
     return {
         "alpha": _keyframe(255.0),
         "blue": _keyframe(255.0),
@@ -646,6 +667,7 @@ def _wave_color() -> dict[str, JsonValue]:
 
 
 def _ratio(value: Ratio) -> dict[str, JsonValue]:
+    """Serialize a ratio for OpenShot JSON."""
     return {"den": value.den, "num": value.num}
 
 
@@ -654,6 +676,7 @@ def _sidecar_metadata(
     request: PackageRequest,
     clips: list[TimelineClip],
 ) -> dict[str, JsonValue]:
+    """Build production sidecar metadata for the packaged project."""
     return {
         "project_id": project_id,
         "project_name": request.project_name,
@@ -665,6 +688,7 @@ def _sidecar_metadata(
 
 
 def _sidecar_clip(clip: TimelineClip) -> dict[str, JsonValue]:
+    """Build sidecar metadata for one timeline clip."""
     return typ.cast(
         "dict[str, JsonValue]",
         {
@@ -702,17 +726,20 @@ def _sidecar_clip(clip: TimelineClip) -> dict[str, JsonValue]:
 
 
 def _write_json(path: pathlib.Path, payload: dict[str, JsonValue]) -> None:
+    """Write deterministic JSON to a project output path."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(msjson.encode(payload, order="deterministic") + b"\n")
 
 
 def _list_of_dicts(value: JsonValue) -> list[dict[str, JsonValue]]:
+    """Return dictionary items from a JSON list value."""
     if not isinstance(value, list):
         return []
     return [item for item in value if isinstance(item, dict)]
 
 
 def _dict_value(value: JsonValue) -> dict[str, JsonValue]:
+    """Return a JSON dictionary value or an empty dictionary."""
     if not isinstance(value, dict):
         return {}
     return value
@@ -723,6 +750,7 @@ def _first_stream(
     codec_type: str,
     shot_id: str,
 ) -> dict[str, JsonValue]:
+    """Return the required first stream of the requested codec type."""
     stream = _optional_stream(streams, codec_type)
     if stream is None:
         msg = f"Shot {shot_id} media has no {codec_type} stream."
@@ -734,6 +762,7 @@ def _optional_stream(
     streams: list[dict[str, JsonValue]],
     codec_type: str,
 ) -> dict[str, JsonValue] | None:
+    """Return the first stream of the requested codec type when present."""
     return next(
         (
             stream
@@ -745,6 +774,7 @@ def _optional_stream(
 
 
 def _required_text(row: dict[str, JsonValue], name: str, shot_id: str) -> str:
+    """Return a required ffprobe text field."""
     value = row.get(name)
     if value is None or value == "":
         msg = f"Shot {shot_id} ffprobe metadata is missing {name}."
@@ -753,6 +783,7 @@ def _required_text(row: dict[str, JsonValue], name: str, shot_id: str) -> str:
 
 
 def _optional_text(row: dict[str, JsonValue] | None, name: str) -> str:
+    """Return an optional ffprobe text field."""
     if row is None:
         return ""
     value = row.get(name)
@@ -762,6 +793,7 @@ def _optional_text(row: dict[str, JsonValue] | None, name: str) -> str:
 
 
 def _required_int(row: dict[str, JsonValue], name: str, shot_id: str) -> int:
+    """Return a required ffprobe integer field."""
     value = _optional_int(row.get(name))
     if value is None:
         msg = f"Shot {shot_id} ffprobe metadata has invalid {name}."
@@ -770,6 +802,7 @@ def _required_int(row: dict[str, JsonValue], name: str, shot_id: str) -> int:
 
 
 def _optional_int(value: JsonValue) -> int | None:
+    """Return an integer parsed from a JSON value when possible."""
     if isinstance(value, int):
         return value
     if isinstance(value, str):
@@ -786,6 +819,7 @@ def _optional_audio_int(
     *,
     default: int = 0,
 ) -> int:
+    """Return an optional audio-stream integer field."""
     if audio_stream is None:
         return default
     return _optional_int(audio_stream.get(name)) or default
@@ -796,6 +830,7 @@ def _decimal_from_streams(
     format_data: dict[str, JsonValue],
     shot_id: str,
 ) -> decimal.Decimal:
+    """Return the effective media duration from ffprobe streams."""
     value = video_stream.get("duration") or format_data.get("duration")
     if value is None:
         msg = f"Shot {shot_id} ffprobe metadata is missing duration."
@@ -804,6 +839,7 @@ def _decimal_from_streams(
 
 
 def _ratio_from_text(value: str) -> Ratio:
+    """Parse an ffprobe ratio string."""
     separator = "/" if "/" in value else ":"
     numerator_text, denominator_text = value.split(separator, maxsplit=1)
     numerator = int(numerator_text)
@@ -815,17 +851,20 @@ def _ratio_from_text(value: str) -> Ratio:
 
 
 def _aspect_ratio(width: int, height: int) -> Ratio:
+    """Return a reduced display ratio for pixel dimensions."""
     divisor = _gcd(width, height)
     return Ratio(num=width // divisor, den=height // divisor)
 
 
 def _gcd(left: int, right: int) -> int:
+    """Return the greatest common divisor for two integers."""
     while right:
         left, right = right, left % right
     return left
 
 
 def _pixel_format(value: str) -> int:
+    """Return the OpenShot pixel-format constant for an ffprobe value."""
     pixel_format = PIXEL_FORMATS.get(value)
     if pixel_format is None:
         msg = f"Unsupported ffprobe pixel format for OpenShot mapping: {value}"
@@ -837,6 +876,7 @@ def _bit_rate(
     stream: dict[str, JsonValue] | None,
     format_data: dict[str, JsonValue],
 ) -> int:
+    """Return a stream or container bit-rate value."""
     if stream is None:
         return 0
     return (
@@ -847,11 +887,13 @@ def _bit_rate(
 
 
 def _frame_count(duration: decimal.Decimal, fps: Ratio) -> int:
+    """Return the nearest whole frame count for duration and frame rate."""
     frames = duration * decimal.Decimal(fps.num) / decimal.Decimal(fps.den)
     return int(frames.to_integral_value(rounding=decimal.ROUND_HALF_UP))
 
 
 def _channel_layout(audio_stream: dict[str, JsonValue] | None) -> int:
+    """Return the OpenShot audio channel-layout constant."""
     if audio_stream is None:
         return 0
     layout = _optional_text(audio_stream, "channel_layout").lower()
@@ -867,6 +909,7 @@ def _metadata(
     video_stream: dict[str, JsonValue],
     audio_stream: dict[str, JsonValue] | None,
 ) -> dict[str, str]:
+    """Merge container, video, and audio metadata tags."""
     metadata: dict[str, str] = {}
     for source in (
         _dict_value(format_data.get("tags")),
@@ -878,6 +921,7 @@ def _metadata(
 
 
 def _required(row: dict[str, str], name: str) -> str:
+    """Return a required normalized metadata field."""
     value = row.get(name, "").strip()
     if not value:
         msg = f"Required metadata field is empty: {name}"
@@ -890,6 +934,7 @@ def _required_decimal(
     name: str,
     shot_id: str,
 ) -> decimal.Decimal:
+    """Return a required decimal metadata field."""
     value = row.get(name, "")
     if not value:
         msg = f"Shot {shot_id} is missing duration_seconds metadata."
@@ -898,12 +943,14 @@ def _required_decimal(
 
 
 def _optional_decimal(value: str | None) -> decimal.Decimal:
+    """Return an optional decimal metadata field."""
     if not value:
         return decimal.Decimal(0)
     return _decimal_value(value, "Invalid transition duration")
 
 
 def _decimal_value(value: str, message: str) -> decimal.Decimal:
+    """Parse a non-negative decimal or raise a validation error."""
     try:
         parsed = decimal.Decimal(value)
     except decimal.InvalidOperation as exc:
@@ -915,14 +962,17 @@ def _decimal_value(value: str, message: str) -> decimal.Decimal:
 
 
 def _decimal_string(value: decimal.Decimal) -> str:
+    """Serialize a decimal without exponent notation."""
     return format(value.normalize(), "f")
 
 
 def _json_number(value: decimal.Decimal) -> float:
+    """Serialize a decimal as a JSON number."""
     return float(value)
 
 
 def _same_clip(log_clip: str, selected_clip: str) -> bool:
+    """Return whether two metadata clip paths describe the same clip."""
     return (
         pathlib.PurePosixPath(log_clip).as_posix()
         == pathlib.PurePosixPath(
@@ -935,11 +985,13 @@ def _path_relative_to_output(
     source_clip_path: pathlib.Path,
     output_path: pathlib.Path,
 ) -> pathlib.PurePosixPath:
+    """Return a source path relative to the OpenShot project file."""
     relative_path = os.path.relpath(source_clip_path, output_path.parent)
     return pathlib.PurePosixPath(pathlib.Path(relative_path).as_posix())
 
 
 def _normalise_state(value: str) -> str:
+    """Normalize free-text state for comparisons."""
     return value.strip().lower().replace(" ", "_").replace("-", "_")
 
 
@@ -947,6 +999,7 @@ def _transition_type(
     assembly_row: dict[str, str],
     log_row: dict[str, str],
 ) -> str:
+    """Return the normalized transition intent for a clip boundary."""
     value = log_row.get("transition_type", "") or assembly_row.get("boundary_after", "")
     transition = _normalise_state(value)
     if transition in {"", "hard_cut", "cut"}:
@@ -957,10 +1010,12 @@ def _transition_type(
 
 
 def _bool_value(value: str) -> bool:
+    """Return a boolean from common textual truthy values."""
     return _normalise_state(value) in {"1", "true", "yes", "y", "on"}
 
 
 def _split_values(value: str) -> list[str]:
+    """Return a list of comma-separated metadata values."""
     return [item.strip() for item in _split_commas(value) if item.strip()]
 
 
@@ -970,10 +1025,12 @@ def _split_commas(value: str) -> list[str]:
 
 
 def _stable_id(prefix: str, index: int) -> str:
+    """Return a deterministic OpenShot object identifier."""
     return f"{prefix}-{index:03d}"
 
 
 def _project_id(project_name: str, clips: list[TimelineClip]) -> str:
+    """Return a deterministic project identifier for clip contents."""
     digest = hashlib.sha256()
     digest.update(project_name.encode())
     for clip in clips:
@@ -983,6 +1040,7 @@ def _project_id(project_name: str, clips: list[TimelineClip]) -> str:
 
 
 def _optional_path(path: pathlib.Path | None) -> str:
+    """Serialize an optional project-relative path."""
     if path is None:
         return ""
     return path.as_posix()

@@ -46,7 +46,10 @@ def test_missing_ffprobe_hard_stops_before_reading_inputs(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Packaging refuses to run without ffprobe reader metadata support."""
-    monkeypatch.setattr(openshot_project.shutil, "which", lambda _name: None)
+    monkeypatch.setattr(
+        "media_project.openshot_project.shutil.which",
+        lambda _name: None,
+    )
 
     with pytest.raises(
         InputValidationError,
@@ -83,28 +86,33 @@ def test_common_ffmpeg_pixel_formats_are_supported() -> None:
             "yuv420p",
             "yuv422p",
             "yuv444p",
-            "nv12",
-            "nv21",
-            "rgb24",
-            "rgba",
-            "bgra",
-            "gray",
             "yuvj420p",
             "yuvj422p",
+            "yuvj444p",
+            "nv12",
+            "rgb24",
+            "bgr24",
         )
     } == {
         "yuv420p": 0,
-        "rgb24": 2,
+        "bgr24": 3,
         "yuv422p": 4,
         "yuv444p": 5,
-        "gray": 8,
         "yuvj420p": 12,
         "yuvj422p": 13,
+        "yuvj444p": 14,
         "nv12": 23,
-        "nv21": 24,
-        "rgba": 26,
-        "bgra": 28,
+        "rgb24": 2,
     }
+
+
+def test_unsupported_pixel_format_raises() -> None:
+    """Unknown ffprobe pixel formats fail with a targeted error."""
+    with pytest.raises(
+        InputValidationError,
+        match="Unsupported ffprobe pixel format for OpenShot mapping: xyz12",
+    ):
+        openshot_project._pixel_format("xyz12")
 
 
 def test_missing_media_fails_with_shot_and_path(
@@ -297,6 +305,33 @@ def test_openshot_project_display_ratio_matches_requested_canvas(
     assert project["width"] == 1080
     assert project["height"] == 1920
     assert project["display_ratio"] == {"den": 16, "num": 9}
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((1280, 720), {"den": 9, "num": 16}),
+        ((1920, 800), {"den": 5, "num": 12}),
+    ],
+)
+def test_non_16_9_display_ratio(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: tuple[tuple[int, int], dict[str, int]],
+) -> None:
+    """Display ratio follows requested canvas dimensions."""
+    create_story_project(tmp_path)
+    _stub_probe(monkeypatch)
+    (width, height), expected_ratio = case
+    request = dc.replace(
+        _request(tmp_path),
+        settings=ProjectSettings(width=width, height=height),
+    )
+
+    package_openshot_project(request)
+
+    project = msjson.decode(request.output.read_bytes())
+    assert project["display_ratio"] == expected_ratio
 
 
 def test_assembly_order_alias_columns_are_supported(
