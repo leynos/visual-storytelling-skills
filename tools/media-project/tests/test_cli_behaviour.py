@@ -116,8 +116,9 @@ def _ffprobe_response(invocation: Invocation) -> tuple[str, str, int]:
         "s01_sh002_take1.mp4": ("3.25", "78"),
         "s01_sh003_take3.mp4": ("1.75", "42"),
     }
+    media_name = pathlib.Path(path).name
     duration, frames = next(
-        (values for filename, values in durations.items() if path.endswith(filename)),
+        (values for filename, values in durations.items() if media_name == filename),
         ("1", "24"),
     )
     return (_ffprobe_json(duration, frames), "", 0)

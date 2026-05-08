@@ -6,6 +6,7 @@ import dataclasses as dc
 import decimal
 import hashlib
 import itertools
+import math
 import os
 import pathlib
 import shutil
@@ -120,7 +121,7 @@ class TimelineClip:
     media: MediaProbe
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(slots=True, frozen=True)
 class Ratio:
     """A libopenshot-style rational value."""
 
@@ -128,7 +129,7 @@ class Ratio:
     den: int
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(slots=True, frozen=True)
 class MediaProbe:
     """Media metadata required to initialize OpenShot's FFmpegReader."""
 
@@ -157,7 +158,7 @@ class MediaProbe:
     metadata: dict[str, str]
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(slots=True, frozen=True)
 class TimelineBuildContext:
     """Per-clip packaging context that is not part of source metadata."""
 
@@ -390,7 +391,13 @@ def _probe_media(
             command,
             check=True,
             capture_output=True,
+            timeout=30,
         )
+    except subprocess.TimeoutExpired as exc:
+        details = _timeout_details(exc)
+        suffix = f": {details}" if details else ""
+        msg = f"ffprobe timed out for shot {shot_id} media {source_clip_path}{suffix}"
+        raise InputValidationError(msg) from exc
     except subprocess.CalledProcessError as exc:
         details = exc.stderr.decode(errors="replace").strip()
         suffix = f": {details}" if details else ""
@@ -406,6 +413,22 @@ def _probe_media(
     return _media_probe_from_payload(
         payload, project_clip_path, source_clip_path, shot_id
     )
+
+
+def _timeout_details(exc: subprocess.TimeoutExpired) -> str:
+    """Return available output from a timed-out subprocess."""
+    stdout = _process_output_text(exc.stdout)
+    stderr = _process_output_text(exc.stderr)
+    return "\n".join(item for item in (stdout, stderr) if item).strip()
+
+
+def _process_output_text(value: bytes | str | None) -> str:
+    """Decode subprocess output to text."""
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode(errors="replace").strip()
+    return value.strip()
 
 
 def _media_probe_from_payload(
@@ -852,15 +875,8 @@ def _ratio_from_text(value: str) -> Ratio:
 
 def _aspect_ratio(width: int, height: int) -> Ratio:
     """Return a reduced display ratio for pixel dimensions."""
-    divisor = _gcd(width, height)
+    divisor = math.gcd(width, height)
     return Ratio(num=width // divisor, den=height // divisor)
-
-
-def _gcd(left: int, right: int) -> int:
-    """Return the greatest common divisor for two integers."""
-    while right:
-        left, right = right, left % right
-    return left
 
 
 def _pixel_format(value: str) -> int:
@@ -927,19 +943,6 @@ def _required(row: dict[str, str], name: str) -> str:
         msg = f"Required metadata field is empty: {name}"
         raise InputValidationError(msg)
     return value
-
-
-def _required_decimal(
-    row: dict[str, str],
-    name: str,
-    shot_id: str,
-) -> decimal.Decimal:
-    """Return a required decimal metadata field."""
-    value = row.get(name, "")
-    if not value:
-        msg = f"Shot {shot_id} is missing duration_seconds metadata."
-        raise InputValidationError(msg)
-    return _decimal_value(value, f"Shot {shot_id} has invalid duration_seconds")
 
 
 def _optional_decimal(value: str | None) -> decimal.Decimal:

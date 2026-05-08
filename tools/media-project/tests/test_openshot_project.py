@@ -78,6 +78,38 @@ def test_generation_log_duration_is_not_required_when_media_has_duration(
     assert project["clips"][0]["duration"] == pytest.approx(2.5)
 
 
+def test_ffprobe_timeout_raises_with_shot_and_path(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A hung ffprobe process fails with media context."""
+    media_path = tmp_path / "clip.mp4"
+    media_path.write_bytes(b"fake")
+
+    def raise_timeout(*_args: object, **_kwargs: object) -> typ.NoReturn:
+        raise openshot_project.subprocess.TimeoutExpired(
+            cmd=["ffprobe"],
+            timeout=30,
+            stderr=b"probe stalled",
+        )
+
+    monkeypatch.setattr(openshot_project.subprocess, "run", raise_timeout)
+    expected_message = (
+        rf"ffprobe timed out for shot S01_SH001 media {media_path}: probe stalled"
+    )
+
+    with pytest.raises(
+        InputValidationError,
+        match=expected_message,
+    ):
+        openshot_project._probe_media(
+            pathlib.Path("/usr/bin/ffprobe"),
+            media_path,
+            pathlib.PurePosixPath("clip.mp4"),
+            "S01_SH001",
+        )
+
+
 def test_common_ffmpeg_pixel_formats_are_supported() -> None:
     """Common ffprobe pixel formats map to libopenshot FFmpeg constants."""
     assert {
