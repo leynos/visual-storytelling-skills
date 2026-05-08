@@ -160,6 +160,34 @@ def test_optional_audio_int_preserves_zero() -> None:
     assert openshot_project._optional_audio_int({"index": 0}, "index", default=-1) == 0
 
 
+def test_invalid_aspect_ratio_dimensions_raise() -> None:
+    """Aspect-ratio dimensions must be positive."""
+    with pytest.raises(
+        InputValidationError,
+        match="Invalid aspect-ratio dimensions: 0x0",
+    ):
+        openshot_project._aspect_ratio(0, 0)
+
+
+def test_profile_name_uses_fractional_frame_rate() -> None:
+    """OpenShot profile labels include the effective frame rate."""
+    settings = ProjectSettings(height=1080, fps_num=30000, fps_den=1001)
+
+    assert openshot_project._profile_name(settings) == "HD 1080p 29.97 fps"
+
+
+def test_channel_layout_falls_back_to_channels() -> None:
+    """Unknown multichannel layouts are not forced to stereo."""
+    assert (
+        openshot_project._channel_layout(
+            {"channel_layout": "5.1", "channels": 6},
+        )
+        == 0
+    )
+    assert openshot_project._channel_layout({"channels": 1}) == 4
+    assert openshot_project._channel_layout({"channels": 2}) == 3
+
+
 def test_sample_aspect_ratio_updates_display_ratio(tmp_path: pathlib.Path) -> None:
     """Reader display ratio includes sample-aspect ratio metadata."""
     media_path = tmp_path / "clip.mp4"
@@ -358,7 +386,7 @@ def test_openshot_project_uses_full_reader_and_keyframe_shapes(
     assert project["layers"][0]["number"] == 1_000_000
     assert project["version"] == {"libopenshot": "0.4.0", "openshot-qt": "3.3.0"}
     assert project["fps"] == {"den": 1, "num": 24}
-    assert project["profile"] == "HD 1080p 24 fps"
+    assert project["profile"] == "HD 1080p 24.00 fps"
     assert first_clip["alpha"]["Points"][0]["co"] == {"X": 1.0, "Y": 1.0}
     assert first_clip["volume"]["Points"][0]["co"] == {"X": 1.0, "Y": 0.0}
     assert project["width"] == 1920

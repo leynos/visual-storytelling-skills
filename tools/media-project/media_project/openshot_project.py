@@ -25,6 +25,9 @@ type JsonValue = (
 ACCEPTED_REVIEW_STATES = frozenset({"accepted", "approved", "final", "selected"})
 COMPLETED_STATUSES = frozenset({"complete", "completed", "success", "succeeded"})
 DEFAULT_CHANNEL_LAYOUT = 3
+MONO_CHANNEL_COUNT = 1
+STEREO_CHANNEL_COUNT = 2
+MONO_CHANNEL_LAYOUT = 4
 DEFAULT_TRACK_LAYER = 1_000_000
 OPENSHOT_GRAVITY_CENTER = 4
 OPENSHOT_SCALE_BEST_FIT = 1
@@ -543,7 +546,9 @@ def _openshot_project(
 
 def _profile_name(settings: ProjectSettings) -> str:
     """Return the OpenShot profile label for project settings."""
-    return f"HD {settings.height}p {settings.fps_num} fps"
+    fps_den = settings.fps_den or 1
+    fps = settings.fps_num / fps_den
+    return f"HD {settings.height}p {fps:.2f} fps"
 
 
 def _openshot_file(index: int, clip: TimelineClip) -> dict[str, JsonValue]:
@@ -884,6 +889,9 @@ def _ratio_from_text(value: str) -> Ratio:
 
 def _aspect_ratio(width: int, height: int) -> Ratio:
     """Return a reduced display ratio for pixel dimensions."""
+    if width <= 0 or height <= 0:
+        msg = f"Invalid aspect-ratio dimensions: {width}x{height}"
+        raise InputValidationError(msg)
     divisor = math.gcd(width, height)
     return Ratio(num=width // divisor, den=height // divisor)
 
@@ -923,10 +931,28 @@ def _channel_layout(audio_stream: dict[str, JsonValue] | None) -> int:
         return 0
     layout = _optional_text(audio_stream, "channel_layout").lower()
     if layout == "stereo":
+        channel_layout = DEFAULT_CHANNEL_LAYOUT
+    elif layout == "mono":
+        channel_layout = MONO_CHANNEL_LAYOUT
+    else:
+        numeric_layout = _optional_int(audio_stream.get("channel_layout"))
+        channels = _optional_int(audio_stream.get("channels"))
+        channel_layout = _channel_layout_from_counts(numeric_layout, channels)
+    return channel_layout
+
+
+def _channel_layout_from_counts(
+    numeric_layout: int | None,
+    channels: int | None,
+) -> int:
+    """Return a channel layout from numeric layout or channel count."""
+    if numeric_layout is not None:
+        return numeric_layout
+    if channels == MONO_CHANNEL_COUNT:
+        return MONO_CHANNEL_LAYOUT
+    if channels == STEREO_CHANNEL_COUNT:
         return DEFAULT_CHANNEL_LAYOUT
-    if layout == "mono":
-        return 4
-    return _optional_int(audio_stream.get("channel_layout")) or DEFAULT_CHANNEL_LAYOUT
+    return 0
 
 
 def _metadata(
