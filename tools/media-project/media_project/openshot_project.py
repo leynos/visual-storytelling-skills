@@ -450,6 +450,9 @@ def _media_probe_from_payload(
         duration,
         fps,
     )
+    pixel_ratio = _ratio_from_text(
+        str(video_stream.get("sample_aspect_ratio") or "1:1")
+    )
     return MediaProbe(
         path=project_clip_path,
         duration=duration,
@@ -458,11 +461,12 @@ def _media_probe_from_payload(
         fps=fps,
         width=width,
         height=height,
-        display_ratio=_aspect_ratio(width, height),
-        pixel_format=_pixel_format(_required_text(video_stream, "pix_fmt", shot_id)),
-        pixel_ratio=_ratio_from_text(
-            str(video_stream.get("sample_aspect_ratio") or "1:1")
+        display_ratio=_aspect_ratio(
+            width * pixel_ratio.num,
+            height * pixel_ratio.den,
         ),
+        pixel_format=_pixel_format(_required_text(video_stream, "pix_fmt", shot_id)),
+        pixel_ratio=pixel_ratio,
         video_length=video_length,
         vcodec=_required_text(video_stream, "codec_name", shot_id),
         video_stream_index=_required_int(video_stream, "index", shot_id),
@@ -845,7 +849,8 @@ def _optional_audio_int(
     """Return an optional audio-stream integer field."""
     if audio_stream is None:
         return default
-    return _optional_int(audio_stream.get(name)) or default
+    value = _optional_int(audio_stream.get(name))
+    return default if value is None else value
 
 
 def _decimal_from_streams(
@@ -864,9 +869,13 @@ def _decimal_from_streams(
 def _ratio_from_text(value: str) -> Ratio:
     """Parse an ffprobe ratio string."""
     separator = "/" if "/" in value else ":"
-    numerator_text, denominator_text = value.split(separator, maxsplit=1)
-    numerator = int(numerator_text)
-    denominator = int(denominator_text)
+    try:
+        numerator_text, denominator_text = value.split(separator, maxsplit=1)
+        numerator = int(numerator_text)
+        denominator = int(denominator_text)
+    except ValueError as exc:
+        msg = f"Invalid ffprobe ratio: {value}"
+        raise InputValidationError(msg) from exc
     if numerator <= 0 or denominator <= 0:
         msg = f"Invalid ffprobe ratio: {value}"
         raise InputValidationError(msg)

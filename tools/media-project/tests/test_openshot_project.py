@@ -5,6 +5,7 @@ from __future__ import annotations
 import dataclasses as dc
 import decimal
 import pathlib
+import re
 import typing as typ
 
 import msgspec.json as msjson
@@ -95,7 +96,8 @@ def test_ffprobe_timeout_raises_with_shot_and_path(
 
     monkeypatch.setattr(openshot_project.subprocess, "run", raise_timeout)
     expected_message = (
-        rf"ffprobe timed out for shot S01_SH001 media {media_path}: probe stalled"
+        rf"ffprobe timed out for shot S01_SH001 media {re.escape(str(media_path))}: "
+        "probe stalled"
     )
 
     with pytest.raises(
@@ -145,6 +147,50 @@ def test_unsupported_pixel_format_raises() -> None:
         match="Unsupported ffprobe pixel format for OpenShot mapping: xyz12",
     ):
         openshot_project._pixel_format("xyz12")
+
+
+def test_invalid_ratio_text_raises_domain_error() -> None:
+    """Invalid ffprobe ratios fail with package validation errors."""
+    with pytest.raises(InputValidationError, match="Invalid ffprobe ratio: nope"):
+        openshot_project._ratio_from_text("nope")
+
+
+def test_optional_audio_int_preserves_zero() -> None:
+    """Zero-valued audio fields are not replaced by defaults."""
+    assert openshot_project._optional_audio_int({"index": 0}, "index", default=-1) == 0
+
+
+def test_sample_aspect_ratio_updates_display_ratio(tmp_path: pathlib.Path) -> None:
+    """Reader display ratio includes sample-aspect ratio metadata."""
+    media_path = tmp_path / "clip.mp4"
+    media_path.write_bytes(b"fake")
+    payload: dict[str, openshot_project.JsonValue] = {
+        "streams": [
+            {
+                "index": 0,
+                "codec_name": "h264",
+                "codec_type": "video",
+                "width": 720,
+                "height": 480,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "24/1",
+                "time_base": "1/12288",
+                "duration": "1",
+                "sample_aspect_ratio": "8:9",
+            },
+        ],
+        "format": {"duration": "1", "size": "10"},
+    }
+
+    media = openshot_project._media_probe_from_payload(
+        payload,
+        pathlib.PurePosixPath("clip.mp4"),
+        media_path,
+        "S01_SH001",
+    )
+
+    assert media.pixel_ratio == Ratio(num=8, den=9)
+    assert media.display_ratio == Ratio(num=4, den=3)
 
 
 def test_missing_media_fails_with_shot_and_path(
