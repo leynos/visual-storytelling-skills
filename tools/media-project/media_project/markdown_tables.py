@@ -15,7 +15,10 @@ class MarkdownTableError(ValueError):
 
 
 class _TableHtmlParser(html_parser.HTMLParser):
+    """Collect HTML table cell text produced from Markdown input."""
+
     def __init__(self) -> None:
+        """Create an empty parser state for Markdown table extraction."""
         super().__init__()
         self._active_cell: str | None = None
         self._active_row: list[str] | None = None
@@ -28,6 +31,7 @@ class _TableHtmlParser(html_parser.HTMLParser):
         tag: str,
         attrs: list[tuple[str, str | None]],
     ) -> None:
+        """Track table, row, and cell starts while parsing HTML."""
         del attrs
         if tag == "table":
             self._table = []
@@ -37,10 +41,12 @@ class _TableHtmlParser(html_parser.HTMLParser):
             self._active_cell = ""
 
     def handle_data(self, data: str) -> None:
+        """Append text to the active table cell."""
         if self._active_cell is not None:
             self._active_cell += data
 
     def handle_endtag(self, tag: str) -> None:
+        """Finalize active cells, rows, and tables at closing tags."""
         if tag in {"td", "th"} and self._active_cell is not None:
             if self._active_row is not None:
                 self._active_row.append(_collapse_whitespace(self._active_cell))
@@ -74,13 +80,16 @@ def read_first_table(markdown_text: str) -> list[MarkdownRow]:
 
 
 def _row_from_cells(headings: list[str], cells: list[str]) -> MarkdownRow:
+    """Map table cell values to normalized headings."""
     padded_cells = [*cells, *([""] * max(0, len(headings) - len(cells)))]
     return dict(zip(headings, padded_cells, strict=False))
 
 
 def _normalise_heading(value: str) -> str:
+    """Return a snake-case metadata key for a table heading."""
     return re.sub(r"[^a-z0-9]+", "_", value.strip().lower()).strip("_")
 
 
 def _collapse_whitespace(value: str) -> str:
+    """Return text with internal whitespace collapsed to single spaces."""
     return re.sub(r"\s+", " ", value).strip()
