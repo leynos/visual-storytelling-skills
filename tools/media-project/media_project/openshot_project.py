@@ -63,7 +63,7 @@ class OutputExistsError(MediaProjectError):
     """Raised when the output path exists and overwrite was not allowed."""
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(frozen=True, slots=True)
 class ProjectSettings:
     """OpenShot timeline settings used for generated project JSON."""
 
