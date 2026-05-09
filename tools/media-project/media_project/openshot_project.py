@@ -76,7 +76,7 @@ class ProjectSettings:
     channel_layout: int = DEFAULT_CHANNEL_LAYOUT
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(frozen=True, slots=True)
 class PackageRequest:
     """Input and output paths for one OpenShot packaging run."""
 
@@ -91,7 +91,7 @@ class PackageRequest:
     settings: ProjectSettings
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(frozen=True, slots=True)
 class TimelineClip:
     """A selected generated clip placed on the OpenShot timeline."""
 
