@@ -176,6 +176,22 @@ def test_profile_name_uses_fractional_frame_rate() -> None:
     assert openshot_project._profile_name(settings) == "HD 1080p 29.97 fps"
 
 
+@pytest.mark.parametrize(
+    ("settings", "message"),
+    [
+        ({"width": 0, "height": 1080}, "Invalid project dimensions: 0x1080"),
+        ({"fps_num": 24, "fps_den": 0}, "Invalid project frame rate: 24/0"),
+    ],
+)
+def test_project_settings_reject_invalid_values(
+    settings: dict[str, int],
+    message: str,
+) -> None:
+    """Project settings reject invalid dimensions and frame rates."""
+    with pytest.raises(InputValidationError, match=message):
+        ProjectSettings(**settings)
+
+
 def test_channel_layout_falls_back_to_channels() -> None:
     """Unknown multichannel layouts are not forced to stereo."""
     assert (

@@ -7,7 +7,6 @@ import decimal
 import hashlib
 import itertools
 import math
-import os
 import pathlib
 import shutil
 import subprocess  # noqa: S404 - ffprobe path is resolved before invocation.
@@ -74,6 +73,15 @@ class ProjectSettings:
     sample_rate: int = 44100
     channels: int = 2
     channel_layout: int = DEFAULT_CHANNEL_LAYOUT
+
+    def __post_init__(self) -> None:
+        """Validate timeline dimensions and frame-rate settings."""
+        if self.width <= 0 or self.height <= 0:
+            msg = f"Invalid project dimensions: {self.width}x{self.height}"
+            raise InputValidationError(msg)
+        if self.fps_num <= 0 or self.fps_den <= 0:
+            msg = f"Invalid project frame rate: {self.fps_num}/{self.fps_den}"
+            raise InputValidationError(msg)
 
 
 @dc.dataclass(frozen=True, slots=True)
@@ -546,8 +554,7 @@ def _openshot_project(
 
 def _profile_name(settings: ProjectSettings) -> str:
     """Return the OpenShot profile label for project settings."""
-    fps_den = settings.fps_den or 1
-    fps = settings.fps_num / fps_den
+    fps = settings.fps_num / settings.fps_den
     return f"HD {settings.height}p {fps:.2f} fps"
 
 
@@ -1024,8 +1031,16 @@ def _path_relative_to_output(
     output_path: pathlib.Path,
 ) -> pathlib.PurePosixPath:
     """Return a source path relative to the OpenShot project file."""
-    relative_path = os.path.relpath(source_clip_path, output_path.parent)
-    return pathlib.PurePosixPath(pathlib.Path(relative_path).as_posix())
+    output_parent = output_path.parent
+    try:
+        relative_path = source_clip_path.relative_to(output_parent, walk_up=True)
+    except ValueError as exc:
+        msg = (
+            f"Cannot make media path {source_clip_path} relative to output "
+            f"directory {output_parent}."
+        )
+        raise InputValidationError(msg) from exc
+    return pathlib.PurePosixPath(relative_path.as_posix())
 
 
 def _normalise_state(value: str) -> str:
