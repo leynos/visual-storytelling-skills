@@ -416,10 +416,14 @@ def _probe_media(
         raise InputValidationError(msg) from exc
 
     try:
-        payload = typ.cast("dict[str, JsonValue]", msjson.decode(result.stdout))
+        decoded = msjson.decode(result.stdout)
     except msgspec.DecodeError as exc:
         msg = f"ffprobe returned invalid JSON for shot {shot_id}: {source_clip_path}"
         raise InputValidationError(msg) from exc
+    if not isinstance(decoded, dict):
+        msg = f"ffprobe returned non-object JSON for shot {shot_id}: {source_clip_path}"
+        raise InputValidationError(msg)
+    payload = typ.cast("dict[str, JsonValue]", decoded)
 
     return _media_probe_from_payload(
         payload, project_clip_path, source_clip_path, shot_id
@@ -1031,7 +1035,7 @@ def _path_relative_to_output(
     output_path: pathlib.Path,
 ) -> pathlib.PurePosixPath:
     """Return a source path relative to the OpenShot project file."""
-    output_parent = output_path.parent
+    output_parent = output_path.resolve().parent
     try:
         relative_path = source_clip_path.relative_to(output_parent, walk_up=True)
     except ValueError as exc:

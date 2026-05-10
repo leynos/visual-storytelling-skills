@@ -112,6 +112,36 @@ def test_ffprobe_timeout_raises_with_shot_and_path(
         )
 
 
+def test_non_object_ffprobe_json_raises_with_context(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Probe JSON must be an object payload."""
+    media_path = tmp_path / "clip.mp4"
+    media_path.write_bytes(b"fake")
+
+    class Result:
+        stdout = b"[]"
+
+    monkeypatch.setattr(
+        openshot_project.subprocess,
+        "run",
+        lambda *_args, **_kwargs: Result(),
+    )
+
+    with pytest.raises(
+        InputValidationError,
+        match=rf"ffprobe returned non-object JSON for shot S01_SH001: "
+        rf"{re.escape(str(media_path))}",
+    ):
+        openshot_project._probe_media(
+            pathlib.Path("/usr/bin/ffprobe"),
+            media_path,
+            pathlib.PurePosixPath("clip.mp4"),
+            "S01_SH001",
+        )
+
+
 def test_common_ffmpeg_pixel_formats_are_supported() -> None:
     """Common ffprobe pixel formats map to libopenshot FFmpeg constants."""
     assert {
@@ -375,6 +405,23 @@ def test_openshot_asset_paths_are_relative_to_project_file(
         "../clips/s01_sh002_take1.mp4",
         "../clips/s01_sh003_take3.mp4",
     ]
+
+
+def test_relative_output_paths_still_make_relative_asset_paths(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Relative output paths are normalized before asset path calculation."""
+    source_clip_path = (tmp_path / "generated" / "clips" / "clip.mp4").resolve()
+    output_path = pathlib.Path("generated/media-project/story.osp")
+    monkeypatch.chdir(tmp_path)
+
+    relative_path = openshot_project._path_relative_to_output(
+        source_clip_path,
+        output_path,
+    )
+
+    assert relative_path == pathlib.PurePosixPath("../clips/clip.mp4")
 
 
 def test_openshot_project_uses_full_reader_and_keyframe_shapes(
