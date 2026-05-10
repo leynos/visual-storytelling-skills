@@ -26,6 +26,7 @@ dev = [
     "pytest-xdist",
     "pytest-bdd>=8.1.0",
     "syrupy>=5.1.0",
+    "cmd-mox>=0.2.0",
 ]
 
 [tool.ruff]

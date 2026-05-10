@@ -12,16 +12,22 @@ produced these project-root-relative files:
 - `generated/generation_log.md`
 - the selected local video files named by both tables
 
+`ffprobe` must be installed and available on `PATH`. The command probes every
+selected local video with
+`ffprobe -print_format json -show_format -show_streams` and uses that metadata
+to populate OpenShot `FFmpegReader` objects. If `ffprobe` is missing, packaging
+stops before writing outputs.
+
 `generated/assembly_order.md` must contain these columns:
 
-| Column           | Purpose                                                      |
-| ---------------- | ------------------------------------------------------------ |
-| `Order`          | Final timeline order. The tool never uses filesystem order.  |
-| `Shot ID`        | Stable shot identifier.                                      |
-| `Sub-clip`       | Sub-clip identifier for decomposed shots.                    |
-| `Selected clip`  | Project-root-relative path to the selected local video file. |
-| `Boundary after` | Cut or transition intent after the clip.                     |
-| `Notes`          | Editable transition or review notes.                         |
+| Column           | Purpose                                                |
+| ---------------- | ------------------------------------------------------ |
+| `Order`          | Final timeline order. Never uses filesystem order.     |
+| `Shot ID`        | Stable shot identifier.                                |
+| `Sub-clip`       | Sub-clip identifier for decomposed shots.              |
+| `Selected clip`  | Project-root-relative path to the selected video file. |
+| `Boundary after` | Cut or transition intent after the clip.               |
+| `Notes`          | Editable transition or review notes.                   |
 
 `generated/generation_log.md` must contain the current video-generator columns
 plus `Duration seconds`. The OpenShot packager also preserves optional columns
@@ -44,15 +50,15 @@ uv run media-project package-openshot \
   --sidecar generated/media-project/media-project.json
 ```
 
-By default, the command refuses to overwrite an existing `.osp` or sidecar. Pass
- `--force` only when replacing those generated files is intentional.
+By default, the command refuses to overwrite an existing `.osp` or sidecar.
+Pass `--force` only when replacing those generated files is intentional.
 
 The default timeline settings are explicit and can be overridden:
 
 | Option             | Default |
 | ------------------ | ------- |
-| `--width`          | `1344`  |
-| `--height`         | `768`   |
+| `--width`          | `1920`  |
+| `--height`         | `1080`  |
 | `--fps-num`        | `24`    |
 | `--fps-den`        | `1`     |
 | `--sample-rate`    | `44100` |
@@ -62,19 +68,20 @@ The default timeline settings are explicit and can be overridden:
 ## Outputs
 
 The `.osp` file contains ordered file entries, timeline clip entries, relative
-file paths, clip positions, durations, volume settings, and editable metadata
-for review and transition intent.
+file paths, clip positions, probed media durations, volume curves, full
+`FFmpegReader` metadata for playback, and editable metadata for review and
+transition intent. File entries and clip reader entries both contain the probed
+reader metadata, so libopenshot can initialize the selected videos for playback.
 
 The sidecar JSON preserves production metadata for downstream review:
 
 - shot, scene, sub-clip, take, and order identifiers;
-- source clip path, duration, and computed timeline position;
+- source clip path, effective duration, and computed timeline position;
 - transition type, transition duration, clip boundary, and notes;
 - audio-generation intent, including forced generated audio and downstream mute
   intent;
 - model, job ID, file size, actual resolution, prompt hash, prompt file,
-  continuity
-  flags, and review state.
+  continuity flags, and review state.
 
 `cut` clips are written as adjacent timeline clips. `dissolve` intent is
 preserved as metadata until a known-good OpenShot transition-effect JSON shape

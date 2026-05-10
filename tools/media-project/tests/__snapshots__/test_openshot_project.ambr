@@ -2,18 +2,13 @@
 # name: test_project_and_sidecar_json_match_snapshot
   dict({
     'openshot': dict({
-      'channel_layout': 3,
-      'channels': 2,
       'clips': list([
         dict({
-          'alpha': 1.0,
           'duration': 2.5,
-          'end': 2.5,
           'file_id': 'file-001',
-          'filepath': '../clips/s01_sh001_take2.mp4',
-          'gravity': 'center',
+          'gravity': 4,
           'id': 'clip-001',
-          'layer': 1,
+          'layer': 1000000,
           'metadata': dict({
             'clip_boundary': 'cut',
             'review_state': 'accepted',
@@ -22,19 +17,16 @@
             'transition_description': 'Hold first look.',
           }),
           'position': 0.0,
-          'scale': 'fit',
-          'start': 0.0,
+          'reader_type': 'FFmpegReader',
+          'scale': 1,
           'volume': 0.0,
         }),
         dict({
-          'alpha': 1.0,
           'duration': 3.25,
-          'end': 3.25,
           'file_id': 'file-002',
-          'filepath': '../clips/s01_sh002_take1.mp4',
-          'gravity': 'center',
+          'gravity': 4,
           'id': 'clip-002',
-          'layer': 1,
+          'layer': 1000000,
           'metadata': dict({
             'clip_boundary': 'dissolve',
             'review_state': 'approved',
@@ -43,19 +35,16 @@
             'transition_description': 'Match movement.',
           }),
           'position': 2.5,
-          'scale': 'fit',
-          'start': 0.0,
+          'reader_type': 'FFmpegReader',
+          'scale': 1,
           'volume': 1.0,
         }),
         dict({
-          'alpha': 1.0,
           'duration': 1.75,
-          'end': 1.75,
           'file_id': 'file-003',
-          'filepath': '../clips/s01_sh003_take3.mp4',
-          'gravity': 'center',
+          'gravity': 4,
           'id': 'clip-003',
-          'layer': 1,
+          'layer': 1000000,
           'metadata': dict({
             'clip_boundary': 'cut',
             'review_state': 'final',
@@ -64,54 +53,43 @@
             'transition_description': 'End on object.',
           }),
           'position': 5.75,
-          'scale': 'fit',
-          'start': 0.0,
+          'reader_type': 'FFmpegReader',
+          'scale': 1,
           'volume': 1.0,
         }),
-      ]),
-      'effects': list([
-      ]),
-      'exports': list([
       ]),
       'files': list([
         dict({
           'duration': 2.5,
           'id': 'file-001',
-          'media_type': 'video',
           'path': '../clips/s01_sh001_take2.mp4',
+          'type': 'FFmpegReader',
         }),
         dict({
           'duration': 3.25,
           'id': 'file-002',
-          'media_type': 'video',
           'path': '../clips/s01_sh002_take1.mp4',
+          'type': 'FFmpegReader',
         }),
         dict({
           'duration': 1.75,
           'id': 'file-003',
-          'media_type': 'video',
           'path': '../clips/s01_sh003_take3.mp4',
+          'type': 'FFmpegReader',
         }),
       ]),
-      'fps_den': 1,
-      'fps_num': 24,
-      'height': 768,
+      'height': 1080,
       'id': 'c860409794d453c3',
-      'markers': list([
+      'layers': list([
+        dict({
+          'id': 'L1',
+          'label': 'Generated Video',
+          'lock': False,
+          'number': 1000000,
+          'y': 0,
+        }),
       ]),
-      'metadata': dict({
-        'generator': 'media-project',
-        'project_name': 'snapshot-story',
-        'source_assembly_order': 'generated/assembly_order.md',
-        'source_generation_log': 'generated/generation_log.md',
-        'source_manifest': 'prompts/manifest.md',
-      }),
-      'sample_rate': 44100,
-      'version': dict({
-        'format': 'openshot-json',
-        'media_project': '0.1.0',
-      }),
-      'width': 1344,
+      'width': 1920,
     }),
     'sidecar': dict({
       'clips': list([

@@ -72,6 +72,13 @@ download takes, resume interrupted runs, and write assembly order:
 /video-generator
 ```
 
+When the clips are selected and the assembly order is ready, package
+them into an OpenShot project:
+
+```text
+/media-project
+```
+
 When the narration script is ready, phoneticize it before sending it to
 Eleven v3:
 
@@ -100,6 +107,7 @@ flowchart TD
     frames["Storyboard frames\nStart, end, and key frames"]
     prompts["Prompt manifest\nGeneration prompts, model routing, media roles"]
     videoGen["video-generator"]
+    mediaProject["media-project"]
     higgsfield["Higgsfield MCP\nSeedance 2.0, Kling 3.0, DoP/Cinema, Veo when approved"]
     clips["Generated takes\nDownloaded clips and job log"]
     assembly["Assembly order\nSelected takes and sub-clips"]
@@ -126,6 +134,7 @@ flowchart TD
     videoGen --> higgsfield
     higgsfield --> clips
     clips --> assembly
+    assembly --> mediaProject
 ```
 
 ______________________________________________________________________
@@ -137,6 +146,7 @@ ______________________________________________________________________
 | `scene-inventory-extractor-v2` | Reads a script or prose fragment; extracts characters, locations, props, and story state; generates the full reference-image library; produces a continuity inventory for reset-critical scenes. |
 | `shot-specifier` | Takes a scene inventory and produces numbered shot specs: actor position and movement, camera mount and motion, lens, lighting, effects, timing, storyboard keyframes, video prompts, and model routing. |
 | `video-generator` | Takes the prompt manifest and storyboard frames from the upstream skills; uses the Higgsfield MCP to prepare media, call video generation, poll jobs, download takes, resume interrupted runs, and write assembly order. |
+| `media-project` | Packages selected generated clips into a playable OpenShot `.osp` project with full FFmpegReader metadata. |
 | `seedance-2-deep-dive` | Distils Seedance 2.0 operating guidance: multimodal input planning, reference prioritization, duration and aspect defaults, prompt structure, quality/speed tradeoffs, settings sweeps, and failure triage. |
 | `kling-3-0-deep-dive` | Distils Kling 3.0 operating guidance: scene structure, camera language, Elements, Motion Control, image-to-video anchors, native audio/dialogue, product prompting, settings sweeps, and failure triage. |
 | `nanobanana` | Crafts structured prompts for the Nano Banana image MCP — generation, editing, character consistency, and multi-image fusion. |

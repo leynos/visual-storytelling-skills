@@ -12,6 +12,18 @@ wheels = [
 ]
 
 [[package]]
+name = "cmd-mox"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/29/a0/6c166408ec9a4cb1697cc22ca8f749f11a01a56027742c8abe8b50dc21c2/cmd_mox-0.2.0.tar.gz", hash = "sha256:01d3764fd330b6b5ea28acb84e18f736a778c6298259aae3186656b658301985", size = 122116, upload-time = "2025-11-27T02:50:44.096Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d8/77/53a0297ab2e3e8c83ec20f4476525aff827a163bece9a73b74ef3da9ed2c/cmd_mox-0.2.0-py3-none-any.whl", hash = "sha256:73da938977d556190d1246d9bde1e47da69aeefed7de557c7910984348b78bdc", size = 159271, upload-time = "2025-11-27T02:50:42.494Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -164,6 +176,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "cmd-mox" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-bdd" },
@@ -182,6 +195,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cmd-mox", specifier = ">=0.2.0" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-bdd", specifier = ">=8.1.0" },
@@ -343,6 +357,16 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/78/b4/439b179d1ff526791eb921115fca8e44e596a13efeda518b9d845a619450/pytest_xdist-3.8.0.tar.gz", hash = "sha256:7e578125ec9bc6050861aa93f2d59f1d8d085595d6551c2c90b6f4fad8d3a9f1", size = 88069, upload-time = "2025-07-01T13:30:59.346Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl", hash = "sha256:202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88", size = 46396, upload-time = "2025-07-01T13:30:56.632Z" },
+]
+
+[[package]]
+name = "pywin32"
+version = "311"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c9/31/097f2e132c4f16d99a22bfb777e0fd88bd8e1c634304e102f313af69ace5/pywin32-311-cp314-cp314-win32.whl", hash = "sha256:b7a2c10b93f8986666d0c803ee19b5990885872a7de910fc460f9b0c2fbf92ee", size = 8840714, upload-time = "2025-07-14T20:13:32.449Z" },
+    { url = "https://files.pythonhosted.org/packages/90/4b/07c77d8ba0e01349358082713400435347df8426208171ce297da32c313d/pywin32-311-cp314-cp314-win_amd64.whl", hash = "sha256:3aca44c046bd2ed8c90de9cb8427f581c479e594e99b5c0bb19b29c10fd6cb87", size = 9656800, upload-time = "2025-07-14T20:13:34.312Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/d2/21af5c535501a7233e734b8af901574572da66fcc254cb35d0609c9080dd/pywin32-311-cp314-cp314-win_arm64.whl", hash = "sha256:a508e2d9025764a8270f93111a970e1d0fbfc33f4153b388bb649b7eec4f9b42", size = 8932540, upload-time = "2025-07-14T20:13:36.379Z" },
 ]
 
 [[package]]
