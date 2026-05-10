@@ -485,7 +485,7 @@ def test_openshot_project_display_ratio_matches_requested_canvas(
 
 
 @pytest.mark.parametrize(
-    "case",
+    ("dimensions", "expected_ratio"),
     [
         ((1280, 720), {"den": 9, "num": 16}),
         ((1920, 800), {"den": 5, "num": 12}),
@@ -494,12 +494,13 @@ def test_openshot_project_display_ratio_matches_requested_canvas(
 def test_non_16_9_display_ratio(
     tmp_path: pathlib.Path,
     monkeypatch: pytest.MonkeyPatch,
-    case: tuple[tuple[int, int], dict[str, int]],
+    dimensions: tuple[int, int],
+    expected_ratio: dict[str, int],
 ) -> None:
     """Display ratio follows requested canvas dimensions."""
     create_story_project(tmp_path)
     _stub_probe(monkeypatch)
-    (width, height), expected_ratio = case
+    width, height = dimensions
     request = dc.replace(
         _request(tmp_path),
         settings=ProjectSettings(width=width, height=height),
