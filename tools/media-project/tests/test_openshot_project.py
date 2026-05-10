@@ -179,6 +179,14 @@ def test_unsupported_pixel_format_raises() -> None:
         openshot_project._pixel_format("xyz12")
 
 
+def test_same_clip_matches_windows_and_posix_paths() -> None:
+    """Clip metadata paths match across Windows and POSIX separators."""
+    assert openshot_project._same_clip(
+        r"generated\clips\s01_sh001_take2.mp4",
+        "generated/clips/s01_sh001_take2.mp4",
+    )
+
+
 def test_invalid_ratio_text_raises_domain_error() -> None:
     """Invalid ffprobe ratios fail with package validation errors."""
     with pytest.raises(InputValidationError, match="Invalid ffprobe ratio: nope"):
@@ -542,6 +550,7 @@ def _replace_in_generated_tables(
 
 
 def _openshot_summary(project: dict[str, typ.Any]) -> dict[str, typ.Any]:
+    """Return a minimal summary of an OpenShot project dict."""
     return {
         "height": project["height"],
         "id": project["id"],
@@ -589,6 +598,7 @@ def _request(root: pathlib.Path) -> PackageRequest:
 
 
 def _stub_probe(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Monkeypatch ffprobe and media probing for tests."""
     monkeypatch.setattr(
         "media_project.openshot_project._require_ffprobe",
         lambda: pathlib.Path("/usr/bin/ffprobe"),
@@ -602,6 +612,7 @@ def _fake_probe(
     project_clip_path: pathlib.PurePosixPath,
     _shot_id: str,
 ) -> MediaProbe:
+    """Return a fake MediaProbe for a given project clip path."""
     durations = {
         "s01_sh001_take2.mp4": "2.5",
         "s01_sh002_take1.mp4": "3.25",

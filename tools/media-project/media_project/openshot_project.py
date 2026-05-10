@@ -64,7 +64,31 @@ class OutputExistsError(MediaProjectError):
 
 @dc.dataclass(frozen=True, slots=True)
 class ProjectSettings:
-    """OpenShot timeline settings used for generated project JSON."""
+    """OpenShot timeline settings used for generated project JSON.
+
+    Parameters
+    ----------
+    width
+        Canvas width in pixels. Must be positive.
+    height
+        Canvas height in pixels. Must be positive.
+    fps_num
+        Frame-rate numerator. Must be positive.
+    fps_den
+        Frame-rate denominator. Must be positive.
+    sample_rate
+        Audio sample rate written to the project profile.
+    channels
+        Number of output audio channels written to the project profile.
+    channel_layout
+        OpenShot channel-layout identifier for the output profile.
+
+    Raises
+    ------
+    InputValidationError
+        Raised when dimensions or frame-rate values are non-positive.
+
+    """
 
     width: int = 1920
     height: int = 1080
@@ -86,7 +110,32 @@ class ProjectSettings:
 
 @dc.dataclass(frozen=True, slots=True)
 class PackageRequest:
-    """Input and output paths for one OpenShot packaging run."""
+    """Input and output paths for one OpenShot packaging run.
+
+    Parameters
+    ----------
+    project_root
+        Root directory that contains generated media and metadata.
+    assembly_order
+        Markdown table path, relative to ``project_root``, listing selected
+        clips in timeline order.
+    generation_log
+        Markdown table path, relative to ``project_root``, containing generated
+        clip metadata.
+    output
+        Destination path for the OpenShot ``.osp`` file.
+    sidecar
+        Destination path for the media-project sidecar JSON.
+    source_manifest
+        Optional prompt manifest path recorded in sidecar metadata.
+    project_name
+        Stable project name used for generated identifiers.
+    force
+        Whether existing output files may be overwritten.
+    settings
+        Timeline and profile settings for the OpenShot project.
+
+    """
 
     project_root: pathlib.Path
     assembly_order: pathlib.Path
@@ -101,7 +150,49 @@ class PackageRequest:
 
 @dc.dataclass(frozen=True, slots=True)
 class TimelineClip:
-    """A selected generated clip placed on the OpenShot timeline."""
+    """A selected generated clip placed on the OpenShot timeline.
+
+    Parameters
+    ----------
+    shot_id, scene_id, subclip_id
+        Source identifiers copied from assembly and generation metadata.
+    order_index
+        Timeline ordering key for the selected clip.
+    source_clip_path
+        Absolute local path to the generated media file.
+    source_clip_project_path, project_clip_path
+        POSIX paths stored in OpenShot and sidecar metadata.
+    take_id
+        Selected take identifier for the shot.
+    duration_seconds, position_seconds
+        Clip duration and start position in timeline seconds.
+    transition_type, transition_duration, transition_description
+        Transition metadata associated with the clip boundary.
+    clip_boundary
+        Boundary state used by downstream review tooling.
+    review_state, status
+        Selection and generation status copied from source metadata.
+    mute_generated_audio, forced_generated_audio
+        Audio policy flags for the selected clip.
+    recommended_model
+        Model recommendation copied from generation metadata.
+    job_ids
+        Generation job identifiers associated with the selected clip.
+    actual_file_size, actual_resolution, prompt_hash, prompt_file
+        Audit metadata copied from the generation log.
+    continuity_flags
+        Continuity review flags associated with the clip.
+    notes
+        Reviewer notes copied from the selected source row.
+    media
+        Probed media metadata used to build the OpenShot reader.
+
+    Notes
+    -----
+    Instances are immutable snapshots of validated source rows and probed media
+    metadata.
+
+    """
 
     shot_id: str
     scene_id: str
@@ -134,7 +225,21 @@ class TimelineClip:
 
 @dc.dataclass(slots=True, frozen=True)
 class Ratio:
-    """A libopenshot-style rational value."""
+    """A libopenshot-style rational value.
+
+    Parameters
+    ----------
+    num
+        Positive numerator.
+    den
+        Positive denominator.
+
+    Notes
+    -----
+    Ratios are expected to be reduced before serialisation when they describe
+    project or media geometry.
+
+    """
 
     num: int
     den: int
@@ -142,7 +247,45 @@ class Ratio:
 
 @dc.dataclass(slots=True, frozen=True)
 class MediaProbe:
-    """Media metadata required to initialize OpenShot's FFmpegReader."""
+    """Media metadata required to initialize OpenShot's FFmpegReader.
+
+    Parameters
+    ----------
+    path
+        POSIX project path to the media file.
+    duration
+        Media duration in seconds.
+    file_size
+        Size of the media file in bytes.
+    fps
+        Video frame rate.
+    width, height
+        Video stream dimensions in pixels.
+    display_ratio
+        Video display aspect ratio after sample-aspect correction.
+    pixel_format
+        OpenShot pixel-format identifier.
+    pixel_ratio
+        Video sample aspect ratio.
+    video_length
+        Video stream length in frames.
+    vcodec, video_stream_index, video_timebase, video_bit_rate
+        Video codec and stream metadata.
+    has_audio
+        Whether a usable audio stream was probed.
+    acodec, audio_stream_index, audio_timebase, audio_bit_rate
+        Audio codec and stream metadata.
+    sample_rate, channels, channel_layout
+        Audio stream shape used by the OpenShot reader.
+    metadata
+        Container metadata copied into the project file.
+
+    Notes
+    -----
+    Values mirror the subset of ffprobe data required by libopenshot to open
+    generated media reliably.
+
+    """
 
     path: pathlib.PurePosixPath
     duration: decimal.Decimal
@@ -171,14 +314,40 @@ class MediaProbe:
 
 @dc.dataclass(slots=True, frozen=True)
 class TimelineBuildContext:
-    """Per-clip packaging context that is not part of source metadata."""
+    """Per-clip packaging context that is not part of source metadata.
+
+    Parameters
+    ----------
+    position
+        Start position for the next timeline clip in seconds.
+    ffprobe_path
+        Resolved ffprobe executable used for media probing.
+
+    """
 
     position: decimal.Decimal
     ffprobe_path: pathlib.Path
 
 
 def package_openshot_project(request: PackageRequest) -> None:
-    """Write deterministic OpenShot project and sidecar JSON files."""
+    """Write deterministic OpenShot project and sidecar JSON files.
+
+    Parameters
+    ----------
+    request
+        Packaging request containing source metadata, destinations, and project
+        settings.
+
+    Raises
+    ------
+    InputValidationError
+        Raised when required source metadata, media files, ffprobe, or probed
+        media values are invalid.
+    OutputExistsError
+        Raised when an output destination already exists and ``force`` is
+        false.
+
+    """
     ffprobe_path = _require_ffprobe()
     if request.output.exists() and not request.force:
         msg = f"Output already exists: {request.output}"
@@ -200,7 +369,29 @@ def build_timeline_clips(
     *,
     ffprobe_path: pathlib.Path | None = None,
 ) -> list[TimelineClip]:
-    """Parse inputs, validate selected media, and compute clip positions."""
+    """Parse inputs, validate selected media, and compute clip positions.
+
+    Parameters
+    ----------
+    request
+        Packaging request containing the assembly order and generation log.
+    ffprobe_path
+        Optional resolved ffprobe executable. When omitted, the executable is
+        discovered before reading media metadata.
+
+    Returns
+    -------
+    list[TimelineClip]
+        Selected clips in timeline order with cumulative positions and probed
+        media metadata.
+
+    Raises
+    ------
+    InputValidationError
+        Raised when source tables, selected media, or probed media metadata are
+        invalid.
+
+    """
     resolved_ffprobe_path = ffprobe_path or _require_ffprobe()
     assembly_rows = _read_table(request.project_root / request.assembly_order)
     generation_rows = _read_table(request.project_root / request.generation_log)
@@ -1023,10 +1214,8 @@ def _json_number(value: decimal.Decimal) -> float:
 def _same_clip(log_clip: str, selected_clip: str) -> bool:
     """Return whether two metadata clip paths describe the same clip."""
     return (
-        pathlib.PurePosixPath(log_clip).as_posix()
-        == pathlib.PurePosixPath(
-            selected_clip,
-        ).as_posix()
+        pathlib.PureWindowsPath(log_clip).as_posix()
+        == pathlib.PureWindowsPath(selected_clip).as_posix()
     )
 
 
