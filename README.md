@@ -1,5 +1,8 @@
 # 🎬 visual-storytelling-skills
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](
+https://deepwiki.com/leynos/visual-storytelling-skills)
+
 *Agent skills for AI film production — from prose to picture.*
 
 [![Visual storytelling skills banner](https://raw.githubusercontent.com/leynos/visual-storytelling-skills/main/assets/skill-pack-banner.png)](https://raw.githubusercontent.com/leynos/visual-storytelling-skills/main/assets/skill-pack-banner.png)
