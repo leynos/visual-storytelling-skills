@@ -3,16 +3,30 @@ updates:
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "github-actions"
     schedule:
-      interval: "weekly"
+      interval: "daily"
 
   # Enable version updates for Python (pip / requirements*.txt)
   - package-ecosystem: "pip"
     directory: "/tools/media-project"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
