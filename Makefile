@@ -9,7 +9,8 @@ INTERROGATE_VERSION ?= 1.7.0
 INTERROGATE_TARGETS ?= skills tools
 # The media-project tool declares Python 3.14 or later and uses `type` aliases,
 # which older interpreters cannot parse, so ask for a compatible interpreter.
-INTERROGATE = $(UV) tool run --python '>=3.14' --from 'interrogate==$(INTERROGATE_VERSION)' interrogate --fail-under 100
+INTERROGATE = $(UV) tool run --python '>=3.14' --from 'interrogate==$(INTERROGATE_VERSION)' interrogate --fail-under 100 \
+	--exclude '*/.venv' --exclude '*/.uv-cache' --exclude '*/.uv-tools'
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
