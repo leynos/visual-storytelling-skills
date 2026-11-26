@@ -88,6 +88,7 @@ def test_ffprobe_timeout_raises_with_shot_and_path(
     media_path.write_bytes(b"fake")
 
     def raise_timeout(*_args: object, **_kwargs: object) -> typ.NoReturn:
+        """Raise a TimeoutExpired error for any subprocess call."""
         raise openshot_project.subprocess.TimeoutExpired(
             cmd=["ffprobe"],
             timeout=30,
@@ -121,6 +122,7 @@ def test_non_object_ffprobe_json_raises_with_context(
     media_path.write_bytes(b"fake")
 
     class Result:
+        """Stand in for a subprocess result with a non-object JSON payload."""
         stdout = b"[]"
 
     monkeypatch.setattr(
@@ -540,6 +542,7 @@ def _replace_in_generated_tables(
     old_value: str,
     new_value: str,
 ) -> None:
+    """Replace a value in the generated assembly order and generation log."""
     for path in (
         root / "generated" / "assembly_order.md",
         root / "generated" / "generation_log.md",
@@ -585,6 +588,7 @@ def _openshot_summary(project: dict[str, typ.Any]) -> dict[str, typ.Any]:
 
 
 def _request(root: pathlib.Path) -> PackageRequest:
+    """Build a package request for the given project root."""
     return PackageRequest(
         project_root=root,
         assembly_order=pathlib.Path("generated/assembly_order.md"),

@@ -75,6 +75,7 @@ def run_packaging_command(
 
 
 def _equals(expected: str) -> Predicate:
+    """Build a predicate that matches the expected string exactly."""
     return Predicate(lambda value: value == expected)
 
 
@@ -110,6 +111,7 @@ def project_and_sidecar_are_written(
 
 
 def _ffprobe_response(invocation: Invocation) -> tuple[str, str, int]:
+    """Return successful fake ffprobe output for the probed media file."""
     path = invocation.args[-1]
     durations = {
         "s01_sh001_take2.mp4": ("2.5", "60"),
@@ -125,6 +127,7 @@ def _ffprobe_response(invocation: Invocation) -> tuple[str, str, int]:
 
 
 def _ffprobe_json(duration: str, frames: str) -> str:
+    """Build an ffprobe JSON payload with the given duration and frames."""
     return f"""
 {{
   "streams": [
