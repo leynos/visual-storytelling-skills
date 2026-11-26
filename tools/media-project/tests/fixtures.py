@@ -65,6 +65,7 @@ def create_story_project(root: pathlib.Path) -> None:
 
 
 def _generation_log_markdown() -> str:
+    """Return a generation log markdown table with sample rows."""
     return _markdown_table(
         "Generation Log",
         (
@@ -151,6 +152,7 @@ def _generation_log_markdown() -> str:
 
 
 def _generation_row(row: dict[str, str]) -> tuple[str, ...]:
+    """Map a generation row mapping to ordered markdown table cells."""
     shot_id = row["shot_id"]
     take = row["take"]
     job_id = row["job_id"]
@@ -184,6 +186,7 @@ def _markdown_table(
     headings: tuple[str, ...],
     rows: tuple[tuple[str, ...], ...],
 ) -> str:
+    """Render a titled markdown table from headings and row cells."""
     header = "| " + " | ".join(headings) + " |"
     separator = "| " + " | ".join("---" for _heading in headings) + " |"
     body = "\n".join("| " + " | ".join(row) + " |" for row in rows)

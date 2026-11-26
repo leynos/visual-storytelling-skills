@@ -138,6 +138,7 @@ SENTENCE_END = re.compile(r"[.!?]\s+$")
 
 @dataclass
 class Candidate:
+    """Hold a pronunciation candidate lemma, its category, and occurrences."""
     lemma: str
     category: str
     tokens: list[str] = field(default_factory=list)
@@ -311,6 +312,7 @@ def find_candidates(text: str, allowlist: set[str]) -> list[Candidate]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Extract pronunciation candidates from a script into a JSON file."""
     parser = argparse.ArgumentParser(
         description="Extract pronunciation candidates from a TTS script."
     )
