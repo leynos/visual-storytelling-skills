@@ -3,12 +3,13 @@
 UV ?= uv
 
 # Interrogate measures docstring presence in the Python files under
-# INTERROGATE_TARGETS; add a new Python directory there. No `--python` pin: a
-# managed interpreter would be downloaded.
+# INTERROGATE_TARGETS; add a new Python directory there.
 INTERROGATE_VERSION ?= 1.7.0
 INTERROGATE_TARGETS ?= skills tools
 # The media-project tool declares Python 3.14 or later and uses `type` aliases,
-# which older interpreters cannot parse, so ask for a compatible interpreter.
+# which older interpreters cannot parse, so ask for a compatible interpreter
+# (uv may download one). The excluded directories are the tool's own
+# environment and caches.
 INTERROGATE = $(UV) tool run --python '>=3.14' --from 'interrogate==$(INTERROGATE_VERSION)' interrogate --fail-under 100 \
 	--exclude '*/.venv' --exclude '*/.uv-cache' --exclude '*/.uv-tools'
 
