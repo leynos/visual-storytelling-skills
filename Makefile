@@ -11,7 +11,7 @@ UV_GATE ?= python3 scripts/uv_gate.py
 # Interrogate measures docstring presence in the Python files under
 # INTERROGATE_TARGETS; add a new Python directory there.
 INTERROGATE_VERSION ?= 1.7.0
-INTERROGATE_TARGETS ?= skills tools
+INTERROGATE_TARGETS ?= scripts skills tools
 # The media-project tool declares Python 3.14 or later and uses `type` aliases,
 # which older interpreters cannot parse, so ask for a compatible interpreter
 # (uv may download one). The excluded directories are the tool's own
