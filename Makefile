@@ -5,7 +5,10 @@
 # https://github.com/leynos/shared-actions/tree/main/uv_gate for the contract.
 # `scripts/uv_gate.py` is the shared-actions helper, vendored byte for byte, so
 # update it by copying the canonical file, never by editing it here. The helper
-# finds uv on PATH, so there is no UV override: put the uv you want first.
+# finds uv on PATH (outside ~/.lody, which it removes), so there is no UV
+# override: put the uv you want first. It needs python3 3.9 or newer. A uv
+# that reports only `Git operation failed` for a Git source missing from the
+# cache is not retried online: warm the cache once with `uv tool run`.
 UV_GATE ?= python3 scripts/uv_gate.py
 
 # Interrogate measures docstring presence in the Python files under
