@@ -4,7 +4,8 @@
 # uses the global uv cache, runs offline first and goes online at most once. See
 # https://github.com/leynos/shared-actions/tree/main/uv_gate for the contract.
 # `scripts/uv_gate.py` is the shared-actions helper, vendored byte for byte, so
-# update it by copying the canonical file, never by editing it here.
+# update it by copying the canonical file, never by editing it here. The helper
+# finds uv on PATH, so there is no UV override: put the uv you want first.
 UV_GATE ?= python3 scripts/uv_gate.py
 
 # Interrogate measures docstring presence in the Python files under
